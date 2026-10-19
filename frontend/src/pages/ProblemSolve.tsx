@@ -25,6 +25,8 @@ import {
   Settings2,
   FileCode,
   AlertTriangle,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 
 export const ProblemSolve: FC = () => {
@@ -49,11 +51,14 @@ export const ProblemSolve: FC = () => {
     space_complexity: string;
   } | null>(null);
 
-  // Execution states
+  // Execution & Layout states
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeBottomTab, setActiveBottomTab] = useState<'tests' | 'compiler' | 'history'>('tests');
-  const [isBottomPanelCollapsed, setIsBottomPanelCollapsed] = useState(false);
+  const [isBottomPanelOpen, setIsBottomPanelOpen] = useState(false);
+  const [isBottomPanelExpanded, setIsBottomPanelExpanded] = useState(false);
+  const [isEditorMaximized, setIsEditorMaximized] = useState(false);
+  const [mobileView, setMobileView] = useState<'problem' | 'code' | 'split'>('split');
 
   // Results
   const [runResult, setRunResult] = useState<RunResponse | null>(null);
@@ -118,7 +123,7 @@ export const ProblemSolve: FC = () => {
     if (!slug || isRunning || isSubmitting) return;
     try {
       setIsRunning(true);
-      setIsBottomPanelCollapsed(false);
+      setIsBottomPanelOpen(true);
       setActiveBottomTab('tests');
       const res = await api.runCode(slug, code);
       setRunResult(res);
@@ -144,7 +149,7 @@ export const ProblemSolve: FC = () => {
     if (!slug || isRunning || isSubmitting) return;
     try {
       setIsSubmitting(true);
-      setIsBottomPanelCollapsed(false);
+      setIsBottomPanelOpen(true);
       setActiveBottomTab('tests');
       const res = await api.submitCode(slug, code);
       setSubmissionResult(res);
@@ -250,6 +255,40 @@ export const ProblemSolve: FC = () => {
           </div>
         </div>
 
+        {/* View Mode Switcher for smaller screens */}
+        <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-lg border border-slate-800 lg:hidden">
+          <button
+            onClick={() => setMobileView('problem')}
+            className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
+              mobileView === 'problem'
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Problem
+          </button>
+          <button
+            onClick={() => setMobileView('code')}
+            className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
+              mobileView === 'code'
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Editor
+          </button>
+          <button
+            onClick={() => setMobileView('split')}
+            className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
+              mobileView === 'split'
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Split
+          </button>
+        </div>
+
         <div className="flex items-center space-x-2">
           {/* Hint button */}
           <button
@@ -285,7 +324,17 @@ export const ProblemSolve: FC = () => {
       {/* Main Split-Pane Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Left Pane: Problem Description (Scrollable) */}
-        <div className="w-full lg:w-1/2 h-1/2 lg:h-full border-b lg:border-b-0 lg:border-r border-slate-800 overflow-y-auto bg-slate-950 p-6 space-y-6">
+        <div
+          className={`border-b lg:border-b-0 lg:border-r border-slate-800 overflow-y-auto bg-slate-950 p-6 space-y-6 ${
+            isEditorMaximized
+              ? 'hidden'
+              : mobileView === 'code'
+              ? 'hidden'
+              : mobileView === 'problem'
+              ? 'w-full h-full'
+              : 'w-full lg:w-1/2 h-1/2 lg:h-full'
+          }`}
+        >
           {/* Title & Metadata */}
           <div className="space-y-2">
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
@@ -405,7 +454,17 @@ export const ProblemSolve: FC = () => {
         </div>
 
         {/* Right Pane: Code Editor + Bottom Results Panel */}
-        <div className="w-full lg:w-1/2 h-1/2 lg:h-full flex flex-col bg-slate-900 overflow-hidden">
+        <div
+          className={`flex flex-col bg-slate-900 overflow-hidden ${
+            isEditorMaximized
+              ? 'w-full h-full'
+              : mobileView === 'problem'
+              ? 'hidden lg:flex lg:w-1/2 lg:h-full'
+              : mobileView === 'code'
+              ? 'w-full h-full'
+              : 'w-full lg:w-1/2 h-1/2 lg:h-full'
+          }`}
+        >
           {/* Editor Header / Controls */}
           <div className="h-10 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between shrink-0">
             <div className="flex items-center space-x-2 text-xs font-mono text-slate-300">
@@ -415,7 +474,30 @@ export const ProblemSolve: FC = () => {
               <span className="text-slate-400">C17 (GCC)</span>
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* Maximize / Restore Editor Button */}
+              <button
+                onClick={() => setIsEditorMaximized(!isEditorMaximized)}
+                className={`p-1.5 rounded transition-colors text-xs flex items-center space-x-1 ${
+                  isEditorMaximized
+                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                }`}
+                title={isEditorMaximized ? 'Restore split view' : 'Maximize editor (full screen)'}
+              >
+                {isEditorMaximized ? (
+                  <>
+                    <Minimize2 className="w-3.5 h-3.5" />
+                    <span className="hidden md:inline">Restore</span>
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span className="hidden md:inline">Maximize</span>
+                  </>
+                )}
+              </button>
+
               {/* Font Size Selector */}
               <div className="flex items-center space-x-1 text-xs text-slate-400">
                 <Settings2 className="w-3.5 h-3.5" />
@@ -468,72 +550,74 @@ export const ProblemSolve: FC = () => {
           </div>
 
           {/* Bottom Results Panel */}
-          <div
-            className={`border-t border-slate-800 bg-slate-950 flex flex-col transition-all duration-200 ${
-              isBottomPanelCollapsed ? 'h-10' : 'h-64 sm:h-72'
-            }`}
-          >
-            {/* Panel Header Tabs */}
-            <div className="h-10 bg-slate-900 border-b border-slate-800 px-3 flex items-center justify-between shrink-0">
-              <div className="flex items-center space-x-1">
-                <button
-                  onClick={() => {
-                    setActiveBottomTab('tests');
-                    setIsBottomPanelCollapsed(false);
-                  }}
-                  className={`px-3 py-1 text-xs font-medium rounded-t-md transition-colors ${
-                    activeBottomTab === 'tests'
-                      ? 'bg-slate-950 text-blue-400 border-t-2 border-blue-500'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Test Cases {activeTestResults.length > 0 && `(${activeTestResults.length})`}
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveBottomTab('compiler');
-                    setIsBottomPanelCollapsed(false);
-                  }}
-                  className={`px-3 py-1 text-xs font-medium rounded-t-md transition-colors ${
-                    activeBottomTab === 'compiler'
-                      ? 'bg-slate-950 text-blue-400 border-t-2 border-blue-500'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Compiler Output
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveBottomTab('history');
-                    setIsBottomPanelCollapsed(false);
-                  }}
-                  className={`px-3 py-1 text-xs font-medium rounded-t-md transition-colors ${
-                    activeBottomTab === 'history'
-                      ? 'bg-slate-950 text-blue-400 border-t-2 border-blue-500'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  History ({history.length})
-                </button>
-              </div>
+          {isBottomPanelOpen && (
+            <div
+              className={`border-t border-slate-800 bg-slate-950 flex flex-col transition-all duration-200 shrink-0 z-10 ${
+                isBottomPanelExpanded ? 'h-96' : 'h-64 sm:h-72'
+              }`}
+            >
+              {/* Panel Header Tabs */}
+              <div className="h-9 bg-slate-900 border-b border-slate-800 px-3 flex items-center justify-between shrink-0">
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={() => setActiveBottomTab('tests')}
+                    className={`px-3 py-1 text-xs font-medium rounded-t-md transition-colors ${
+                      activeBottomTab === 'tests'
+                        ? 'bg-slate-950 text-blue-400 border-t-2 border-blue-500'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Test Cases {activeTestResults.length > 0 && `(${activeTestResults.length})`}
+                  </button>
+                  <button
+                    onClick={() => setActiveBottomTab('compiler')}
+                    className={`px-3 py-1 text-xs font-medium rounded-t-md transition-colors ${
+                      activeBottomTab === 'compiler'
+                        ? 'bg-slate-950 text-blue-400 border-t-2 border-blue-500'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Compiler Output
+                  </button>
+                  <button
+                    onClick={() => setActiveBottomTab('history')}
+                    className={`px-3 py-1 text-xs font-medium rounded-t-md transition-colors ${
+                      activeBottomTab === 'history'
+                        ? 'bg-slate-950 text-blue-400 border-t-2 border-blue-500'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    History ({history.length})
+                  </button>
+                </div>
 
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setIsBottomPanelCollapsed(!isBottomPanelCollapsed)}
-                  className="p-1 text-slate-400 hover:text-white rounded"
-                  title={isBottomPanelCollapsed ? 'Expand panel' : 'Collapse panel'}
-                >
-                  {isBottomPanelCollapsed ? (
-                    <ChevronUp className="w-4 h-4" />
-                  ) : (
+                <div className="flex items-center space-x-1">
+                  {/* Expand / Restore Height */}
+                  <button
+                    onClick={() => setIsBottomPanelExpanded(!isBottomPanelExpanded)}
+                    className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition-colors"
+                    title={isBottomPanelExpanded ? 'Restore panel height' : 'Expand panel height'}
+                  >
+                    {isBottomPanelExpanded ? (
+                      <Minimize2 className="w-3.5 h-3.5" />
+                    ) : (
+                      <Maximize2 className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+
+                  {/* Minimize / Close to 0 */}
+                  <button
+                    onClick={() => setIsBottomPanelOpen(false)}
+                    className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition-colors flex items-center space-x-1 px-1.5"
+                    title="Minimize panel"
+                  >
                     <ChevronDown className="w-4 h-4" />
-                  )}
-                </button>
+                    <span className="text-[11px] font-sans">Minimize</span>
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Panel Tab Content */}
-            {!isBottomPanelCollapsed && (
+              {/* Panel Tab Content */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {/* Submission Verdict Banner */}
                 {submissionResult && (
@@ -678,14 +762,39 @@ export const ProblemSolve: FC = () => {
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Bottom Action Buttons */}
           <div className="h-14 bg-slate-900 border-t border-slate-800 px-4 flex items-center justify-between shrink-0">
-            <div className="text-[11px] text-slate-400 font-mono hidden sm:block">
-              Shortcuts: <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">Ctrl+Enter</kbd> Run,{' '}
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">Ctrl+Shift+Enter</kbd> Submit
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setIsBottomPanelOpen(!isBottomPanelOpen)}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                  isBottomPanelOpen
+                    ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700'
+                }`}
+                title={isBottomPanelOpen ? 'Minimize test panel' : 'Open test panel'}
+              >
+                <Terminal className="w-3.5 h-3.5" />
+                <span>Console & Tests</span>
+                {activeTestResults.length > 0 && (
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-blue-500/20 text-blue-300 font-mono">
+                    {activeTestResults.length}
+                  </span>
+                )}
+                {isBottomPanelOpen ? (
+                  <ChevronDown className="w-3.5 h-3.5 ml-0.5" />
+                ) : (
+                  <ChevronUp className="w-3.5 h-3.5 ml-0.5" />
+                )}
+              </button>
+
+              <div className="text-[11px] text-slate-400 font-mono hidden xl:block">
+                Shortcuts: <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">Ctrl+Enter</kbd> Run,{' '}
+                <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">Ctrl+Shift+Enter</kbd> Submit
+              </div>
             </div>
 
             <div className="flex items-center space-x-3 ml-auto">
