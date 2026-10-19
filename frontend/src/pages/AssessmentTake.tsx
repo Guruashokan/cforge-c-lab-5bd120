@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, type FC } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Editor from '@monaco-editor/react';
+import { CForgeCodeEditor } from '../components/editor/CForgeCodeEditor';
 import { api } from '../services/api';
 import type { AssessmentAttempt, Problem, TestResult } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -294,25 +294,15 @@ export const AssessmentTake: FC = () => {
             <span>C17 GCC</span>
           </div>
 
-          <div className="flex-1 min-h-0 relative">
-            <Editor
-              height="100%"
-              defaultLanguage="c"
-              language="c"
-              theme="vs-dark"
-              value={codes[currentProblemIdx] || ''}
+          <div className="flex-1 min-h-0 relative flex flex-col">
+            <CForgeCodeEditor
+              value={codes[currentProblemIdx] || currentProblem.starter_code || ''}
               onChange={(val) =>
                 setCodes((prev) => ({
                   ...prev,
-                  [currentProblemIdx]: val || '',
+                  [currentProblemIdx]: val,
                 }))
               }
-              options={{
-                fontSize: 14,
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-              }}
             />
           </div>
 

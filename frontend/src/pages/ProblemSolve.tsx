@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback, type FC } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Editor from '@monaco-editor/react';
 import { CForgeCodeEditor } from '../components/editor/CForgeCodeEditor';
 import { api } from '../services/api';
 import type { Problem, RunResponse, SubmissionResponse, TestResult } from '../types';
@@ -43,7 +42,6 @@ export const ProblemSolve: FC = () => {
   // Editor states
   const [fontSize, setFontSize] = useState<number>(14);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [editorEngine, setEditorEngine] = useState<'cforge' | 'monaco'>('cforge');
   const [isEditorMaximized, setIsEditorMaximized] = useState(false);
 
   // Tabs
@@ -534,13 +532,10 @@ export const ProblemSolve: FC = () => {
 
             <div className="flex items-center space-x-2 sm:space-x-3">
               {/* Editor Engine Switcher */}
-              <button
-                onClick={() => setEditorEngine(editorEngine === 'cforge' ? 'monaco' : 'cforge')}
-                className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 transition-colors"
-                title="Toggle between CForge Ultra Editor and Monaco IDE"
-              >
-                {editorEngine === 'cforge' ? 'CForge Pro' : 'Monaco IDE'}
-              </button>
+              <span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center gap-1.5">
+                <Code2 className="w-3 h-3 text-blue-400" />
+                <span>VS Code Engine</span>
+              </span>
 
               {/* Maximize Toggle */}
               <button
@@ -584,32 +579,11 @@ export const ProblemSolve: FC = () => {
 
           {/* Code Editor Body */}
           <div className="flex-1 w-full min-h-[250px] relative overflow-hidden flex flex-col">
-            {editorEngine === 'cforge' ? (
-              <CForgeCodeEditor
-                value={code || problem.starter_code}
-                onChange={handleCodeChange}
-                fontSize={fontSize}
-              />
-            ) : (
-              <Editor
-                height="100%"
-                width="100%"
-                defaultLanguage="c"
-                language="c"
-                theme="vs-dark"
-                value={code || problem.starter_code}
-                onChange={(val) => handleCodeChange(val || '')}
-                options={{
-                  fontSize,
-                  minimap: { enabled: false },
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                  tabSize: 4,
-                  lineNumbers: 'on',
-                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                }}
-              />
-            )}
+            <CForgeCodeEditor
+              value={code || problem.starter_code}
+              onChange={handleCodeChange}
+              fontSize={fontSize}
+            />
           </div>
 
           {/* Collapsible Test Console Drawer (Sits directly above bottom action bar) */}
