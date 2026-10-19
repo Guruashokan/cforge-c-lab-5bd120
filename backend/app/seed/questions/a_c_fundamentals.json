@@ -1,0 +1,879 @@
+[
+  {
+    "id": 1,
+    "title": "Type Conversion Chain",
+    "slug": "type-conversion-chain",
+    "difficulty": "hard",
+    "description": "In the C programming language, expressions involving multiple primitive data types undergo implicit type conversions before evaluation, governed by standard integer promotions and the usual arithmetic conversions.\n\nInteger promotion specifies that any integer type with a conversion rank smaller than `int` (such as signed or unsigned `char`) is converted to `int` before participating in an arithmetic operation. Following integer promotion, binary operations involving two operands of differing types require determination of a single common type according to the following strict hierarchy:\n1. If either operand is of type `double`, the other operand is converted to `double`, and the operation produces a `double` result.\n2. Otherwise, if either operand is of type `float`, the other operand is converted to `float`, and the operation produces a `float` result.\n3. Otherwise, both operands are converted to `int`, and the operation produces an `int` result. Integer division in C truncates toward zero.\n\nAfter the binary operation is evaluated in the common promoted type, the intermediate result is explicitly cast and assigned to a destination storage type:\n- Cast to `char`: If the intermediate value is floating-point, it is first truncated toward zero to an integer, and then converted to an 8-bit signed `char` with two's complement wraparound in the range `[-128, 127]`.\n- Cast to `int`: If the intermediate value is floating-point, it is truncated toward zero to a 32-bit signed integer.\n- Cast to `float`: The value is converted to a single-precision floating-point number.\n- Cast to `double`: The value is converted to a double-precision floating-point number.\n\nYou are given an initial variable type and numeric value, followed by a sequence of $N$ operations. Each operation consists of an operator (`+`, `-`, `*`, `/`), an operand type, an operand value, and a destination type for storing the result. Simulate the full conversion chain and print the final type and formatted value.",
+    "input_format": "Line 1: The initial type and value separated by a space: `<type> <val>` (types can be `char`, `int`, `float`, or `double`).\nLine 2: An integer $N$ ($1 \\le N \\le 20$), the number of operations.\nNext $N$ lines: Each line contains `<op> <operand_type> <operand_value> <dest_type>`.",
+    "output_format": "Print `<final_type> <final_val>`.\n- If `char` or `int`, print as a decimal integer (e.g., `char -106` or `int 42`).\n- If `float`, format to 2 decimal places (`%.2f`).\n- If `double`, format to 4 decimal places (`%.4f`).",
+    "constraints": "$1 \\le N \\le 20$. Operands are valid for their types. Divisors are non-zero. Intermediate integer values fit within standard signed ranges.",
+    "examples": [
+      {
+        "input": "int 7\n2\n/ int 2 float\n+ float 1.5 float",
+        "output": "float 4.50",
+        "explanation": "Step 1: 'int 7 / int 2' evaluates to 'int 3' due to integer truncation, which is then cast to 'float 3.00'. Step 2: 'float 3.00 + float 1.5' evaluates to 'float 4.50' and is stored as float."
+      },
+      {
+        "input": "char 100\n1\n+ char 50 char",
+        "output": "char -106",
+        "explanation": "Both char operands undergo integer promotion to int. 100 + 50 = 150 in int. Casting 150 to signed 8-bit char wraps around: 150 - 256 = -106."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(void) {\n    // Simulate C implicit and explicit type conversions\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef enum { TYPE_CHAR, TYPE_INT, TYPE_FLOAT, TYPE_DOUBLE } Type;\n\nType parse_type(const char* s) {\n    if (strcmp(s, \"char\") == 0) return TYPE_CHAR;\n    if (strcmp(s, \"int\") == 0) return TYPE_INT;\n    if (strcmp(s, \"float\") == 0) return TYPE_FLOAT;\n    return TYPE_DOUBLE;\n}\n\ntypedef struct {\n    Type type;\n    union {\n        signed char c;\n        int i;\n        float f;\n        double d;\n    } val;\n} Value;\n\nValue cast_val(double raw, Type target) {\n    Value res;\n    res.type = target;\n    if (target == TYPE_CHAR) {\n        int iv = (int)raw;\n        res.val.c = (signed char)iv;\n    } else if (target == TYPE_INT) {\n        res.val.i = (int)raw;\n    } else if (target == TYPE_FLOAT) {\n        res.val.f = (float)raw;\n    } else {\n        res.val.d = (double)raw;\n    }\n    return res;\n}\n\nint main(void) {\n    char type_str[16], val_str[64];\n    if (scanf(\"%15s %63s\", type_str, val_str) != 2) return 0;\n\n    Type curr_type = parse_type(type_str);\n    Value curr;\n    curr.type = curr_type;\n    if (curr_type == TYPE_CHAR) curr.val.c = (signed char)atoi(val_str);\n    else if (curr_type == TYPE_INT) curr.val.i = atoi(val_str);\n    else if (curr_type == TYPE_FLOAT) curr.val.f = (float)atof(val_str);\n    else curr.val.d = atof(val_str);\n\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    for (int k = 0; k < n; k++) {\n        char op[4], op_type_str[16], op_val_str[64], target_type_str[16];\n        scanf(\"%3s %15s %63s %15s\", op, op_type_str, op_val_str, target_type_str);\n        Type op_type = parse_type(op_type_str);\n        Type target_type = parse_type(target_type_str);\n\n        Type t1 = (curr.type == TYPE_CHAR) ? TYPE_INT : curr.type;\n        Type t2 = (op_type == TYPE_CHAR) ? TYPE_INT : op_type;\n\n        Type common = TYPE_INT;\n        if (t1 == TYPE_DOUBLE || t2 == TYPE_DOUBLE) common = TYPE_DOUBLE;\n        else if (t1 == TYPE_FLOAT || t2 == TYPE_FLOAT) common = TYPE_FLOAT;\n\n        double v1 = (curr.type == TYPE_CHAR) ? (double)curr.val.c :\n                    (curr.type == TYPE_INT) ? (double)curr.val.i :\n                    (curr.type == TYPE_FLOAT) ? (double)curr.val.f : curr.val.d;\n\n        double v2 = (op_type == TYPE_CHAR) ? (double)(signed char)atoi(op_val_str) :\n                    (op_type == TYPE_INT) ? (double)atoi(op_val_str) :\n                    (op_type == TYPE_FLOAT) ? (double)(float)atof(op_val_str) : atof(op_val_str);\n\n        double raw_res = 0;\n        if (common == TYPE_DOUBLE) {\n            if (op[0] == '+') raw_res = v1 + v2;\n            else if (op[0] == '-') raw_res = v1 - v2;\n            else if (op[0] == '*') raw_res = v1 * v2;\n            else if (op[0] == '/') raw_res = v1 / v2;\n        } else if (common == TYPE_FLOAT) {\n            float a = (float)v1, b = (float)v2;\n            float r = 0;\n            if (op[0] == '+') r = a + b;\n            else if (op[0] == '-') r = a - b;\n            else if (op[0] == '*') r = a * b;\n            else if (op[0] == '/') r = a / b;\n            raw_res = (double)r;\n        } else {\n            int a = (int)v1, b = (int)v2;\n            int r = 0;\n            if (op[0] == '+') r = a + b;\n            else if (op[0] == '-') r = a - b;\n            else if (op[0] == '*') r = a * b;\n            else if (op[0] == '/') r = a / b;\n            raw_res = (double)r;\n        }\n\n        curr = cast_val(raw_res, target_type);\n    }\n\n    if (curr.type == TYPE_CHAR) printf(\"char %d\\n\", curr.val.c);\n    else if (curr.type == TYPE_INT) printf(\"int %d\\n\", curr.val.i);\n    else if (curr.type == TYPE_FLOAT) printf(\"float %.2f\\n\", curr.val.f);\n    else printf(\"double %.4f\\n\", curr.val.d);\n\n    return 0;\n}\n",
+    "hints": [
+      "Remember that types smaller than int (like char) are promoted to int before any arithmetic operation.",
+      "Identify the common type: double takes priority over float, which takes priority over int.",
+      "When casting floating point values to integers or char, truncation toward zero is performed first, followed by range wrapping for char."
+    ],
+    "explanation": "C's usual arithmetic conversions dictate the evaluation type of any binary expression. First, integer promotions convert char operands to int. Second, if either operand is double, the other is converted to double. If neither is double but one is float, the common type is float. Otherwise, both operands are int. Division of integers results in truncation toward zero. Once evaluated, assignment or casting to the target type converts the value, including two's complement wrapping for 8-bit signed char.",
+    "time_complexity": "O(N)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Performing floating-point division when both promoted operands are int.",
+      "Forgetting that signed char wraps around in two's complement when values exceed 127 or drop below -128.",
+      "Incorrectly rounding floats instead of truncating toward zero when casting to int."
+    ],
+    "related_problems": [
+      "bitwise-expression-evaluator",
+      "advanced-base-converter"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["google", "apple", "qualcomm", "intel"],
+    "company_source_type": "adapted_practice",
+    "test_cases": [
+      {
+        "input": "int 7\n2\n/ int 2 float\n+ float 1.5 float\n",
+        "expected_output": "float 4.50\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Integer division truncation followed by float addition"
+      },
+      {
+        "input": "char 100\n1\n+ char 50 char\n",
+        "expected_output": "char -106\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Signed char overflow wraparound via integer promotion"
+      },
+      {
+        "input": "int 15\n3\n/ int 4 int\n* float 2.5 double\n- int 2 int\n",
+        "expected_output": "int 5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multi-step conversion through int, double, and truncation back to int"
+      },
+      {
+        "input": "double 12.875\n1\n+ int 0 int\n",
+        "expected_output": "int 12\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Truncation toward zero of positive float to int"
+      },
+      {
+        "input": "char -128\n1\n- char 1 char\n",
+        "expected_output": "char 127\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Underflow wrap of signed 8-bit char"
+      },
+      {
+        "input": "double -9.99\n1\n+ int 0 int\n",
+        "expected_output": "int -9\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Truncation toward zero of negative float to int"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Bitwise Expression Evaluator",
+    "slug": "bitwise-expression-evaluator",
+    "difficulty": "hard",
+    "description": "Bitwise operators in C are fundamental to embedded systems, systems programming, and high-performance algorithms. However, operator precedence involving bitwise operators is a frequent source of subtle programming errors because bitwise AND (`&`), XOR (`^`), and OR (`|`) have lower precedence than comparison and arithmetic operators.\n\nIn standard C, the precedence hierarchy from highest to lowest is:\n1. Parentheses: `( ... )`\n2. Unary operators: bitwise NOT `~`, unary `+`, unary `-` (right-to-left associativity)\n3. Multiplicative operators: `*`, `/` (left-to-right)\n4. Additive operators: `+`, `-` (left-to-right)\n5. Bitwise shifts: `<<`, `>>` (left-to-right)\n6. Bitwise AND: `&` (left-to-right)\n7. Bitwise XOR: `^` (left-to-right)\n8. Bitwise OR: `|` (left-to-right)\n\nFor instance, the expression `3 + 5 << 2 & 15` is evaluated as `((3 + 5) << 2) & 15`, producing `0`, because addition precedes shift, which precedes bitwise AND.\n\nImplement an expression evaluator in C that parses and evaluates expressions containing non-negative integers, the specified operators, and parentheses according to C precedence rules. All computations must be carried out using 64-bit signed integers (`long long`).",
+    "input_format": "A single line containing an expression string (length $\\le 200$) composed of non-negative integers, operators `+`, `-`, `*`, `/`, `<<`, `>>`, `&`, `^`, `|`, `~`, and parentheses `(`, `)`. The expression may contain spaces.",
+    "output_format": "Print a single integer: the evaluated 64-bit signed integer result.",
+    "constraints": "Expression length $\\le 200$. Shift amounts are between $0$ and $62$. Division by zero will not occur. Intermediate values fit in 64-bit signed integers.",
+    "examples": [
+      {
+        "input": "3 + 5 << 2 & 15",
+        "output": "0",
+        "explanation": "Evaluated as ((3 + 5) << 2) & 15 = (8 << 2) & 15 = 32 & 15 = 0."
+      },
+      {
+        "input": "(1 << 4) - 1 ^ 7 & 3",
+        "output": "12",
+        "explanation": "(1 << 4) - 1 = 15. Then 7 & 3 = 3 (due to higher precedence of & over ^). Finally 15 ^ 3 = 12."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <ctype.h>\n\nint main(void) {\n    // Evaluate expression adhering strictly to C operator precedence\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <ctype.h>\n\nstatic const char *src;\n\nstatic void skip_ws(void) {\n    while (*src && isspace((unsigned char)*src)) src++;\n}\n\nstatic long long parse_expr(void);\nstatic long long parse_or(void);\nstatic long long parse_xor(void);\nstatic long long parse_and(void);\nstatic long long parse_shift(void);\nstatic long long parse_add(void);\nstatic long long parse_mul(void);\nstatic long long parse_unary(void);\nstatic long long parse_primary(void);\n\nstatic long long parse_primary(void) {\n    skip_ws();\n    if (*src == '(') {\n        src++; // skip '('\n        long long val = parse_expr();\n        skip_ws();\n        if (*src == ')') src++;\n        return val;\n    }\n    long long val = 0;\n    while (*src && isdigit((unsigned char)*src)) {\n        val = val * 10 + (*src - '0');\n        src++;\n    }\n    return val;\n}\n\nstatic long long parse_unary(void) {\n    skip_ws();\n    if (*src == '~') {\n        src++;\n        return ~parse_unary();\n    } else if (*src == '+') {\n        src++;\n        return parse_unary();\n    } else if (*src == '-') {\n        src++;\n        return -parse_unary();\n    }\n    return parse_primary();\n}\n\nstatic long long parse_mul(void) {\n    long long left = parse_unary();\n    while (1) {\n        skip_ws();\n        if (*src == '*') {\n            src++;\n            left = left * parse_unary();\n        } else if (*src == '/') {\n            src++;\n            long long r = parse_unary();\n            left = left / r;\n        } else {\n            break;\n        }\n    }\n    return left;\n}\n\nstatic long long parse_add(void) {\n    long long left = parse_mul();\n    while (1) {\n        skip_ws();\n        if (*src == '+') {\n            src++;\n            left = left + parse_mul();\n        } else if (*src == '-') {\n            src++;\n            left = left - parse_mul();\n        } else {\n            break;\n        }\n    }\n    return left;\n}\n\nstatic long long parse_shift(void) {\n    long long left = parse_add();\n    while (1) {\n        skip_ws();\n        if (src[0] == '<' && src[1] == '<') {\n            src += 2;\n            long long r = parse_add();\n            left = left << r;\n        } else if (src[0] == '>' && src[1] == '>') {\n            src += 2;\n            long long r = parse_add();\n            left = left >> r;\n        } else {\n            break;\n        }\n    }\n    return left;\n}\n\nstatic long long parse_and(void) {\n    long long left = parse_shift();\n    while (1) {\n        skip_ws();\n        if (*src == '&' && src[1] != '&') {\n            src++;\n            left = left & parse_shift();\n        } else {\n            break;\n        }\n    }\n    return left;\n}\n\nstatic long long parse_xor(void) {\n    long long left = parse_and();\n    while (1) {\n        skip_ws();\n        if (*src == '^') {\n            src++;\n            left = left ^ parse_and();\n        } else {\n            break;\n        }\n    }\n    return left;\n}\n\nstatic long long parse_or(void) {\n    long long left = parse_xor();\n    while (1) {\n        skip_ws();\n        if (*src == '|' && src[1] != '|') {\n            src++;\n            left = left | parse_xor();\n        } else {\n            break;\n        }\n    }\n    return left;\n}\n\nstatic long long parse_expr(void) {\n    return parse_or();\n}\n\nint main(void) {\n    char buffer[512];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    src = buffer;\n    printf(\"%lld\\n\", parse_expr());\n    return 0;\n}\n",
+    "hints": [
+      "Use recursive descent parsing where each precedence level corresponds to a parsing function.",
+      "Ensure precedence matches C standard: multiplicative > additive > shift > bitwise AND > bitwise XOR > bitwise OR.",
+      "Use 64-bit signed integers (long long) for all intermediate evaluation values."
+    ],
+    "explanation": "A recursive descent parser cleanly encodes operator precedence without ambiguity. Each operator tier calls the next higher precedence tier. Binary bitwise operators are parsed from lowest precedence (OR) up to highest (bitwise AND), then shift, additive, multiplicative, unary, and primary expressions.",
+    "time_complexity": "O(L)",
+    "space_complexity": "O(L)",
+    "common_mistakes": [
+      "Assuming bitwise operators bind tighter than arithmetic operators (e.g. evaluating a + b << c as a + (b << c)).",
+      "Treating bitwise AND, XOR, and OR as having identical precedence instead of & > ^ > |.",
+      "Mismanaging right-to-left associativity of unary operators like ~."
+    ],
+    "related_problems": [
+      "type-conversion-chain",
+      "expression-operator-insertion"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["microsoft", "cisco", "nvidia", "apple"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "3 + 5 << 2 & 15\n",
+        "expected_output": "0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Precedence check: + before << before &"
+      },
+      {
+        "input": "(1 << 4) - 1 ^ 7 & 3\n",
+        "expected_output": "12\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Parenthesized shift, subtraction, and bitwise & over ^"
+      },
+      {
+        "input": "~0 & 255\n",
+        "expected_output": "255\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Bitwise NOT on 0 produces all 1s (-1 in signed 64-bit)"
+      },
+      {
+        "input": "10 + 20 * 3 << 1 | 5\n",
+        "expected_output": "141\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Arithmetic precedence into shift and OR"
+      },
+      {
+        "input": "((15 & 7) ^ 3) << 2 + 1\n",
+        "expected_output": "32\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Explicit grouping with trailing addition inside shift"
+      },
+      {
+        "input": "0 | 0 & 0 ^ 0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All zeroes expression"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Advanced Loop Pattern Counter",
+    "slug": "advanced-loop-pattern-counter",
+    "difficulty": "medium",
+    "description": "Understanding nested loop complexity, loop invariants, and inner conditional predicates is an essential skill for writing efficient C code. In competitive programming, predicting how many times a particular condition is met inside nested loop structures allows programmers to optimize algorithmic bottlenecks and detect patterns.\n\nConsider three nested loops iterating over integer bounds:\n- An outer loop index $i$ ranges from $1$ to $N$.\n- A middle loop index $j$ ranges from $i$ to $N$.\n- An inner loop index $k$ ranges from $j$ to $N$.\n\nInside the innermost loop, an iteration is considered a match if and only if two independent conditions are satisfied simultaneously:\n1. Arithmetic condition: $(i \\cdot j + k) \\pmod M == 0$.\n2. Bitwise condition: $(i \\oplus j \\oplus k) \\le K$ (where $\\oplus$ denotes bitwise XOR).\n\nGiven $N$, $M$, and $K$, count the total number of matched triples $(i, j, k)$ across all loop iterations.",
+    "input_format": "A single line containing three space-separated integers: $N$, $M$, and $K$.",
+    "output_format": "Print a single integer: the total number of matched triples.",
+    "constraints": "$1 \\le N \\le 300$, $1 \\le M \\le 1000$, $0 \\le K \\le 1000$.",
+    "examples": [
+      {
+        "input": "5 2 10",
+        "output": "17",
+        "explanation": "Among all 35 triples with 1 <= i <= j <= k <= 5, exactly 17 satisfy (i*j + k) % 2 == 0 and (i ^ j ^ k) <= 10."
+      },
+      {
+        "input": "1 1 0",
+        "output": "0",
+        "explanation": "Only triple is (1, 1, 1). (1*1 + 1) % 1 == 0 is true, but 1 ^ 1 ^ 1 = 1 which is not <= 0. Count is 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Read N, M, K and count matching triples\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    int n, m, k_val;\n    if (scanf(\"%d %d %d\", &n, &m, &k_val) != 3) return 0;\n    long long count = 0;\n    for (int i = 1; i <= n; i++) {\n        for (int j = i; j <= n; j++) {\n            int ij = i * j;\n            for (int k = j; k <= n; k++) {\n                if (((ij + k) % m == 0) && ((i ^ j ^ k) <= k_val)) {\n                    count++;\n                }\n            }\n        }\n    }\n    printf(\"%lld\\n\", count);\n    return 0;\n}\n",
+    "hints": [
+      "Precomputing i * j in the middle loop avoids repeated multiplication in the innermost loop.",
+      "Be careful with loop boundaries: i <= j <= k.",
+      "Use 64-bit integer (long long) for the match count accumulator."
+    ],
+    "explanation": "Iterating through all triples (i, j, k) where 1 <= i <= j <= k <= N tests O(N^3) combinations. For N <= 300, the total iterations are approximately (300 * 301 * 302) / 6 ≈ 4.5 million, which executes in a few milliseconds in C. Hoisting i * j out of the k loop provides an additional speedup.",
+    "time_complexity": "O(N^3)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Starting j from 1 instead of i, or k from 1 instead of j, generating redundant non-ordered triples.",
+      "Integer overflow if count exceeds 32-bit signed limits for larger bounds.",
+      "Operator precedence mistakes: & and ^ vs <= require parentheses around (i ^ j ^ k) <= k_val."
+    ],
+    "related_problems": [
+      "prime-factorization-engine",
+      "armstrong-number-range"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["amazon", "adobe", "tcs"],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5 2 10\n",
+        "expected_output": "17\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small bounds verification"
+      },
+      {
+        "input": "1 1 0\n",
+        "expected_output": "0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "N=1 boundary check where XOR condition fails"
+      },
+      {
+        "input": "10 3 5\n",
+        "expected_output": "39\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Moderate range with modulo 3"
+      },
+      {
+        "input": "50 7 20\n",
+        "expected_output": "2265\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Medium scale nested iteration"
+      },
+      {
+        "input": "100 13 50\n",
+        "expected_output": "11987\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Larger loop range N=100"
+      },
+      {
+        "input": "200 17 0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K=0 constraint check where XOR must be 0"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Prime Factorization Engine",
+    "slug": "prime-factorization-engine",
+    "difficulty": "medium",
+    "description": "The Fundamental Theorem of Arithmetic establishes that every integer greater than 1 either is a prime itself or can be uniquely factored into a product of prime numbers, up to the arrangement of factors. Prime factorization forms the cornerstone of modern public-key cryptography (such as RSA), computer algebra systems, and discrete mathematics.\n\nImplement an efficient prime factorization engine in C that decomposes a given 64-bit integer $N$ into its prime factors. Output the factorization in ascending sorted order of the prime factors, using exponent notation `p^e` for any prime factor $p$ with exponent $e > 1$, and simply `p` when $e = 1$. The terms must be separated by ` * `.\n\nFor example, if $N = 360$, the factorization is $2^3 \\cdot 3^2 \\cdot 5$, so the output should be `2^3 * 3^2 * 5`.",
+    "input_format": "A single line containing an integer $N$ ($2 \\le N \\le 10^{14}$).",
+    "output_format": "Print the prime factorization string in ascending order, formatted as described.",
+    "constraints": "$2 \\le N \\le 10^{14}$. $N$ fits in a standard signed 64-bit integer (`long long`).",
+    "examples": [
+      {
+        "input": "360",
+        "output": "2^3 * 3^2 * 5",
+        "explanation": "360 = 8 * 9 * 5 = 2^3 * 3^2 * 5."
+      },
+      {
+        "input": "97",
+        "output": "97",
+        "explanation": "97 is prime, so exponent is 1 and formatted as 97."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Implement prime factorization of N up to 10^14\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    long long n;\n    if (scanf(\"%lld\", &n) != 1) return 0;\n\n    int first = 1;\n    for (long long d = 2; d * d <= n; d++) {\n        if (n % d == 0) {\n            int count = 0;\n            while (n % d == 0) {\n                count++;\n                n /= d;\n            }\n            if (!first) printf(\" * \");\n            first = 0;\n            if (count > 1) printf(\"%lld^%d\", d, count);\n            else printf(\"%lld\", d);\n        }\n    }\n    if (n > 1) {\n        if (!first) printf(\" * \");\n        printf(\"%lld\", n);\n    }\n    printf(\"\\n\");\n    return 0;\n}\n",
+    "hints": [
+      "Iterate d from 2 up to sqrt(N). Any factor d that divides N will automatically be prime.",
+      "Divide out all occurrences of d while keeping track of the exponent.",
+      "If N > 1 after the loop, the remaining N is itself a prime factor."
+    ],
+    "explanation": "Trial division up to sqrt(N) is sufficient because any composite number N must have at least one prime factor <= sqrt(N). Whenever d divides N, we count how many times it divides N and divide N repeatedly. Once d * d > N, any remaining N > 1 is prime. Time complexity is O(sqrt(N)), running in < 0.02s for 10^14.",
+    "time_complexity": "O(sqrt(N))",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using standard 32-bit int which overflows for N up to 10^14.",
+      "Iterating beyond sqrt(N) when N has already been reduced to 1.",
+      "Incorrect spacing in the output string (e.g., extra trailing space or missing spaces around '*')."
+    ],
+    "related_problems": [
+      "gcd-and-lcm-of-array",
+      "perfect-number-classifier"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["bloomberg", "goldman-sachs", "morgan-stanley"],
+    "company_source_type": "adapted_practice",
+    "test_cases": [
+      {
+        "input": "360\n",
+        "expected_output": "2^3 * 3^2 * 5\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard composite with multiple exponents"
+      },
+      {
+        "input": "97\n",
+        "expected_output": "97\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Prime number test case"
+      },
+      {
+        "input": "2\n",
+        "expected_output": "2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Smallest valid prime input"
+      },
+      {
+        "input": "10000000000\n",
+        "expected_output": "2^10 * 5^10\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Large power of 10"
+      },
+      {
+        "input": "999999999989\n",
+        "expected_output": "999999999989\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Large prime near 10^12"
+      },
+      {
+        "input": "999999999974\n",
+        "expected_output": "2 * 499999999987\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Large semiprime"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "GCD and LCM of Array",
+    "slug": "gcd-and-lcm-of-array",
+    "difficulty": "medium",
+    "description": "The Greatest Common Divisor (GCD) of a set of integers is the largest positive integer that divides all numbers in the set. The Least Common Multiple (LCM) is the smallest positive integer that is divisible by all numbers in the set.\n\nFor two numbers $a$ and $b$, the fundamental identity is:\n$$\\text{lcm}(a, b) = \\frac{a \\times b}{\\gcd(a, b)}$$\n\nTo prevent intermediate integer overflow in C, the division by the GCD should always be evaluated prior to multiplication: `(a / gcd(a, b)) * b`.\n\nFor an array of $N$ integers $A_1, A_2, \\dots, A_N$, the overall GCD and LCM are calculated iteratively:\n$$\\gcd(A_1, \\dots, A_N) = \\gcd(\\gcd(A_1, \\dots, A_{N-1}), A_N)$$\n$$\\text{lcm}(A_1, \\dots, A_N) = \\text{lcm}(\\text{lcm}(A_1, \\dots, A_{N-1}), A_N)$$\n\nGiven an array of $N$ positive integers, calculate the GCD and LCM of the entire array. The final LCM is guaranteed to fit within an `unsigned long long` (up to $2^{64}-1$).",
+    "input_format": "Line 1: An integer $N$ ($1 \\le N \\le 20$).\nLine 2: $N$ space-separated positive integers $A_1, A_2, \\dots, A_N$ ($1 \\le A_i \\le 10^9$).",
+    "output_format": "Print two space-separated integers: `<GCD> <LCM>`.",
+    "constraints": "$1 \\le N \\le 20$. Each $A_i \\ge 1$. The overall LCM will not exceed $2^{64}-1$.",
+    "examples": [
+      {
+        "input": "4\n12 18 24 36",
+        "output": "6 72",
+        "explanation": "GCD(12, 18, 24, 36) = 6. LCM(12, 18, 24, 36) = 72."
+      },
+      {
+        "input": "3\n7 13 17",
+        "output": "1 1547",
+        "explanation": "All numbers are mutually coprime primes: GCD = 1, LCM = 7 * 13 * 17 = 1547."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nunsigned long long gcd(unsigned long long a, unsigned long long b) {\n    // Implement Euclidean algorithm\n    return 0;\n}\n\nint main(void) {\n    // Compute array GCD and LCM\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nunsigned long long gcd(unsigned long long a, unsigned long long b) {\n    while (b) {\n        unsigned long long t = a % b;\n        a = b;\n        b = t;\n    }\n    return a;\n}\n\nunsigned long long lcm(unsigned long long a, unsigned long long b) {\n    if (a == 0 || b == 0) return 0;\n    return (a / gcd(a, b)) * b;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    unsigned long long g = 0, l = 1;\n    for (int i = 0; i < n; i++) {\n        unsigned long long x;\n        scanf(\"%llu\", &x);\n        if (i == 0) {\n            g = x;\n            l = x;\n        } else {\n            g = gcd(g, x);\n            l = lcm(l, x);\n        }\n    }\n    printf(\"%llu %llu\\n\", g, l);\n    return 0;\n}\n",
+    "hints": [
+      "Use Euclidean algorithm for GCD: gcd(a, b) = gcd(b, a % b).",
+      "Compute LCM as (a / gcd(a, b)) * b to avoid overflow from a * b.",
+      "Use unsigned long long for all calculations."
+    ],
+    "explanation": "The Euclidean algorithm computes the GCD of two numbers in logarithmic time. Iterating through the array updates the running GCD and LCM. By performing division before multiplication in the LCM formula, we avoid early overflow.",
+    "time_complexity": "O(N * log(max(A)))",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Multiplying a * b before dividing by gcd(a, b), causing premature 64-bit integer overflow.",
+      "Using standard 32-bit int instead of unsigned long long.",
+      "Failing to handle N = 1 correctly."
+    ],
+    "related_problems": [
+      "prime-factorization-engine",
+      "advanced-loop-pattern-counter"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["amazon", "microsoft", "oracle"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "4\n12 18 24 36\n",
+        "expected_output": "6 72\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard composite numbers"
+      },
+      {
+        "input": "3\n7 13 17\n",
+        "expected_output": "1 1547\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Pairwise coprime prime numbers"
+      },
+      {
+        "input": "1\n42\n",
+        "expected_output": "42 42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "5\n10 20 30 40 50\n",
+        "expected_output": "10 600\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiples of 10"
+      },
+      {
+        "input": "2\n1000000000 999999999\n",
+        "expected_output": "1 999999999000000000\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Large consecutive numbers with product near 10^18"
+      },
+      {
+        "input": "6\n8 16 32 64 128 256\n",
+        "expected_output": "8 256\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Powers of two"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Perfect Number Classifier",
+    "slug": "perfect-number-classifier",
+    "difficulty": "hard",
+    "description": "In number theory, positive integers are classified based on the sum of their proper positive divisors (all positive divisors excluding the number itself), denoted as $s(n) = \\sigma(n) - n$:\n- **PERFECT**: A number is perfect if $s(n) = n$ (e.g. 6 has proper divisors 1, 2, 3 and $1 + 2 + 3 = 6$).\n- **ABUNDANT**: A number is abundant if $s(n) > n$ (e.g. 12 has proper divisors 1, 2, 3, 4, 6 and $1 + 2 + 3 + 4 + 6 = 16 > 12$).\n- **DEFICIENT**: A number is deficient if $s(n) < n$ (e.g. 8 has proper divisors 1, 2, 4 and $1 + 2 + 4 = 7 < 8$).\n\nNote that 1 has no proper divisors, so $s(1) = 0$, making 1 deficient.\n\nYou will be given $T$ test queries, each with a 64-bit integer $N$. Your classifier must compute the sum of proper divisors efficiently in $O(\\sqrt{N})$ time and classify each number as `PERFECT`, `ABUNDANT`, or `DEFICIENT`.",
+    "input_format": "Line 1: An integer $T$ ($1 \\le T \\le 50$), the number of queries.\nNext $T$ lines: Each line contains a single integer $N$ ($1 \\le N \\le 10^{12}$).",
+    "output_format": "For each query, print a line: `<N> <CLASSIFICATION> <SUM_OF_PROPER_DIVISORS>`.",
+    "constraints": "$1 \\le T \\le 50$, $1 \\le N \\le 10^{12}$. Calculations must use 64-bit signed integers.",
+    "examples": [
+      {
+        "input": "3\n6\n12\n8",
+        "output": "6 PERFECT 6\n12 ABUNDANT 16\n8 DEFICIENT 7",
+        "explanation": "6 has proper divisor sum 6 (perfect). 12 has proper divisor sum 16 > 12 (abundant). 8 has proper divisor sum 7 < 8 (deficient)."
+      },
+      {
+        "input": "2\n28\n496",
+        "output": "28 PERFECT 28\n496 PERFECT 496",
+        "explanation": "28 and 496 are well-known classical perfect numbers."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Process T queries and classify each number N\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nvoid classify(long long n) {\n    if (n <= 1) {\n        printf(\"%lld DEFICIENT 0\\n\", n);\n        return;\n    }\n    long long sum = 1;\n    for (long long d = 2; d * d <= n; d++) {\n        if (n % d == 0) {\n            sum += d;\n            if (d * d != n) {\n                sum += n / d;\n            }\n        }\n    }\n    if (sum == n) {\n        printf(\"%lld PERFECT %lld\\n\", n, sum);\n    } else if (sum > n) {\n        printf(\"%lld ABUNDANT %lld\\n\", n, sum);\n    } else {\n        printf(\"%lld DEFICIENT %lld\\n\", n, sum);\n    }\n}\n\nint main(void) {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    while (t--) {\n        long long n;\n        scanf(\"%lld\", &n);\n        classify(n);\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Check divisors d from 2 up to sqrt(N). If d divides N, add both d and N / d (unless d == N / d).",
+      "Always start the sum at 1 for N > 1, because 1 is a proper divisor of any integer > 1.",
+      "Special case N = 1 has no proper divisors, so the sum is 0."
+    ],
+    "explanation": "To sum proper divisors in O(sqrt(N)), we inspect every candidate divisor d from 2 up to floor(sqrt(N)). When d divides N, both d and N / d are divisors. If d * d == N, we only add d once. 1 is added initially for N > 1. Comparing the resulting sum to N yields the classification.",
+    "time_complexity": "O(T * sqrt(N))",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Adding sqrt(N) twice when N is a perfect square.",
+      "Forgetting that 1 has 0 proper divisors and attempting to classify it with sum 1.",
+      "Using 32-bit integer arithmetic which overflows when summing divisors of large numbers up to 10^12."
+    ],
+    "related_problems": [
+      "prime-factorization-engine",
+      "armstrong-number-range"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["cisco", "intel", "accenture"],
+    "company_source_type": "adapted_practice",
+    "test_cases": [
+      {
+        "input": "3\n6\n12\n8\n",
+        "expected_output": "6 PERFECT 6\n12 ABUNDANT 16\n8 DEFICIENT 7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small integer examples of all three categories"
+      },
+      {
+        "input": "2\n28\n496\n",
+        "expected_output": "28 PERFECT 28\n496 PERFECT 496\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Classical perfect numbers"
+      },
+      {
+        "input": "1\n1\n",
+        "expected_output": "1 DEFICIENT 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 edge case with zero proper divisors"
+      },
+      {
+        "input": "2\n8128\n33550336\n",
+        "expected_output": "8128 PERFECT 8128\n33550336 PERFECT 33550336\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Higher-order perfect numbers"
+      },
+      {
+        "input": "3\n945\n1000000\n999999999989\n",
+        "expected_output": "945 ABUNDANT 975\n1000000 ABUNDANT 1480437\n999999999989 DEFICIENT 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Smallest odd abundant number, power of 10, and large prime"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Armstrong Number Range",
+    "slug": "armstrong-number-range",
+    "difficulty": "medium",
+    "description": "An Armstrong number (also known as a narcissistic number or pluperfect digital invariant) is a number that is the sum of its own digits each raised to the power of the number of digits.\n\nFor example:\n- $153$ has $3$ digits, and $1^3 + 5^3 + 3^3 = 1 + 125 + 27 = 153$. Thus, 153 is an Armstrong number.\n- $1634$ has $4$ digits, and $1^4 + 6^4 + 3^4 + 4^4 = 1 + 1296 + 81 + 256 = 1634$.\n- Single-digit numbers $1$ through $9$ each have 1 digit, and $d^1 = d$, so all single-digit positive integers are Armstrong numbers.\n\nGiven a range $[L, R]$, find all Armstrong numbers within the inclusive interval. Handle varying digit counts dynamically and print the numbers in ascending order separated by a single space. If no Armstrong numbers exist within $[L, R]$, print `NONE`.",
+    "input_format": "A single line containing two space-separated integers $L$ and $R$ ($1 \\le L \\le R \\le 10^7$).",
+    "output_format": "Print all Armstrong numbers in $[L, R]$ separated by a single space. If none exist, print `NONE`.",
+    "constraints": "$1 \\le L \\le R \\le 10^7$, with $R - L \\le 2 \\times 10^5$.",
+    "examples": [
+      {
+        "input": "1 10",
+        "output": "1 2 3 4 5 6 7 8 9",
+        "explanation": "All single-digit numbers from 1 to 9 are Armstrong numbers. 10 is not."
+      },
+      {
+        "input": "100 500",
+        "output": "153 370 371 407",
+        "explanation": "The 3-digit Armstrong numbers in [100, 500] are 153, 370, 371, and 407."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Find and print Armstrong numbers in [L, R]\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic long long ipow(long long base, int exp) {\n    long long res = 1;\n    while (exp > 0) {\n        if (exp & 1) res *= base;\n        base *= base;\n        exp >>= 1;\n    }\n    return res;\n}\n\nstatic int is_armstrong(long long n) {\n    if (n < 10) return 1;\n    int digits = 0;\n    long long temp = n;\n    while (temp > 0) {\n        digits++;\n        temp /= 10;\n    }\n    long long sum = 0;\n    temp = n;\n    while (temp > 0) {\n        int d = temp % 10;\n        sum += ipow(d, digits);\n        if (sum > n) return 0;\n        temp /= 10;\n    }\n    return sum == n;\n}\n\nint main(void) {\n    long long L, R;\n    if (scanf(\"%lld %lld\", &L, &R) != 2) return 0;\n\n    int found = 0;\n    for (long long i = L; i <= R; i++) {\n        if (is_armstrong(i)) {\n            if (found) printf(\" \");\n            printf(\"%lld\", i);\n            found = 1;\n        }\n    }\n    if (!found) {\n        printf(\"NONE\\n\");\n    } else {\n        printf(\"\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "First count the number of digits k in n.",
+      "Extract each digit, raise it to power k using an integer power function, and accumulate the sum.",
+      "Prune early: if the accumulated sum exceeds n, the number cannot be an Armstrong number."
+    ],
+    "explanation": "For each number n in [L, R], we determine its digit count k. We then extract each digit, compute d^k using integer exponentiation, and sum them. If sum == n, n is an Armstrong number. If no numbers in [L, R] match, print NONE.",
+    "time_complexity": "O((R - L + 1) * log10(R))",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using double pow() from math.h which suffers from floating-point precision truncation.",
+      "Assuming all numbers have 3 digits instead of dynamically counting digits.",
+      "Printing a trailing space after the last number or missing the NONE case."
+    ],
+    "related_problems": [
+      "perfect-number-classifier",
+      "advanced-loop-pattern-counter"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["tcs", "wipro", "infosys", "cognizant"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "1 10\n",
+        "expected_output": "1 2 3 4 5 6 7 8 9\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Single-digit range"
+      },
+      {
+        "input": "100 500\n",
+        "expected_output": "153 370 371 407\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "3-digit range with multiple Armstrong numbers"
+      },
+      {
+        "input": "10 50\n",
+        "expected_output": "NONE\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty result range yielding NONE"
+      },
+      {
+        "input": "1000 10000\n",
+        "expected_output": "1634 8208 9474\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "4-digit Armstrong numbers"
+      },
+      {
+        "input": "54700 54800\n",
+        "expected_output": "54748\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "5-digit Armstrong number range"
+      },
+      {
+        "input": "1 1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element interval at boundary"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Advanced Base Converter",
+    "slug": "advanced-base-converter",
+    "difficulty": "hard",
+    "description": "Positional numeral systems represent numbers using a specific radix (base) $B$. Standard bases use digits `'0'-'9'` for values 0 through 9, and letters `'A'-'Z'` (or `'a'-'z'`) for values 10 through 35, allowing representation in any base from 2 to 36.\n\nIn systems programming and compiler toolchains, converting numeric literals between arbitrary bases while performing rigorous syntactic and semantic validation is a vital task.\n\nIn this problem, implement an advanced base converter. You are given $T$ test queries, each with a source base $B_1$, a target base $B_2$, and a string representation $S$.\nValidation rules:\n1. $S$ may have an optional leading sign (`'-'`).\n2. $S$ must contain at least one digit character after the optional sign.\n3. Every digit in $S$ must represent a value strictly less than $B_1$ (case-insensitive for input letters).\n4. If $S$ is invalid according to these rules, print `INVALID`.\n5. If valid, convert the number into base $B_2$, formatting the output with uppercase letters for digits $\\ge 10$. If the value was negative, preserve the leading `'-'`. For value 0, output `0`.",
+    "input_format": "Line 1: Integer $T$ ($1 \\le T \\le 20$).\nNext $T$ lines: Each line contains `B1 B2 S`, where $2 \\le B_1, B_2 \\le 36$.",
+    "output_format": "For each query, print the converted base $B_2$ string or `INVALID`.",
+    "constraints": "$1 \\le T \\le 20$. $2 \\le B_1, B_2 \\le 36$. The absolute value fits in a standard signed 64-bit integer (`long long`).",
+    "examples": [
+      {
+        "input": "3\n10 16 255\n2 10 101101\n16 2 1G3",
+        "output": "FF\n45\nINVALID",
+        "explanation": "255 in base 16 is FF. 101101 in base 10 is 45. '1G3' is INVALID because 'G' (value 16) is not a valid digit in base 16."
+      },
+      {
+        "input": "2\n10 2 -42\n8 16 755",
+        "output": "-101010\n1ED",
+        "explanation": "-42 in binary is -101010. 755 in octal is 493 in decimal, which is 1ED in hexadecimal."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nint main(void) {\n    // Convert numbers between arbitrary bases with validation\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nstatic int char_val(char c) {\n    if (c >= '0' && c <= '9') return c - '0';\n    if (c >= 'a' && c <= 'z') return c - 'a' + 10;\n    if (c >= 'A' && c <= 'Z') return c - 'A' + 10;\n    return -1;\n}\n\nstatic char val_char(int v) {\n    if (v < 10) return '0' + v;\n    return 'A' + (v - 10);\n}\n\nstatic void solve_one(void) {\n    int b1, b2;\n    char s[128];\n    if (scanf(\"%d %d %127s\", &b1, &b2, s) != 3) return;\n\n    int negative = 0;\n    int idx = 0;\n    if (s[0] == '-') {\n        negative = 1;\n        idx = 1;\n    }\n    if (s[idx] == '\\0') {\n        printf(\"INVALID\\n\");\n        return;\n    }\n\n    unsigned long long val = 0;\n    for (; s[idx] != '\\0'; idx++) {\n        int d = char_val(s[idx]);\n        if (d < 0 || d >= b1) {\n            printf(\"INVALID\\n\");\n            return;\n        }\n        val = val * b1 + d;\n    }\n\n    if (val == 0) {\n        printf(\"0\\n\");\n        return;\n    }\n\n    char out[128];\n    int out_len = 0;\n    while (val > 0) {\n        out[out_len++] = val_char(val % b2);\n        val /= b2;\n    }\n    if (negative) {\n        out[out_len++] = '-';\n    }\n    for (int i = out_len - 1; i >= 0; i--) {\n        putchar(out[i]);\n    }\n    putchar('\\n');\n}\n\nint main(void) {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    while (t--) {\n        solve_one();\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Check each character of the input string: its value must be >= 0 and strictly < B1.",
+      "Accumulate the absolute value into an unsigned 64-bit integer, and remember the negative sign flag.",
+      "Extract digits in base B2 via repeated modulo and division, then print in reverse order."
+    ],
+    "explanation": "Validation requires ensuring that all characters correspond to digits strictly less than base B1. Once validated, the string is converted to a 64-bit integer accumulator. The number is then formatted in base B2 by taking modulo B2 repeatedly, storing remainder characters, and outputting them in reverse order.",
+    "time_complexity": "O(T * |S|)",
+    "space_complexity": "O(|S|)",
+    "common_mistakes": [
+      "Allowing digit values equal to B1 (e.g., accepting '2' in base 2).",
+      "Printing '-0' instead of '0' for negative zero inputs.",
+      "Failing to support case-insensitive letter inputs ('a' through 'z' as well as 'A' through 'Z')."
+    ],
+    "related_problems": [
+      "type-conversion-chain",
+      "bitwise-expression-evaluator"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["google", "microsoft", "bloomberg"],
+    "company_source_type": "adapted_practice",
+    "test_cases": [
+      {
+        "input": "3\n10 16 255\n2 10 101101\n16 2 1G3\n",
+        "expected_output": "FF\n45\nINVALID\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard base 10 to 16, binary to decimal, and invalid hex digit"
+      },
+      {
+        "input": "2\n10 2 -42\n8 16 755\n",
+        "expected_output": "-101010\n1ED\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Negative decimal to binary and octal to hex"
+      },
+      {
+        "input": "2\n2 10 10201\n36 10 Z\n",
+        "expected_output": "INVALID\n35\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Invalid binary containing '2' and maximum single character in base 36"
+      },
+      {
+        "input": "1\n10 2 0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Zero conversion edge case"
+      },
+      {
+        "input": "2\n16 36 -DEADBEEF\n10 10 12345\n",
+        "expected_output": "-1Q8Q2W3\n12345\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Large negative hex to base 36 and identity base 10 conversion"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Collatz Conjecture Analyzer",
+    "slug": "collatz-conjecture-analyzer",
+    "difficulty": "hard",
+    "description": "The Collatz conjecture (the $3n+1$ problem) is one of the most famous unsolved problems in mathematics. Starting with any positive integer $n$, the sequence transitions according to:\n- If $n$ is even: $n_{next} = n / 2$\n- If $n$ is odd: $n_{next} = 3n + 1$\n\nThe sequence terminates when $n$ reaches 1. The number of steps is defined as the number of transitions from the initial value until 1 is reached (for instance, $n=1$ takes 0 steps; $n=2$ takes 1 step; $n=3 \\to 10 \\to 5 \\to 16 \\to 8 \\to 4 \\to 2 \\to 1$ takes 7 steps). During these iterations, the values can rise to large numbers (the \"peak\").\n\nGiven an integer range $[A, B]$, analyze all Collatz sequences starting at each integer $k \\in [A, B]$:\n1. Find the starting integer $X \\in [A, B]$ that requires the maximum number of steps to reach 1. If there is a tie, select the smallest starting integer $X$.\n2. Determine the maximum number of steps taken by $X$.\n3. Determine the overall peak value (the highest number reached across all sequence trajectories initiated by any $k \\in [A, B]$).\n\nBecause intermediate values during $3n+1$ can exceed 32-bit limits, 64-bit unsigned integers (`unsigned long long`) must be used for trajectory calculations.",
+    "input_format": "A single line containing two space-separated integers $A$ and $B$ ($1 \\le A \\le B \\le 10^5$).",
+    "output_format": "Line 1: `Longest: <X> with <steps> steps`\nLine 2: `Peak: <overall_peak>`",
+    "constraints": "$1 \\le A \\le B \\le 10^5$.",
+    "examples": [
+      {
+        "input": "1 10",
+        "output": "Longest: 9 with 19 steps\nPeak: 52",
+        "explanation": "Starting at 9 requires 19 steps to reach 1, longer than any other number in [1, 10]. The peak value attained across all numbers 1..10 is 52."
+      },
+      {
+        "input": "10 20",
+        "output": "Longest: 18 with 20 steps\nPeak: 52",
+        "explanation": "18 reaches 1 in 20 steps, the maximum in the range [10, 20]."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Analyze Collatz sequence lengths and peak values in [A, B]\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    unsigned long long A, B;\n    if (scanf(\"%llu %llu\", &A, &B) != 2) return 0;\n\n    unsigned long long best_x = A;\n    unsigned long long max_steps = 0;\n    unsigned long long overall_peak = 1;\n\n    for (unsigned long long k = A; k <= B; k++) {\n        unsigned long long curr = k;\n        unsigned long long steps = 0;\n        unsigned long long seq_peak = curr;\n\n        while (curr != 1) {\n            if (curr & 1) {\n                curr = 3 * curr + 1;\n            } else {\n                curr /= 2;\n            }\n            if (curr > seq_peak) seq_peak = curr;\n            steps++;\n        }\n\n        if (steps > max_steps) {\n            max_steps = steps;\n            best_x = k;\n        }\n        if (seq_peak > overall_peak) {\n            overall_peak = seq_peak;\n        }\n    }\n\n    printf(\"Longest: %llu with %llu steps\\n\", best_x, max_steps);\n    printf(\"Peak: %llu\\n\", overall_peak);\n    return 0;\n}\n",
+    "hints": [
+      "Use unsigned long long for intermediate values, as 3n + 1 can exceed 2^31 - 1.",
+      "Check tie-breakers: only update best_x if steps is strictly greater than max_steps.",
+      "For k = 1, the while loop should not execute, resulting in 0 steps."
+    ],
+    "explanation": "We iterate k from A to B. For each k, we track steps and sequence peak as curr transitions according to Collatz rules until reaching 1. We update best_x if steps > max_steps, and maintain overall_peak across all numbers.",
+    "time_complexity": "O((B - A) * S) where S is average Collatz path length",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using standard 32-bit signed int, causing integer overflow on values that exceed 2,147,483,647.",
+      "Updating best_x on ties (>= instead of >), which violates the tie-breaking rule of smallest starting integer.",
+      "Counting 1 step for k = 1 instead of 0 steps."
+    ],
+    "related_problems": [
+      "advanced-loop-pattern-counter",
+      "perfect-number-classifier"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["facebook", "palantir", "uber"],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "1 10\n",
+        "expected_output": "Longest: 9 with 19 steps\nPeak: 52\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small range [1, 10]"
+      },
+      {
+        "input": "10 20\n",
+        "expected_output": "Longest: 18 with 20 steps\nPeak: 52\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Range [10, 20]"
+      },
+      {
+        "input": "1 1\n",
+        "expected_output": "Longest: 1 with 0 steps\nPeak: 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "A=B=1 boundary case with 0 steps"
+      },
+      {
+        "input": "27 27\n",
+        "expected_output": "Longest: 27 with 111 steps\nPeak: 9232\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Famous 27 starting number reaching 9232 peak"
+      },
+      {
+        "input": "100 200\n",
+        "expected_output": "Longest: 171 with 124 steps\nPeak: 9232\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Range [100, 200]"
+      },
+      {
+        "input": "1000 5000\n",
+        "expected_output": "Longest: 3711 with 237 steps\nPeak: 27114424\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Wide range with 27 million peak"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Expression Operator Insertion",
+    "slug": "expression-operator-insertion",
+    "difficulty": "very_hard",
+    "description": "Given a string of digits $S$ and a target integer $T$, insert binary operators `+`, `-`, or `*` between the digits of $S$ such that the resulting expression evaluates to $T$. Operands can consist of multiple consecutive digits, but multi-digit operands must not contain leading zeros (for example, `\"105\"` can be split into `\"10\"` and `\"5\"`, but not `\"05\"`).\n\nOperator evaluation follows standard arithmetic precedence (`*` takes precedence over `+` and `-`). Because multiplication binds tighter than addition and subtraction, a recursive backtracking approach must maintain both the accumulated total and the previous added/subtracted term so that multiplication can adjust the running value correctly without re-evaluating the full expression string.\n\nOutput all valid expressions sorted in lexicographical order (ASCII order, where `'*'` (42) < `'+'` (43) < `'-'` (45)). If no valid expression can reach the target $T$, output `NO SOLUTION`.",
+    "input_format": "A single line containing the digit string $S$ ($1 \\le |S| \\le 10$) and the target integer $T$ ($-10^9 \\le T \\le 10^9$) separated by a space.",
+    "output_format": "Print all valid expressions in lexicographical order, one per line. If no expressions match, print `NO SOLUTION`.",
+    "constraints": "$1 \\le |S| \\le 10$, $-10^9 \\le T \\le 10^9$.",
+    "examples": [
+      {
+        "input": "123 6",
+        "output": "1*2*3\n1+2+3",
+        "explanation": "Both 1*2*3 = 6 and 1+2+3 = 6 reach the target. '*' comes before '+' in ASCII, so 1*2*3 is printed first."
+      },
+      {
+        "input": "232 8",
+        "output": "2*3+2\n2+3*2",
+        "explanation": "2*3+2 = 8 and 2+3*2 = 8 both evaluate to 8."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(void) {\n    // Backtracking operator insertion to reach target\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nstatic char num_str[32];\nstatic long long target;\nstatic int str_len;\n\nstatic char results[10000][64];\nstatic int result_count = 0;\n\nstatic void dfs(int index, long long prev_operand, long long current_val, char *expr, int expr_len) {\n    if (index == str_len) {\n        if (current_val == target) {\n            expr[expr_len] = '\\0';\n            strcpy(results[result_count++], expr);\n        }\n        return;\n    }\n\n    long long cur_num = 0;\n    for (int i = index; i < str_len; i++) {\n        if (i > index && num_str[index] == '0') break;\n        cur_num = cur_num * 10 + (num_str[i] - '0');\n        int len = i - index + 1;\n\n        if (index == 0) {\n            memcpy(expr + expr_len, num_str + index, len);\n            dfs(i + 1, cur_num, cur_num, expr, expr_len + len);\n        } else {\n            // Try '*'\n            expr[expr_len] = '*';\n            memcpy(expr + expr_len + 1, num_str + index, len);\n            dfs(i + 1, prev_operand * cur_num, current_val - prev_operand + prev_operand * cur_num, expr, expr_len + 1 + len);\n\n            // Try '+'\n            expr[expr_len] = '+';\n            memcpy(expr + expr_len + 1, num_str + index, len);\n            dfs(i + 1, cur_num, current_val + cur_num, expr, expr_len + 1 + len);\n\n            // Try '-'\n            expr[expr_len] = '-';\n            memcpy(expr + expr_len + 1, num_str + index, len);\n            dfs(i + 1, -cur_num, current_val - cur_num, expr, expr_len + 1 + len);\n        }\n    }\n}\n\nstatic int cmp_str(const void *a, const void *b) {\n    return strcmp((const char *)a, (const char *)b);\n}\n\nint main(void) {\n    if (scanf(\"%31s %lld\", num_str, &target) != 2) return 0;\n    str_len = strlen(num_str);\n    char expr_buf[64];\n    result_count = 0;\n    dfs(0, 0, 0, expr_buf, 0);\n\n    if (result_count == 0) {\n        printf(\"NO SOLUTION\\n\");\n    } else {\n        qsort(results, result_count, sizeof(results[0]), cmp_str);\n        for (int i = 0; i < result_count; i++) {\n            printf(\"%s\\n\", results[i]);\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Use recursive backtracking keeping track of (prev_operand, current_val).",
+      "When multiplying, adjust current_val as: current_val - prev_operand + (prev_operand * cur_num).",
+      "Do not allow numbers with leading zeros (e.g. if num_str[index] == '0', only 1-digit 0 is valid).",
+      "Sort all valid expression strings with qsort using strcmp."
+    ],
+    "explanation": "Backtracking partitions the digits into numbers. To respect operator precedence for multiplication, we maintain the previous operand added or subtracted. For '+', we add cur_num with prev = +cur_num. For '-', we subtract cur_num with prev = -cur_num. For '*', the previous term is undone and replaced by prev * cur_num. Expressions are collected and sorted lexicographically using qsort.",
+    "time_complexity": "O(4^N)",
+    "space_complexity": "O(4^N * N)",
+    "common_mistakes": [
+      "Allowing multi-digit numbers with leading zeros (like 05).",
+      "Incorrect precedence calculation for multiplication when chained after addition.",
+      "Failing to sort expressions in ASCII order ('*' < '+' < '-')."
+    ],
+    "related_problems": [
+      "bitwise-expression-evaluator",
+      "recursive-subset-sum"
+    ],
+    "topic_slug": "c-fundamentals",
+    "company_slugs": ["google", "facebook", "uber", "byte-dance"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "123 6\n",
+        "expected_output": "1*2*3\n1+2+3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard test case with addition and multiplication"
+      },
+      {
+        "input": "232 8\n",
+        "expected_output": "2*3+2\n2+3*2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Mixed multiplication and addition"
+      },
+      {
+        "input": "105 5\n",
+        "expected_output": "1*0+5\n10-5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Leading zero handling inside digit sequence"
+      },
+      {
+        "input": "00 0\n",
+        "expected_output": "0*0\n0+0\n0-0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Multiple zero digits"
+      },
+      {
+        "input": "3456237490 9191\n",
+        "expected_output": "NO SOLUTION\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Unreachable target producing NO SOLUTION"
+      },
+      {
+        "input": "1234 10\n",
+        "expected_output": "1*2*3+4\n1+2+3+4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Four-digit sequence reaching 10"
+      }
+    ]
+  }
+]

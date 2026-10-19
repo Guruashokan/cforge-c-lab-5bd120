@@ -1,0 +1,881 @@
+[
+  {
+    "id": 96,
+    "title": "Stack Using Array",
+    "slug": "stack-using-array",
+    "difficulty": "medium",
+    "description": "### Problem Statement\nA **stack** is a linear data structure that adheres to the **LIFO (Last In, First Out)** discipline: the most recently inserted element is always the first one to be removed. One of the simplest and most cache-efficient implementations of a stack uses a fixed-capacity contiguous array managed by an integer `top` index.\n\nIn this problem, you will implement a fixed-capacity integer stack in C:\n- The stack holds up to $C$ integers ($C$ is given as input).\n- An integer variable `top` tracks the index of the top element, initialized to `-1` (indicating an empty stack).\n\n#### Supported Operations:\n1. `PUSH <val>`:\n   - If the stack is full (`top == capacity - 1`), print `OVERFLOW`.\n   - Otherwise, increment `top`, store `<val>` at `data[top]`, and do not print anything.\n2. `POP`:\n   - If the stack is empty (`top == -1`), print `UNDERFLOW`.\n   - Otherwise, print `data[top]` and decrement `top`.\n3. `PEEK`:\n   - If the stack is empty (`top == -1`), print `EMPTY`.\n   - Otherwise, print `data[top]` without removing it.\n4. `ISEMPTY`:\n   - Print `TRUE` if `top == -1`, otherwise `FALSE`.\n5. `SIZE`:\n   - Print the current count of elements (`top + 1`).\n\nDeallocate the array buffer before program termination.",
+    "input_format": "The first line contains capacity C and number of queries Q.\nThe next Q lines contain commands: PUSH <val>, POP, PEEK, ISEMPTY, or SIZE.",
+    "output_format": "Print the response for each command generating output on a separate line.",
+    "constraints": "1 <= C <= 1000\n1 <= Q <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "3 8\nISEMPTY\nPUSH 10\nPUSH 20\nPUSH 30\nPUSH 40\nPEEK\nPOP\nSIZE\n",
+        "output": "TRUE\nOVERFLOW\n30\n30\n2\n",
+        "explanation": "Stack starts empty (TRUE). Pushing 10, 20, 30 fills capacity 3. Pushing 40 triggers OVERFLOW. PEEK shows 30. POP returns 30. SIZE is 2."
+      },
+      {
+        "input": "2 5\nPOP\nPEEK\nISEMPTY\nSIZE\nPOP\n",
+        "output": "UNDERFLOW\nEMPTY\nTRUE\n0\nUNDERFLOW\n",
+        "explanation": "Popping and peeking empty stack outputs UNDERFLOW and EMPTY."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *data;\n    int top;\n    int capacity;\n} ArrayStack;\n\nvoid stack_init(ArrayStack *st, int capacity) {\n    // TODO: Initialize stack with given capacity\n}\n\nvoid stack_push(ArrayStack *st, int val) {\n    // TODO: Push or print OVERFLOW\n}\n\nvoid stack_pop(ArrayStack *st) {\n    // TODO: Pop and print or print UNDERFLOW\n}\n\nvoid stack_peek(ArrayStack *st) {\n    // TODO: Peek and print or print EMPTY\n}\n\nvoid stack_is_empty(ArrayStack *st) {\n    // TODO: Print TRUE or FALSE\n}\n\nvoid stack_size(ArrayStack *st) {\n    // TODO: Print current size\n}\n\nvoid stack_destroy(ArrayStack *st) {\n    // TODO: Free memory\n}\n\nint main() {\n    int cap, q;\n    if (scanf(\"%d %d\", &cap, &q) != 2) return 0;\n    \n    ArrayStack st;\n    stack_init(&st, cap);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        // TODO: Handle PUSH, POP, PEEK, ISEMPTY, SIZE\n    }\n    \n    stack_destroy(&st);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *data;\n    int top;\n    int capacity;\n} ArrayStack;\n\nvoid stack_init(ArrayStack *st, int capacity) {\n    st->capacity = capacity;\n    st->top = -1;\n    st->data = (int *)malloc(capacity * sizeof(int));\n}\n\nvoid stack_push(ArrayStack *st, int val) {\n    if (st->top >= st->capacity - 1) {\n        printf(\"OVERFLOW\\n\");\n        return;\n    }\n    st->data[++st->top] = val;\n}\n\nvoid stack_pop(ArrayStack *st) {\n    if (st->top == -1) {\n        printf(\"UNDERFLOW\\n\");\n        return;\n    }\n    printf(\"%d\\n\", st->data[st->top--]);\n}\n\nvoid stack_peek(ArrayStack *st) {\n    if (st->top == -1) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", st->data[st->top]);\n}\n\nvoid stack_is_empty(ArrayStack *st) {\n    printf(\"%s\\n\", (st->top == -1) ? \"TRUE\" : \"FALSE\");\n}\n\nvoid stack_size(ArrayStack *st) {\n    printf(\"%d\\n\", st->top + 1);\n}\n\nvoid stack_destroy(ArrayStack *st) {\n    if (st->data) {\n        free(st->data);\n        st->data = NULL;\n    }\n    st->top = -1;\n    st->capacity = 0;\n}\n\nint main() {\n    int cap, q;\n    if (scanf(\"%d %d\", &cap, &q) != 2) return 0;\n    \n    ArrayStack st;\n    stack_init(&st, cap);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"PUSH\") == 0) {\n            int val; scanf(\"%d\", &val);\n            stack_push(&st, val);\n        } else if (strcmp(cmd, \"POP\") == 0) {\n            stack_pop(&st);\n        } else if (strcmp(cmd, \"PEEK\") == 0) {\n            stack_peek(&st);\n        } else if (strcmp(cmd, \"ISEMPTY\") == 0) {\n            stack_is_empty(&st);\n        } else if (strcmp(cmd, \"SIZE\") == 0) {\n            stack_size(&st);\n        }\n    }\n    \n    stack_destroy(&st);\n    return 0;\n}\n",
+    "hints": [
+      "Maintain top initialized to -1.",
+      "Overflow condition: top >= capacity - 1.",
+      "Underflow condition: top == -1.",
+      "Always decrement top when popping and increment when pushing."
+    ],
+    "explanation": "An array stack provides O(1) worst-case time for push, pop, and peek operations. Data locality is maximized due to contiguous storage, though capacity is fixed upon initialization.",
+    "time_complexity": "O(1) for all stack operations",
+    "space_complexity": "O(C) memory for the allocated array",
+    "common_mistakes": [
+      "Off-by-one errors in overflow check: checking top >= capacity instead of top >= capacity - 1.",
+      "Accessing data[top] when top == -1 (causing negative index segmentation faults).",
+      "Forgetting to decrement top on pop."
+    ],
+    "related_problems": [
+      "stack-using-linked-list",
+      "dynamic-stack-with-growth"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "cisco"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3 8\nISEMPTY\nPUSH 10\nPUSH 20\nPUSH 30\nPUSH 40\nPEEK\nPOP\nSIZE\n",
+        "expected_output": "TRUE\nOVERFLOW\n30\n30\n2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard push, overflow check, peek, pop, and size"
+      },
+      {
+        "input": "2 5\nPOP\nPEEK\nISEMPTY\nSIZE\nPOP\n",
+        "expected_output": "UNDERFLOW\nEMPTY\nTRUE\n0\nUNDERFLOW\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on empty stack"
+      },
+      {
+        "input": "1 6\nPUSH 5\nPUSH 10\nPEEK\nPOP\nPOP\nISEMPTY\n",
+        "expected_output": "OVERFLOW\n5\n5\nUNDERFLOW\nTRUE\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Capacity 1 stack boundary behavior"
+      },
+      {
+        "input": "5 10\nPUSH 1\nPUSH 2\nPUSH 3\nPUSH 4\nPUSH 5\nPOP\nPOP\nPOP\nPOP\nPOP\n",
+        "expected_output": "5\n4\n3\n2\n1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Filling to capacity and popping in reverse order"
+      },
+      {
+        "input": "2 6\nPUSH 100\nSIZE\nPUSH 200\nSIZE\nPOP\nSIZE\n",
+        "expected_output": "1\n2\n200\n1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size tracking on interleaved push and pop"
+      }
+    ]
+  },
+  {
+    "id": 97,
+    "title": "Stack Using Linked List",
+    "slug": "stack-using-linked-list",
+    "difficulty": "medium",
+    "description": "### Problem Statement\nWhile array-based stacks have a fixed capacity or require periodic reallocation, a **Linked List Stack** can grow dynamically to accommodate an arbitrary number of elements without preset memory bounds (only limited by available heap). In a linked list stack, the `top` of the stack corresponds to the `head` of the singly linked list.\n\nEach node is defined as:\n```c\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n```\n\n#### Operations:\n1. `PUSH <val>`: Allocate a new node containing `<val>` on the heap and prepend it to the head of the list (`top`).\n2. `POP`:\n   - If empty (`top == NULL`), print `UNDERFLOW`.\n   - Otherwise, extract `top->data`, advance `top = top->next`, print the extracted value, and free the old top node.\n3. `PEEK`:\n   - If empty, print `EMPTY`.\n   - Otherwise, print `top->data` without modifying the stack.\n4. `ISEMPTY`:\n   - Print `TRUE` if `top == NULL`, else `FALSE`.\n5. `SIZE`:\n   - Print the current count of elements on the stack.\n\nFree all nodes before program exit.",
+    "input_format": "The first line contains Q (number of operations).\nThe next Q lines contain commands: PUSH <val>, POP, PEEK, ISEMPTY, or SIZE.",
+    "output_format": "Print the response for each command generating output on a separate line.",
+    "constraints": "1 <= Q <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "7\nISEMPTY\nPUSH 10\nPUSH 20\nPEEK\nSIZE\nPOP\nPOP\n",
+        "output": "TRUE\n20\n2\n20\n10\n",
+        "explanation": "Stack starts empty. 10 and 20 are pushed. Top is 20, size is 2. Popping returns 20 then 10."
+      },
+      {
+        "input": "4\nPOP\nPEEK\nSIZE\nISEMPTY\n",
+        "output": "UNDERFLOW\nEMPTY\n0\nTRUE\n",
+        "explanation": "Empty stack responses."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\ntypedef struct {\n    Node *top;\n    int size;\n} LLStack;\n\nvoid lls_init(LLStack *st) {\n    // TODO: Initialize stack\n}\n\nvoid lls_push(LLStack *st, int val) {\n    // TODO: Prepend node to head\n}\n\nvoid lls_pop(LLStack *st) {\n    // TODO: Pop from head or print UNDERFLOW\n}\n\nvoid lls_peek(LLStack *st) {\n    // TODO: Print top or EMPTY\n}\n\nvoid lls_is_empty(LLStack *st) {\n    // TODO: Print TRUE or FALSE\n}\n\nvoid lls_size(LLStack *st) {\n    // TODO: Print size\n}\n\nvoid lls_destroy(LLStack *st) {\n    // TODO: Free all nodes\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    LLStack st;\n    lls_init(&st);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        // TODO: Handle commands\n    }\n    \n    lls_destroy(&st);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\ntypedef struct {\n    Node *top;\n    int size;\n} LLStack;\n\nvoid lls_init(LLStack *st) {\n    st->top = NULL;\n    st->size = 0;\n}\n\nvoid lls_push(LLStack *st, int val) {\n    Node *node = (Node *)malloc(sizeof(Node));\n    node->data = val;\n    node->next = st->top;\n    st->top = node;\n    st->size++;\n}\n\nvoid lls_pop(LLStack *st) {\n    if (st->top == NULL) {\n        printf(\"UNDERFLOW\\n\");\n        return;\n    }\n    Node *temp = st->top;\n    int val = temp->data;\n    st->top = st->top->next;\n    free(temp);\n    st->size--;\n    printf(\"%d\\n\", val);\n}\n\nvoid lls_peek(LLStack *st) {\n    if (st->top == NULL) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", st->top->data);\n}\n\nvoid lls_is_empty(LLStack *st) {\n    printf(\"%s\\n\", (st->top == NULL) ? \"TRUE\" : \"FALSE\");\n}\n\nvoid lls_size(LLStack *st) {\n    printf(\"%d\\n\", st->size);\n}\n\nvoid lls_destroy(LLStack *st) {\n    Node *curr = st->top;\n    while (curr != NULL) {\n        Node *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n    st->top = NULL;\n    st->size = 0;\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    LLStack st;\n    lls_init(&st);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"PUSH\") == 0) {\n            int val; scanf(\"%d\", &val);\n            lls_push(&st, val);\n        } else if (strcmp(cmd, \"POP\") == 0) {\n            lls_pop(&st);\n        } else if (strcmp(cmd, \"PEEK\") == 0) {\n            lls_peek(&st);\n        } else if (strcmp(cmd, \"ISEMPTY\") == 0) {\n            lls_is_empty(&st);\n        } else if (strcmp(cmd, \"SIZE\") == 0) {\n            lls_size(&st);\n        }\n    }\n    \n    lls_destroy(&st);\n    return 0;\n}\n",
+    "hints": [
+      "Pushing inserts at the head of the list: node->next = st->top; st->top = node;",
+      "Popping removes from head: temp = st->top; st->top = temp->next; free(temp);",
+      "Maintain an explicit size integer to return size in O(1) time.",
+      "Free all nodes in a cleanup loop at the end."
+    ],
+    "explanation": "A linked list stack provides dynamic allocation where memory scales strictly with the number of elements. Pushing and popping at the head ensures strict O(1) worst-case time without realloc overhead.",
+    "time_complexity": "O(1) for PUSH, POP, PEEK, ISEMPTY, and SIZE",
+    "space_complexity": "O(N) heap memory for node storage",
+    "common_mistakes": [
+      "Pushing to the tail instead of head, causing O(N) push or pop operations.",
+      "Memory leaks by not freeing popped nodes.",
+      "Dereferencing st->top when it is NULL."
+    ],
+    "related_problems": [
+      "stack-using-array",
+      "build-and-display-linked-list"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "google"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7\nISEMPTY\nPUSH 10\nPUSH 20\nPEEK\nSIZE\nPOP\nPOP\n",
+        "expected_output": "TRUE\n20\n2\n20\n10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard push, peek, size, and pop operations"
+      },
+      {
+        "input": "4\nPOP\nPEEK\nSIZE\nISEMPTY\n",
+        "expected_output": "UNDERFLOW\nEMPTY\n0\nTRUE\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on empty linked list stack"
+      },
+      {
+        "input": "6\nPUSH 100\nPOP\nPOP\nPUSH 200\nPEEK\nPOP\n",
+        "expected_output": "100\nUNDERFLOW\n200\n200\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Alternating push and pop draining to empty"
+      },
+      {
+        "input": "6\nPUSH 1\nPUSH 2\nPUSH 3\nPOP\nPOP\nPOP\n",
+        "expected_output": "3\n2\n1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Strict LIFO order verification"
+      },
+      {
+        "input": "5\nPUSH -5\nPUSH 0\nPUSH 5\nSIZE\nPEEK\n",
+        "expected_output": "3\n5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Negative numbers and zero handling"
+      }
+    ]
+  },
+  {
+    "id": 98,
+    "title": "Balanced Parentheses",
+    "slug": "balanced-parentheses",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nCompilers and syntax checkers verify that code delimiters (parentheses `()`, brackets `[]`, and braces `{}`) are correctly matched and nested. A bracket sequence is **balanced** if:\n1. Every opening bracket has a corresponding closing bracket of the identical type.\n2. Brackets close in the correct nested order (inner brackets must close before outer brackets).\n3. No closing bracket appears without an unmatched opening bracket preceding it.\n\nImplement a bracket balancing validator in C using a stack:\n- Scan the input string character by character.\n- If an opening bracket (`(`, `[`, `{`) is encountered, push it onto the stack.\n- If a closing bracket (`)`, `]`, `}`) is encountered:\n  - If the stack is empty, the string is unbalanced.\n  - If the top of the stack does not match the closing bracket type, the string is unbalanced.\n  - Otherwise, pop the matching opening bracket from the stack.\n- When the string scan completes, if the stack is completely empty, print `BALANCED`. If any unclosed brackets remain on the stack, print `UNBALANCED`.",
+    "input_format": "The first line contains T (number of test cases).\nThe next T lines each contain a bracket string.",
+    "output_format": "For each test case, print 'BALANCED' or 'UNBALANCED' on a separate line.",
+    "constraints": "1 <= T <= 100\n1 <= strlen(expr) <= 1000\nCharacters consist only of (, ), [, ], {, }",
+    "examples": [
+      {
+        "input": "4\n{[()]}\n{[(])}\n{{[[(())]]}}\n(((\n",
+        "output": "BALANCED\nUNBALANCED\nBALANCED\nUNBALANCED\n",
+        "explanation": "{[()]} is properly nested. In {[(])}, ( is closed by ] which is a mismatch. (( leaves unclosed brackets at EOF."
+      },
+      {
+        "input": "3\n)\n]\n}\n",
+        "output": "UNBALANCED\nUNBALANCED\nUNBALANCED\n",
+        "explanation": "Closing brackets with empty stack are immediately UNBALANCED."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nint is_balanced(const char *str) {\n    // TODO: Use stack to verify balanced parentheses\n    return 0;\n}\n\nint main() {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    \n    char expr[1024];\n    for (int i = 0; i < t; i++) {\n        scanf(\"%s\", expr);\n        if (is_balanced(expr)) {\n            printf(\"BALANCED\\n\");\n        } else {\n            printf(\"UNBALANCED\\n\");\n        }\n    }\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nint is_matching(char open, char close) {\n    if (open == '(' && close == ')') return 1;\n    if (open == '[' && close == ']') return 1;\n    if (open == '{' && close == '}') return 1;\n    return 0;\n}\n\nint is_balanced(const char *str) {\n    char stack[1024];\n    int top = -1;\n    \n    for (int i = 0; str[i] != '\\0'; i++) {\n        char ch = str[i];\n        if (ch == '(' || ch == '[' || ch == '{') {\n            stack[++top] = ch;\n        } else if (ch == ')' || ch == ']' || ch == '}') {\n            if (top == -1) return 0;\n            if (!is_matching(stack[top], ch)) return 0;\n            top--;\n        }\n    }\n    return (top == -1);\n}\n\nint main() {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    \n    char expr[1024];\n    for (int i = 0; i < t; i++) {\n        scanf(\"%s\", expr);\n        if (is_balanced(expr)) {\n            printf(\"BALANCED\\n\");\n        } else {\n            printf(\"UNBALANCED\\n\");\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Use a char array stack to store opening brackets.",
+      "When encountering a closing bracket, check if top == -1 first (empty stack).",
+      "Verify stack[top] matches the closing bracket type before popping.",
+      "At string termination, check top == -1 (unclosed openings make the string unbalanced)."
+    ],
+    "explanation": "Matching brackets follow strict LIFO ordering: the most recently opened bracket must be the first to close. Using a stack achieves optimal O(N) time and O(N) space.",
+    "time_complexity": "O(N) linear time per string",
+    "space_complexity": "O(N) stack memory",
+    "common_mistakes": [
+      "Forgetting to check if the stack is empty after the loop completes (e.g. '(((' has no closing mismatches but is unbalanced).",
+      "Popping from empty stack when string starts with a closing bracket like ')'.",
+      "Mismatching bracket pairs (e.g. treating '(' and ']' as matching)."
+    ],
+    "related_problems": [
+      "stack-using-array",
+      "infix-to-postfix"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "facebook",
+      "amazon",
+      "google",
+      "microsoft",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\n{[()]}\n{[(])}\n{{[[(())]]}}\n(((\n",
+        "expected_output": "BALANCED\nUNBALANCED\nBALANCED\nUNBALANCED\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard nested brackets, crossing mismatched brackets, and unclosed brackets"
+      },
+      {
+        "input": "3\n)\n]\n}\n",
+        "expected_output": "UNBALANCED\nUNBALANCED\nUNBALANCED\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single closing bracket on empty stack"
+      },
+      {
+        "input": "4\n()\n[]\n{}\n()[]{}\n",
+        "expected_output": "BALANCED\nBALANCED\nBALANCED\nBALANCED\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Simple sequential bracket pairs"
+      },
+      {
+        "input": "2\n(()\n())\n",
+        "expected_output": "UNBALANCED\nUNBALANCED\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Unbalanced counts with proper bracket types"
+      },
+      {
+        "input": "3\n({[]})\n({[}])\n((((((()))))))\n",
+        "expected_output": "BALANCED\nUNBALANCED\nBALANCED\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Deeply nested balanced and unbalanced expressions"
+      }
+    ]
+  },
+  {
+    "id": 99,
+    "title": "Infix to Postfix",
+    "slug": "infix-to-postfix",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nStandard arithmetic notation is written in **infix** form (e.g. `A + B * C`), where operators appear between operands and precedence/parentheses dictate evaluation order. Computers and stack-based virtual machines (like the JVM or Forth) evaluate expressions in **postfix** notation (Reverse Polish Notation, e.g. `A B C * +`), where operators appear after their operands and no parentheses are needed.\n\n**Dijkstra's Shunting-yard Algorithm** converts an infix expression into postfix using an operator stack:\n1. Operands (alphanumeric characters `a-z`, `A-Z`, `0-9`) are output directly.\n2. When an opening parenthesis `(` is encountered, push it onto the operator stack.\n3. When a closing parenthesis `)` is encountered, pop and output operators from the stack until `(` is encountered, then discard `(`.\n4. When an operator is encountered:\n   - Operators and precedence:\n     - `^` (exponentiation): Precedence 3, **right-associative**.\n     - `*`, `/`: Precedence 2, **left-associative**.\n     - `+`, `-`: Precedence 1, **left-associative**.\n   - While the stack has an operator with higher precedence, OR with equal precedence and the current operator is left-associative, pop and output it.\n   - Push the current operator onto the stack.\n5. At the end of the expression, pop and output all remaining operators from the stack.\n\nConvert the given infix expression string into postfix notation (without spaces).",
+    "input_format": "The first line contains T (number of test expressions).\nThe following T lines each contain an infix expression string without spaces.",
+    "output_format": "Print the converted postfix string for each test expression on a new line.",
+    "constraints": "1 <= T <= 50\n1 <= strlen(infix) <= 500\nValid alphanumeric operands and operators +, -, *, /, ^, (, )",
+    "examples": [
+      {
+        "input": "3\nA+B*C\n(A+B)*C\nA+B*C/D-E\n",
+        "output": "ABC*+\nAB+C*\nABC*D/+E-\n",
+        "explanation": "In A+B*C, * has higher precedence than +, giving ABC*+. In (A+B)*C, parentheses override precedence, giving AB+C*."
+      },
+      {
+        "input": "2\nA^B^C\n(A^B)^C\n",
+        "output": "ABC^^\nAB^C^\n",
+        "explanation": "Because ^ is right-associative, A^B^C evaluates as A^(B^C), yielding ABC^^."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nvoid infix_to_postfix(const char *infix, char *postfix) {\n    // TODO: Implement Dijkstra's Shunting-yard algorithm\n}\n\nint main() {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    \n    char infix[512];\n    char postfix[512];\n    for (int i = 0; i < t; i++) {\n        scanf(\"%s\", infix);\n        infix_to_postfix(infix, postfix);\n        printf(\"%s\\n\", postfix);\n    }\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nint precedence(char op) {\n    if (op == '^') return 3;\n    if (op == '*' || op == '/') return 2;\n    if (op == '+' || op == '-') return 1;\n    return 0;\n}\n\nint is_right_associative(char op) {\n    return (op == '^');\n}\n\nvoid infix_to_postfix(const char *infix, char *postfix) {\n    char stack[512];\n    int top = -1;\n    int k = 0;\n    \n    for (int i = 0; infix[i] != '\\0'; i++) {\n        char ch = infix[i];\n        \n        if (isalnum(ch)) {\n            postfix[k++] = ch;\n        } else if (ch == '(') {\n            stack[++top] = ch;\n        } else if (ch == ')') {\n            while (top != -1 && stack[top] != '(') {\n                postfix[k++] = stack[top--];\n            }\n            if (top != -1 && stack[top] == '(') {\n                top--; // Discard '('\n            }\n        } else {\n            // Operator\n            int prec = precedence(ch);\n            int right_assoc = is_right_associative(ch);\n            while (top != -1 && stack[top] != '(') {\n                int top_prec = precedence(stack[top]);\n                if (top_prec > prec || (top_prec == prec && !right_assoc)) {\n                    postfix[k++] = stack[top--];\n                } else {\n                    break;\n                }\n            }\n            stack[++top] = ch;\n        }\n    }\n    \n    while (top != -1) {\n        if (stack[top] != '(') {\n            postfix[k++] = stack[top];\n        }\n        top--;\n    }\n    postfix[k] = '\\0';\n}\n\nint main() {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    \n    char infix[512];\n    char postfix[512];\n    for (int i = 0; i < t; i++) {\n        scanf(\"%s\", infix);\n        infix_to_postfix(infix, postfix);\n        printf(\"%s\\n\", postfix);\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Use isalnum() to test for operands, which are appended directly to the output buffer.",
+      "Define a precedence function: ^ is 3, * / is 2, + - is 1, ( is 0.",
+      "For left-associative operators: pop while top_prec >= curr_prec.",
+      "For right-associative operators (^): pop only while top_prec > curr_prec (strictly greater)."
+    ],
+    "explanation": "Dijkstra's Shunting-yard algorithm parses infix expressions using an operator stack. Higher-precedence and left-associative operators are dispatched before encountering lower-precedence operators, producing unambiguous Reverse Polish Notation in linear O(N) time.",
+    "time_complexity": "O(N) linear time per expression",
+    "space_complexity": "O(N) for operator stack and postfix buffer",
+    "common_mistakes": [
+      "Treating '^' as left-associative, giving AB^C^ instead of ABC^^.",
+      "Printing parentheses '(' or ')' in the postfix output.",
+      "Not handling redundant parentheses like '((A))'."
+    ],
+    "related_problems": [
+      "evaluate-postfix-expression",
+      "balanced-parentheses"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "google"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3\nA+B*C\n(A+B)*C\nA+B*C/D-E\n",
+        "expected_output": "ABC*+\nAB+C*\nABC*D/+E-\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Precedence rules and parentheses override"
+      },
+      {
+        "input": "2\nA^B^C\n(A^B)^C\n",
+        "expected_output": "ABC^^\nAB^C^\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Right-associativity of exponentiation operator (^)"
+      },
+      {
+        "input": "2\nA\n((A))\n",
+        "expected_output": "A\nA\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single operand and redundant nested parentheses"
+      },
+      {
+        "input": "2\nA+B+C+D\nA-B-C\n",
+        "expected_output": "AB+C+D+\nAB-C-\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Left-associativity of addition and subtraction"
+      },
+      {
+        "input": "2\n((A+B)*C-(D-E))^(F+G)\nA*(B+C)/D\n",
+        "expected_output": "AB+C*DE--FG+^\nABC+*D/\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Complex arithmetic expressions with mixed precedence"
+      }
+    ]
+  },
+  {
+    "id": 100,
+    "title": "Evaluate Postfix Expression",
+    "slug": "evaluate-postfix-expression",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nEvaluating an arithmetic expression in **Reverse Polish Notation (postfix)** is straightforward and efficient using an operand stack. In postfix notation, operators appear immediately after their operands. Evaluation proceeds from left to right:\n- When a number is encountered, push it onto the operand stack.\n- When a binary operator (`+`, `-`, `*`, `/`) is encountered:\n  - Pop the top element as the **right operand** ($B$).\n  - Pop the next top element as the **left operand** ($A$).\n  - Compute the result $A \\text{ op } B$.\n  - Push the result back onto the operand stack.\n- At the end of the expression, the stack contains exactly one value: the final result.\n\n#### Specifications:\n1. Input tokens are space-separated (integers can have multiple digits and may be negative).\n2. Operators are `+`, `-`, `*`, `/`.\n3. Division `/` represents standard C integer division (truncating toward zero).\n4. Print the final integer evaluation result.",
+    "input_format": "The first line contains T (number of test expressions).\nThe following T lines each contain space-separated postfix tokens.",
+    "output_format": "Print the evaluated integer result for each test expression on a new line.",
+    "constraints": "1 <= T <= 50\nTokens are space-separated integers (-10^6 <= val <= 10^6) and operators +, -, *, /\nNo division by zero will occur",
+    "examples": [
+      {
+        "input": "3\n2 3 1 * + 9 -\n10 5 / 2 +\n4 13 5 / +\n",
+        "output": "-4\n4\n6\n",
+        "explanation": "2 3 1 * + 9 -: 3*1=3, 2+3=5, 5-9=-4. 4 13 5 / +: 13/5=2 (integer div), 4+2=6."
+      },
+      {
+        "input": "2\n42\n-15\n",
+        "output": "42\n-15\n",
+        "explanation": "Single-number expressions evaluate to themselves."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nlong long evaluate_postfix(char *expr) {\n    // TODO: Tokenize string, evaluate using operand stack\n    return 0;\n}\n\nint main() {\n    int t;\n    if (scanf(\"%d\\n\", &t) != 1) return 0;\n    \n    char line[1024];\n    for (int i = 0; i < t; i++) {\n        if (!fgets(line, sizeof(line), stdin)) break;\n        // Strip newline\n        line[strcspn(line, \"\\r\\n\")] = 0;\n        printf(\"%lld\\n\", evaluate_postfix(line));\n    }\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nlong long evaluate_postfix(char *expr) {\n    long long stack[1024];\n    int top = -1;\n    \n    char *token = strtok(expr, \" \");\n    while (token != NULL) {\n        if (strcmp(token, \"+\") == 0) {\n            long long b = stack[top--];\n            long long a = stack[top--];\n            stack[++top] = a + b;\n        } else if (strcmp(token, \"-\") == 0) {\n            long long b = stack[top--];\n            long long a = stack[top--];\n            stack[++top] = a - b;\n        } else if (strcmp(token, \"*\") == 0) {\n            long long b = stack[top--];\n            long long a = stack[top--];\n            stack[++top] = a * b;\n        } else if (strcmp(token, \"/\") == 0) {\n            long long b = stack[top--];\n            long long a = stack[top--];\n            stack[++top] = a / b;\n        } else {\n            stack[++top] = atoll(token);\n        }\n        token = strtok(NULL, \" \");\n    }\n    return stack[top];\n}\n\nint main() {\n    int t;\n    if (scanf(\"%d\\n\", &t) != 1) return 0;\n    \n    char line[1024];\n    for (int i = 0; i < t; i++) {\n        if (!fgets(line, sizeof(line), stdin)) break;\n        line[strcspn(line, \"\\r\\n\")] = 0;\n        if (strlen(line) == 0) continue;\n        printf(\"%lld\\n\", evaluate_postfix(line));\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Use strtok(expr, \" \") to read space-separated tokens.",
+      "Crucial: when popping operands, the first popped is b (right operand) and the second is a (left operand). Compute a - b or a / b.",
+      "Use atoll() to parse multi-digit and negative numbers into 64-bit integers.",
+      "Use long long for the stack to prevent arithmetic overflow."
+    ],
+    "explanation": "Postfix evaluation executes in linear O(N) time with an operand stack. The operand ordering (left vs right) is vital for non-commutative operators like subtraction and division: popping yields the right operand first.",
+    "time_complexity": "O(N) linear time per expression",
+    "space_complexity": "O(N) stack memory",
+    "common_mistakes": [
+      "Inverting operand order: computing b - a instead of a - b.",
+      "Treating '-' as an operator when it is part of a negative number (e.g. token '-5'). Comparing strcmp(token, \"-\") resolves this.",
+      "Using 32-bit int instead of long long, leading to overflow on large products."
+    ],
+    "related_problems": [
+      "infix-to-postfix",
+      "stack-using-array"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "google",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3\n2 3 1 * + 9 -\n10 5 / 2 +\n4 13 5 / +\n",
+        "expected_output": "-4\n4\n6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard postfix arithmetic: (2 + 3*1) - 9 = -4; 10/5 + 2 = 4; 4 + 13/5 = 6"
+      },
+      {
+        "input": "2\n42\n-15\n",
+        "expected_output": "42\n-15\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single positive and negative integer operand"
+      },
+      {
+        "input": "2\n10 20 - 30 +\n5 2 * 3 4 * +\n",
+        "expected_output": "20\n22\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiplication and subtraction combinations"
+      },
+      {
+        "input": "2\n-10 2 /\n100 0 *\n",
+        "expected_output": "-5\n0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Division of negative integer and multiplication by zero"
+      },
+      {
+        "input": "2\n10 6 9 3 + -11 * / * 17 + 5 +\n20 4 / 3 2 * -\n",
+        "expected_output": "22\n-1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Complex expression with negative intermediate tokens"
+      }
+    ]
+  },
+  {
+    "id": 101,
+    "title": "Circular Queue Implementation",
+    "slug": "circular-queue-implementation",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nA standard queue implemented on a static array wastes space as elements are dequeued from the front: the front index marches forward, leaving unusable memory at the beginning. A **Circular Queue** solves this by wrapping indices around using modulo arithmetic (`(idx + 1) % capacity`), creating a circular buffer where memory is continuously recycled.\n\nImplement a circular queue of fixed capacity $K$:\n- The queue is backed by an array `data` of size $K$.\n- Maintain `front`, `rear`, and `size`.\n- Initially, `front = 0`, `rear = -1`, `size = 0`.\n\n#### Supported Operations:\n1. `ENQUEUE <val>`:\n   - If full (`size == capacity`), print `FULL`.\n   - Otherwise, advance `rear = (rear + 1) % capacity`, store `<val>` at `data[rear]`, increment `size`, and print `OK`.\n2. `DEQUEUE`:\n   - If empty (`size == 0`), print `EMPTY`.\n   - Otherwise, retrieve value at `data[front]`, advance `front = (front + 1) % capacity`, decrement `size`, and print the retrieved value.\n3. `FRONT`:\n   - If empty, print `EMPTY`.\n   - Otherwise, print `data[front]`.\n4. `REAR`:\n   - If empty, print `EMPTY`.\n   - Otherwise, print `data[rear]`.\n5. `ISEMPTY`:\n   - Print `TRUE` if `size == 0`, else `FALSE`.\n6. `ISFULL`:\n   - Print `TRUE` if `size == capacity`, else `FALSE`.\n\nDeallocate the circular buffer upon termination.",
+    "input_format": "The first line contains capacity K and number of queries Q.\nThe next Q lines contain commands: ENQUEUE <val>, DEQUEUE, FRONT, REAR, ISEMPTY, or ISFULL.",
+    "output_format": "Print the response for each command on a separate line.",
+    "constraints": "1 <= K <= 1000\n1 <= Q <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "3 9\nENQUEUE 10\nENQUEUE 20\nENQUEUE 30\nENQUEUE 40\nFRONT\nREAR\nDEQUEUE\nENQUEUE 40\nREAR\n",
+        "output": "OK\nOK\nOK\nFULL\n10\n30\n10\nOK\n40\n",
+        "explanation": "Queue has capacity 3. Enqueuing 10, 20, 30 fills it. Enqueuing 40 gives FULL. Dequeuing removes 10, freeing slot 0. Enqueuing 40 wraps around to slot 0, making 40 the new rear."
+      },
+      {
+        "input": "2 5\nDEQUEUE\nFRONT\nREAR\nISEMPTY\nISFULL\n",
+        "output": "EMPTY\nEMPTY\nEMPTY\nTRUE\nFALSE\n",
+        "explanation": "Operating on an empty queue safely returns EMPTY, TRUE, FALSE."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *data;\n    int front;\n    int rear;\n    int size;\n    int capacity;\n} CircularQueue;\n\nvoid cq_init(CircularQueue *q, int capacity) {\n    // TODO: Initialize circular queue\n}\n\nvoid cq_enqueue(CircularQueue *q, int val) {\n    // TODO: Enqueue with wrap-around or print FULL\n}\n\nvoid cq_dequeue(CircularQueue *q) {\n    // TODO: Dequeue with wrap-around or print EMPTY\n}\n\nvoid cq_front(CircularQueue *q) {\n    // TODO: Print front element or EMPTY\n}\n\nvoid cq_rear(CircularQueue *q) {\n    // TODO: Print rear element or EMPTY\n}\n\nvoid cq_is_empty(CircularQueue *q) {\n    // TODO: Print TRUE or FALSE\n}\n\nvoid cq_is_full(CircularQueue *q) {\n    // TODO: Print TRUE or FALSE\n}\n\nvoid cq_destroy(CircularQueue *q) {\n    // TODO: Free memory\n}\n\nint main() {\n    int cap, q;\n    if (scanf(\"%d %d\", &cap, &q) != 2) return 0;\n    \n    CircularQueue queue;\n    cq_init(&queue, cap);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        // TODO: Handle commands\n    }\n    \n    cq_destroy(&queue);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *data;\n    int front;\n    int rear;\n    int size;\n    int capacity;\n} CircularQueue;\n\nvoid cq_init(CircularQueue *q, int capacity) {\n    q->capacity = capacity;\n    q->size = 0;\n    q->front = 0;\n    q->rear = -1;\n    q->data = (int *)malloc(capacity * sizeof(int));\n}\n\nvoid cq_enqueue(CircularQueue *q, int val) {\n    if (q->size == q->capacity) {\n        printf(\"FULL\\n\");\n        return;\n    }\n    q->rear = (q->rear + 1) % q->capacity;\n    q->data[q->rear] = val;\n    q->size++;\n    printf(\"OK\\n\");\n}\n\nvoid cq_dequeue(CircularQueue *q) {\n    if (q->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    int val = q->data[q->front];\n    q->front = (q->front + 1) % q->capacity;\n    q->size--;\n    printf(\"%d\\n\", val);\n}\n\nvoid cq_front(CircularQueue *q) {\n    if (q->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", q->data[q->front]);\n}\n\nvoid cq_rear(CircularQueue *q) {\n    if (q->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", q->data[q->rear]);\n}\n\nvoid cq_is_empty(CircularQueue *q) {\n    printf(\"%s\\n\", (q->size == 0) ? \"TRUE\" : \"FALSE\");\n}\n\nvoid cq_is_full(CircularQueue *q) {\n    printf(\"%s\\n\", (q->size == q->capacity) ? \"TRUE\" : \"FALSE\");\n}\n\nvoid cq_destroy(CircularQueue *q) {\n    if (q->data) {\n        free(q->data);\n        q->data = NULL;\n    }\n    q->size = 0;\n    q->capacity = 0;\n}\n\nint main() {\n    int cap, q;\n    if (scanf(\"%d %d\", &cap, &q) != 2) return 0;\n    \n    CircularQueue queue;\n    cq_init(&queue, cap);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"ENQUEUE\") == 0) {\n            int val; scanf(\"%d\", &val);\n            cq_enqueue(&queue, val);\n        } else if (strcmp(cmd, \"DEQUEUE\") == 0) {\n            cq_dequeue(&queue);\n        } else if (strcmp(cmd, \"FRONT\") == 0) {\n            cq_front(&queue);\n        } else if (strcmp(cmd, \"REAR\") == 0) {\n            cq_rear(&queue);\n        } else if (strcmp(cmd, \"ISEMPTY\") == 0) {\n            cq_is_empty(&queue);\n        } else if (strcmp(cmd, \"ISFULL\") == 0) {\n            cq_is_full(&queue);\n        }\n    }\n    \n    cq_destroy(&queue);\n    return 0;\n}\n",
+    "hints": [
+      "Maintain size explicitly to differentiate between an empty queue (size == 0) and a full queue (size == capacity).",
+      "Advance rear: rear = (rear + 1) % capacity.",
+      "Advance front: front = (front + 1) % capacity.",
+      "Initial state: front = 0, rear = -1, size = 0."
+    ],
+    "explanation": "A circular queue eliminates array shifting by using modulo indexing to wrap pointers around the end of the buffer back to index 0. Explicitly maintaining a size counter avoids ambiguity when front == rear.",
+    "time_complexity": "O(1) for all queue operations",
+    "space_complexity": "O(K) memory for the circular buffer",
+    "common_mistakes": [
+      "Failing to use modulo % capacity when advancing front and rear pointers.",
+      "Confusing full vs empty when not maintaining an explicit size counter.",
+      "Accessing data[front] when size == 0."
+    ],
+    "related_problems": [
+      "deque-implementation",
+      "queue-using-two-stacks"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "qualcomm",
+      "intel",
+      "microsoft",
+      "amazon"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3 9\nENQUEUE 10\nENQUEUE 20\nENQUEUE 30\nENQUEUE 40\nFRONT\nREAR\nDEQUEUE\nENQUEUE 40\nREAR\n",
+        "expected_output": "OK\nOK\nOK\nFULL\n10\n30\n10\nOK\n40\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Enqueue to full, dequeue front, wrap-around enqueue to recycled slot"
+      },
+      {
+        "input": "2 5\nDEQUEUE\nFRONT\nREAR\nISEMPTY\nISFULL\n",
+        "expected_output": "EMPTY\nEMPTY\nEMPTY\nTRUE\nFALSE\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Queries on empty circular queue"
+      },
+      {
+        "input": "1 6\nENQUEUE 99\nISFULL\nFRONT\nREAR\nDEQUEUE\nISEMPTY\n",
+        "expected_output": "OK\nTRUE\n99\n99\n99\nTRUE\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Capacity 1 circular queue"
+      },
+      {
+        "input": "3 9\nENQUEUE 1\nENQUEUE 2\nDEQUEUE\nDEQUEUE\nENQUEUE 3\nENQUEUE 4\nENQUEUE 5\nISFULL\nDEQUEUE\n",
+        "expected_output": "OK\nOK\n1\n2\nOK\nOK\nOK\nTRUE\n3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple wrap-around cycles of enqueue and dequeue"
+      },
+      {
+        "input": "2 6\nENQUEUE 5\nENQUEUE 6\nENQUEUE 7\nDEQUEUE\nDEQUEUE\nDEQUEUE\n",
+        "expected_output": "OK\nOK\nFULL\n5\n6\nEMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Filling to full then draining completely to empty"
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "title": "Deque Implementation",
+    "slug": "deque-implementation",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nA **Double-Ended Queue (Deque)** is an abstract data type that generalizes both stacks and queues by permitting efficient insertions and deletions at **both the front and back** ends. Deques are essential in sliding window algorithms, work-stealing schedulers, and undo-redo buffers.\n\nImplement a dynamic or circular deque in C with the following specifications:\n\n#### Supported Commands:\n1. `PUSH_FRONT <val>`: Insert integer `<val>` at the front of the deque.\n2. `PUSH_BACK <val>`: Insert integer `<val>` at the back of the deque.\n3. `POP_FRONT`: Remove and print the front element. If empty, print `EMPTY`.\n4. `POP_BACK`: Remove and print the back element. If empty, print `EMPTY`.\n5. `GET_FRONT`: Print the front element without removing it. If empty, print `EMPTY`.\n6. `GET_BACK`: Print the back element without removing it. If empty, print `EMPTY`.\n7. `SIZE`: Print the current number of elements in the deque.\n\nEnsure all dynamically allocated memory is cleanly released before program exit.",
+    "input_format": "The first line contains Q (number of commands).\nThe following Q lines contain commands: PUSH_FRONT <val>, PUSH_BACK <val>, POP_FRONT, POP_BACK, GET_FRONT, GET_BACK, or SIZE.",
+    "output_format": "Print the response for each command generating output on a separate line.",
+    "constraints": "1 <= Q <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "8\nPUSH_BACK 10\nPUSH_FRONT 20\nGET_FRONT\nGET_BACK\nPOP_FRONT\nPOP_BACK\nSIZE\nPOP_FRONT\n",
+        "output": "20\n10\n20\n10\n0\nEMPTY\n",
+        "explanation": "20 is at front, 10 at back. Popping front yields 20; popping back yields 10. Deque becomes empty."
+      },
+      {
+        "input": "5\nPOP_FRONT\nPOP_BACK\nGET_FRONT\nGET_BACK\nSIZE\n",
+        "output": "EMPTY\nEMPTY\nEMPTY\nEMPTY\n0\n",
+        "explanation": "All query and pop operations on empty deque return EMPTY or 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct DNode {\n    int val;\n    struct DNode *prev;\n    struct DNode *next;\n} DNode;\n\ntypedef struct {\n    DNode *head;\n    DNode *tail;\n    int size;\n} Deque;\n\nvoid deque_init(Deque *dq) {\n    // TODO: Initialize deque\n}\n\nvoid deque_push_front(Deque *dq, int val) {\n    // TODO: Insert at front\n}\n\nvoid deque_push_back(Deque *dq, int val) {\n    // TODO: Insert at back\n}\n\nvoid deque_pop_front(Deque *dq) {\n    // TODO: Remove front or print EMPTY\n}\n\nvoid deque_pop_back(Deque *dq) {\n    // TODO: Remove back or print EMPTY\n}\n\nvoid deque_get_front(Deque *dq) {\n    // TODO: Print front or EMPTY\n}\n\nvoid deque_get_back(Deque *dq) {\n    // TODO: Print back or EMPTY\n}\n\nvoid deque_size(Deque *dq) {\n    // TODO: Print size\n}\n\nvoid deque_destroy(Deque *dq) {\n    // TODO: Free memory\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    Deque dq;\n    deque_init(&dq);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        // TODO: Handle commands\n    }\n    \n    deque_destroy(&dq);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct DNode {\n    int val;\n    struct DNode *prev;\n    struct DNode *next;\n} DNode;\n\ntypedef struct {\n    DNode *head;\n    DNode *tail;\n    int size;\n} Deque;\n\nvoid deque_init(Deque *dq) {\n    dq->head = NULL;\n    dq->tail = NULL;\n    dq->size = 0;\n}\n\nvoid deque_push_front(Deque *dq, int val) {\n    DNode *node = (DNode *)malloc(sizeof(DNode));\n    node->val = val;\n    node->prev = NULL;\n    node->next = dq->head;\n    if (dq->head) {\n        dq->head->prev = node;\n    } else {\n        dq->tail = node;\n    }\n    dq->head = node;\n    dq->size++;\n}\n\nvoid deque_push_back(Deque *dq, int val) {\n    DNode *node = (DNode *)malloc(sizeof(DNode));\n    node->val = val;\n    node->next = NULL;\n    node->prev = dq->tail;\n    if (dq->tail) {\n        dq->tail->next = node;\n    } else {\n        dq->head = node;\n    }\n    dq->tail = node;\n    dq->size++;\n}\n\nvoid deque_pop_front(Deque *dq) {\n    if (dq->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    DNode *temp = dq->head;\n    int val = temp->val;\n    dq->head = dq->head->next;\n    if (dq->head) {\n        dq->head->prev = NULL;\n    } else {\n        dq->tail = NULL;\n    }\n    free(temp);\n    dq->size--;\n    printf(\"%d\\n\", val);\n}\n\nvoid deque_pop_back(Deque *dq) {\n    if (dq->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    DNode *temp = dq->tail;\n    int val = temp->val;\n    dq->tail = dq->tail->prev;\n    if (dq->tail) {\n        dq->tail->next = NULL;\n    } else {\n        dq->head = NULL;\n    }\n    free(temp);\n    dq->size--;\n    printf(\"%d\\n\", val);\n}\n\nvoid deque_get_front(Deque *dq) {\n    if (dq->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", dq->head->val);\n}\n\nvoid deque_get_back(Deque *dq) {\n    if (dq->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", dq->tail->val);\n}\n\nvoid deque_size(Deque *dq) {\n    printf(\"%d\\n\", dq->size);\n}\n\nvoid deque_destroy(Deque *dq) {\n    DNode *curr = dq->head;\n    while (curr != NULL) {\n        DNode *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n    dq->head = dq->tail = NULL;\n    dq->size = 0;\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    Deque dq;\n    deque_init(&dq);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"PUSH_FRONT\") == 0) {\n            int val; scanf(\"%d\", &val);\n            deque_push_front(&dq, val);\n        } else if (strcmp(cmd, \"PUSH_BACK\") == 0) {\n            int val; scanf(\"%d\", &val);\n            deque_push_back(&dq, val);\n        } else if (strcmp(cmd, \"POP_FRONT\") == 0) {\n            deque_pop_front(&dq);\n        } else if (strcmp(cmd, \"POP_BACK\") == 0) {\n            deque_pop_back(&dq);\n        } else if (strcmp(cmd, \"GET_FRONT\") == 0) {\n            deque_get_front(&dq);\n        } else if (strcmp(cmd, \"GET_BACK\") == 0) {\n            deque_get_back(&dq);\n        } else if (strcmp(cmd, \"SIZE\") == 0) {\n            deque_size(&dq);\n        }\n    }\n    \n    deque_destroy(&dq);\n    return 0;\n}\n",
+    "hints": [
+      "A doubly linked list with head and tail pointers is ideal for implementing an unbounded deque.",
+      "When inserting the very first node, both head and tail point to it.",
+      "When removing the last node, set both head and tail to NULL.",
+      "All operations run in strict O(1) time."
+    ],
+    "explanation": "A doubly linked list provides symmetrical O(1) insertions and removals at both ends. Maintaining explicit head and tail pointers alongside a size tracker fulfills all deque requirements without capacity boundaries.",
+    "time_complexity": "O(1) for all operations",
+    "space_complexity": "O(N) heap memory for node storage",
+    "common_mistakes": [
+      "Failing to update both head and tail when removing the only remaining element.",
+      "Dangling pointers: forgetting to set new head->prev = NULL or new tail->next = NULL.",
+      "Memory leaks from not calling free() on popped nodes."
+    ],
+    "related_problems": [
+      "doubly-linked-list-operations",
+      "circular-queue-implementation"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "google",
+      "meta",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "8\nPUSH_BACK 10\nPUSH_FRONT 20\nGET_FRONT\nGET_BACK\nPOP_FRONT\nPOP_BACK\nSIZE\nPOP_FRONT\n",
+        "expected_output": "20\n10\n20\n10\n0\nEMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard push front/back, peek front/back, and pop front/back"
+      },
+      {
+        "input": "5\nPOP_FRONT\nPOP_BACK\nGET_FRONT\nGET_BACK\nSIZE\n",
+        "expected_output": "EMPTY\nEMPTY\nEMPTY\nEMPTY\n0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on empty deque"
+      },
+      {
+        "input": "7\nPUSH_FRONT 42\nSIZE\nGET_BACK\nPOP_BACK\nSIZE\nGET_FRONT\nPOP_FRONT\n",
+        "expected_output": "1\n42\n42\n0\nEMPTY\nEMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element accessed from opposite end (push front, pop back)"
+      },
+      {
+        "input": "6\nPUSH_BACK 1\nPUSH_BACK 2\nPUSH_BACK 3\nPOP_BACK\nPOP_BACK\nPOP_BACK\n",
+        "expected_output": "3\n2\n1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Using deque as a LIFO stack (push back, pop back)"
+      },
+      {
+        "input": "6\nPUSH_BACK 1\nPUSH_BACK 2\nPUSH_BACK 3\nPOP_FRONT\nPOP_FRONT\nPOP_FRONT\n",
+        "expected_output": "1\n2\n3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Using deque as a FIFO queue (push back, pop front)"
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "title": "Next Greater Element",
+    "slug": "next-greater-element",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nGiven an array of $N$ integers, for each element find the **Next Greater Element (NGE)** to its right. The Next Greater Element for an element $x$ is the first element to the right of $x$ that is strictly greater than $x$. If no greater element exists to its right, the answer for that position is `-1`.\n\nA brute-force solution checking all pairs takes $O(N^2)$ time, which is too slow for large inputs. Using a **monotonic decreasing stack**, the problem can be solved in optimal $O(N)$ linear time.\n\n#### Monotonic Stack Algorithm (Right-to-Left Traversal):\n1. Initialize an array `result` of size $N$ and an empty stack.\n2. Traverse the input array from right to left ($i = N - 1$ down to $0$):\n   - While the stack is non-empty and `stack[top] <= arr[i]`, pop elements from the stack (since they cannot be the next greater element for `arr[i]` or any element to its left).\n   - If the stack is empty, `result[i] = -1`.\n   - If the stack is not empty, `result[i] = stack[top]`.\n   - Push `arr[i]` onto the stack.\n3. Print the resulting array elements separated by single spaces.",
+    "input_format": "The first line contains integer N.\nThe second line contains N space-separated integers.",
+    "output_format": "Print N space-separated integers representing the next greater element for each index.",
+    "constraints": "1 <= N <= 100000\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "4\n4 5 2 25\n",
+        "output": "5 25 25 -1\n",
+        "explanation": "Next greater for 4 is 5. For 5 is 25. For 2 is 25. For 25, no element to its right is greater (-1)."
+      },
+      {
+        "input": "4\n13 7 6 12\n",
+        "output": "-1 12 12 -1\n",
+        "explanation": "No element greater than 13 exists (-1). Next greater for 7 and 6 is 12. No element right of 12 exists (-1)."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid next_greater_element(const int *arr, int n, int *res) {\n    // TODO: Monotonic stack to find next greater element in O(N) time\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    \n    int *res = (int *)malloc(n * sizeof(int));\n    next_greater_element(arr, n, res);\n    \n    for (int i = 0; i < n; i++) {\n        printf(\"%d%s\", res[i], (i == n - 1) ? \"\" : \" \");\n    }\n    printf(\"\\n\");\n    \n    free(arr);\n    free(res);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid next_greater_element(const int *arr, int n, int *res) {\n    int *stack = (int *)malloc(n * sizeof(int));\n    int top = -1;\n    \n    for (int i = n - 1; i >= 0; i--) {\n        while (top != -1 && stack[top] <= arr[i]) {\n            top--;\n        }\n        res[i] = (top == -1) ? -1 : stack[top];\n        stack[++top] = arr[i];\n    }\n    free(stack);\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    \n    int *res = (int *)malloc(n * sizeof(int));\n    next_greater_element(arr, n, res);\n    \n    for (int i = 0; i < n; i++) {\n        printf(\"%d%s\", res[i], (i == n - 1) ? \"\" : \" \");\n    }\n    printf(\"\\n\");\n    \n    free(arr);\n    free(res);\n    return 0;\n}\n",
+    "hints": [
+      "Traverse the array in reverse from index N-1 down to 0.",
+      "Maintain a stack of candidate greater elements.",
+      "Pop elements from the stack while stack[top] <= arr[i] (they are shadowed by arr[i]).",
+      "The top of the stack is the NGE, or -1 if the stack becomes empty."
+    ],
+    "explanation": "A monotonic decreasing stack maintains elements in strictly descending order. Because each element is pushed onto the stack exactly once and popped at most once across the entire traversal, the amortized cost per element is O(1), achieving optimal O(N) overall runtime.",
+    "time_complexity": "O(N) linear time",
+    "space_complexity": "O(N) auxiliary stack memory",
+    "common_mistakes": [
+      "Using nested loops resulting in O(N^2) time complexity and Time Limit Exceeded.",
+      "Popping while stack[top] < arr[i] instead of <= (failing to handle duplicate values strictly).",
+      "Traversing left-to-right without index tracking."
+    ],
+    "related_problems": [
+      "monotonic-stack-histogram",
+      "stack-using-array"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "amazon",
+      "google",
+      "microsoft",
+      "meta",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\n4 5 2 25\n",
+        "expected_output": "5 25 25 -1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard array with next greater elements"
+      },
+      {
+        "input": "4\n13 7 6 12\n",
+        "expected_output": "-1 12 12 -1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Decreasing prefix with larger tail"
+      },
+      {
+        "input": "1\n100\n",
+        "expected_output": "-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "5\n5 4 3 2 1\n",
+        "expected_output": "-1 -1 -1 -1 -1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Strictly decreasing array (no elements have next greater)"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "expected_output": "2 3 4 5 -1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Strictly increasing array"
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "title": "Monotonic Stack Histogram",
+    "slug": "monotonic-stack-histogram",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nGiven an array of $N$ non-negative integers representing the heights of histogram bars where each bar has a width of $1$, find the **area of the largest rectangle** that can be formed within the histogram.\n\nA naive $O(N^2)$ algorithm checks every pair of bars. Using a **monotonic increasing stack**, the maximum rectangle can be found in optimal $O(N)$ linear time.\n\n#### Monotonic Stack Algorithm:\n1. Maintain a stack of bar indices whose heights are strictly increasing.\n2. Iterate through each bar index $i$ from $0$ to $N$:\n   - Let `curr_height = (i == N) ? 0 : heights[i]`. (Using a dummy 0 at index $N$ flushes all remaining bars from the stack).\n   - While the stack is not empty and `curr_height < heights[stack[top]]`:\n     - Pop the top index `h_idx = stack[top--]`.\n     - The height of the rectangle is `height = heights[h_idx]`.\n     - The width extends from the new `stack[top]` (the left boundary) to $i$ (the right boundary):\n       $$\\text{width} = (\\text{top} == -1) \\ ? \\ i \\ : \\ (i - \\text{stack}[\\text{top}] - 1)$$\n     - Compute $\\text{area} = (\\text{long long})\\text{height} \\times \\text{width}$ and update `max_area`.\n   - Push index $i$ onto the stack.\n3. Print `max_area` as a 64-bit integer.",
+    "input_format": "The first line contains integer N.\nThe second line contains N space-separated non-negative integers representing bar heights.",
+    "output_format": "Print the maximum rectangular area as a single integer.",
+    "constraints": "1 <= N <= 100000\n0 <= heights[i] <= 10^9",
+    "examples": [
+      {
+        "input": "6\n2 1 5 6 2 3\n",
+        "output": "10\n",
+        "explanation": "Bars at indices 2 and 3 have heights 5 and 6. A rectangle of height 5 spanning width 2 gives area 10."
+      },
+      {
+        "input": "2\n2 4\n",
+        "output": "4\n",
+        "explanation": "Bar of height 4 with width 1 gives area 4."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nlong long largest_rectangle_area(const int *heights, int n) {\n    // TODO: Monotonic stack algorithm in O(N) time\n    return 0;\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int *heights = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) scanf(\"%d\", &heights[i]);\n    \n    printf(\"%lld\\n\", largest_rectangle_area(heights, n));\n    \n    free(heights);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nlong long largest_rectangle_area(const int *heights, int n) {\n    int *stack = (int *)malloc((n + 1) * sizeof(int));\n    int top = -1;\n    long long max_area = 0;\n    \n    for (int i = 0; i <= n; i++) {\n        int curr_h = (i == n) ? 0 : heights[i];\n        while (top != -1 && curr_h < heights[stack[top]]) {\n            int h = heights[stack[top--]];\n            int width = (top == -1) ? i : (i - stack[top] - 1);\n            long long area = (long long)h * width;\n            if (area > max_area) {\n                max_area = area;\n            }\n        }\n        stack[++top] = i;\n    }\n    \n    free(stack);\n    return max_area;\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int *heights = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) scanf(\"%d\", &heights[i]);\n    \n    printf(\"%lld\\n\", largest_rectangle_area(heights, n));\n    \n    free(heights);\n    return 0;\n}\n",
+    "hints": [
+      "Store indices in the stack rather than height values.",
+      "The stack maintains indices of strictly increasing heights.",
+      "When popping an index, the current loop index i is the right boundary, and the new stack top is the left boundary.",
+      "Loop up to i = N with a dummy height of 0 to flush all remaining elements."
+    ],
+    "explanation": "A monotonic increasing stack allows determining the maximum width a bar can span as the minimum height. Each bar is pushed and popped at most once, providing optimal O(N) time.",
+    "time_complexity": "O(N) linear time",
+    "space_complexity": "O(N) stack memory",
+    "common_mistakes": [
+      "Integer overflow: not using 64-bit long long for area calculation (height * width can exceed 2^31 - 1).",
+      "Failing to flush remaining bars from the stack after the loop ends.",
+      "Incorrect width calculation when the stack becomes empty (width is i, not i - 1)."
+    ],
+    "related_problems": [
+      "next-greater-element",
+      "stack-using-array"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "google",
+      "facebook",
+      "amazon",
+      "microsoft",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "6\n2 1 5 6 2 3\n",
+        "expected_output": "10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard histogram: bars 5 and 6 form rectangle of height 5, width 2 = area 10"
+      },
+      {
+        "input": "2\n2 4\n",
+        "expected_output": "4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Two bars: max area is 4"
+      },
+      {
+        "input": "1\n7\n",
+        "expected_output": "7\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single bar histogram"
+      },
+      {
+        "input": "5\n1 1 1 1 1\n",
+        "expected_output": "5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All equal height bars spanning full width"
+      },
+      {
+        "input": "5\n0 0 0 0 0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All zero height bars"
+      }
+    ]
+  },
+  {
+    "id": 105,
+    "title": "Queue Using Two Stacks",
+    "slug": "queue-using-two-stacks",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nA **queue** follows FIFO (First In, First Out) order, whereas a **stack** follows LIFO (Last In, First Out) order. You can implement a FIFO queue using **two LIFO stacks** (`in_stack` and `out_stack`). By pushing elements into `in_stack` and popping from `out_stack`, elements are reversed twice, restoring FIFO order.\n\n#### Amortized O(1) Transfer Strategy:\n1. `ENQUEUE <val>`: Push `<val>` directly onto `in_stack`. This is always $O(1)$.\n2. `DEQUEUE`:\n   - If `out_stack` is empty:\n     - Pop all elements from `in_stack` one by one and push them into `out_stack`.\n   - If `out_stack` is still empty (both stacks are empty), print `EMPTY`.\n   - Otherwise, pop and print the top element of `out_stack`.\n3. `FRONT`:\n   - If `out_stack` is empty, transfer all elements from `in_stack` to `out_stack`.\n   - If `out_stack` is still empty, print `EMPTY`.\n   - Otherwise, print the top element of `out_stack` without popping.\n4. `ISEMPTY`:\n   - Print `TRUE` if both `in_stack` and `out_stack` are empty, else `FALSE`.\n\nEach element is transferred at most once between the two stacks, achieving **amortized $O(1)$** time per operation.",
+    "input_format": "The first line contains N (number of commands).\nThe following N lines contain commands: ENQUEUE <val>, DEQUEUE, FRONT, or ISEMPTY.",
+    "output_format": "Print the response for each command generating output on a separate line.",
+    "constraints": "1 <= N <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "7\nISEMPTY\nENQUEUE 10\nENQUEUE 20\nFRONT\nDEQUEUE\nFRONT\nDEQUEUE\n",
+        "output": "TRUE\n10\n10\n20\n20\n",
+        "explanation": "Queue starts empty. 10 and 20 are enqueued. Front is 10. Dequeue removes 10 in FIFO order, making 20 the front."
+      },
+      {
+        "input": "4\nDEQUEUE\nFRONT\nISEMPTY\nDEQUEUE\n",
+        "output": "EMPTY\nEMPTY\nTRUE\nEMPTY\n",
+        "explanation": "Operating on empty queue returns EMPTY and TRUE."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define MAX_SIZE 1000\n\ntypedef struct {\n    int data[MAX_SIZE];\n    int top;\n} Stack;\n\ntypedef struct {\n    Stack in_stack;\n    Stack out_stack;\n} QueueTwoStacks;\n\nvoid q_init(QueueTwoStacks *q) {\n    // TODO: Initialize in_stack and out_stack\n}\n\nvoid q_enqueue(QueueTwoStacks *q, int val) {\n    // TODO: Push to in_stack\n}\n\nvoid q_dequeue(QueueTwoStacks *q) {\n    // TODO: Transfer if out_stack empty, pop from out_stack or print EMPTY\n}\n\nvoid q_front(QueueTwoStacks *q) {\n    // TODO: Print front element or EMPTY\n}\n\nvoid q_is_empty(QueueTwoStacks *q) {\n    // TODO: Print TRUE or FALSE\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    QueueTwoStacks q;\n    q_init(&q);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        // TODO: Handle ENQUEUE, DEQUEUE, FRONT, ISEMPTY\n    }\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define MAX_SIZE 1000\n\ntypedef struct {\n    int data[MAX_SIZE];\n    int top;\n} Stack;\n\ntypedef struct {\n    Stack in_stack;\n    Stack out_stack;\n} QueueTwoStacks;\n\nvoid q_init(QueueTwoStacks *q) {\n    q->in_stack.top = -1;\n    q->out_stack.top = -1;\n}\n\nvoid transfer_if_needed(QueueTwoStacks *q) {\n    if (q->out_stack.top == -1) {\n        while (q->in_stack.top != -1) {\n            q->out_stack.data[++q->out_stack.top] = q->in_stack.data[q->in_stack.top--];\n        }\n    }\n}\n\nvoid q_enqueue(QueueTwoStacks *q, int val) {\n    q->in_stack.data[++q->in_stack.top] = val;\n}\n\nvoid q_dequeue(QueueTwoStacks *q) {\n    transfer_if_needed(q);\n    if (q->out_stack.top == -1) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", q->out_stack.data[q->out_stack.top--]);\n}\n\nvoid q_front(QueueTwoStacks *q) {\n    transfer_if_needed(q);\n    if (q->out_stack.top == -1) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", q->out_stack.data[q->out_stack.top]);\n}\n\nvoid q_is_empty(QueueTwoStacks *q) {\n    int empty = (q->in_stack.top == -1 && q->out_stack.top == -1);\n    printf(\"%s\\n\", empty ? \"TRUE\" : \"FALSE\");\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    QueueTwoStacks q;\n    q_init(&q);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"ENQUEUE\") == 0) {\n            int val; scanf(\"%d\", &val);\n            q_enqueue(&q, val);\n        } else if (strcmp(cmd, \"DEQUEUE\") == 0) {\n            q_dequeue(&q);\n        } else if (strcmp(cmd, \"FRONT\") == 0) {\n            q_front(&q);\n        } else if (strcmp(cmd, \"ISEMPTY\") == 0) {\n            q_is_empty(&q);\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Only transfer elements from in_stack to out_stack when out_stack is completely empty.",
+      "Transferring when out_stack is empty reverses the order, aligning oldest elements at the top of out_stack.",
+      "Enqueue is always O(1) push onto in_stack.",
+      "The queue is empty only when BOTH in_stack and out_stack are empty."
+    ],
+    "explanation": "Using two stacks simulates FIFO ordering. Because each element is pushed to in_stack once, popped to out_stack once, and popped from out_stack once, total operations per element across its lifecycle is 3 (constant), yielding amortized O(1) time per operation.",
+    "time_complexity": "O(1) amortized for ENQUEUE, DEQUEUE, FRONT, and ISEMPTY",
+    "space_complexity": "O(N) stack memory",
+    "common_mistakes": [
+      "Transferring from in_stack to out_stack on every dequeue even when out_stack is non-empty (corrupting order).",
+      "Checking only in_stack for ISEMPTY instead of both in_stack and out_stack.",
+      "Attempting to pop from an empty out_stack without calling transfer."
+    ],
+    "related_problems": [
+      "circular-queue-implementation",
+      "stack-using-array"
+    ],
+    "topic_slug": "stacks-queues",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "google",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7\nISEMPTY\nENQUEUE 10\nENQUEUE 20\nFRONT\nDEQUEUE\nFRONT\nDEQUEUE\n",
+        "expected_output": "TRUE\n10\n10\n20\n20\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard enqueue, front, and FIFO dequeue"
+      },
+      {
+        "input": "4\nDEQUEUE\nFRONT\nISEMPTY\nDEQUEUE\n",
+        "expected_output": "EMPTY\nEMPTY\nTRUE\nEMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on empty queue"
+      },
+      {
+        "input": "6\nENQUEUE 1\nENQUEUE 2\nDEQUEUE\nENQUEUE 3\nDEQUEUE\nDEQUEUE\n",
+        "expected_output": "1\n2\n3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Interleaved enqueue and dequeue verifying out_stack preservation"
+      },
+      {
+        "input": "5\nENQUEUE 42\nDEQUEUE\nISEMPTY\nFRONT\nDEQUEUE\n",
+        "expected_output": "42\nTRUE\nEMPTY\nEMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element queue drained to empty"
+      },
+      {
+        "input": "8\nENQUEUE 100\nENQUEUE 200\nENQUEUE 300\nDEQUEUE\nENQUEUE 400\nDEQUEUE\nDEQUEUE\nDEQUEUE\n",
+        "expected_output": "100\n200\n300\n400\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Enqueue while out_stack still holds unpopped elements"
+      }
+    ]
+  }
+]

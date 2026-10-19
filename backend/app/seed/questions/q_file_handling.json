@@ -1,0 +1,444 @@
+[
+  {
+    "id": 168,
+    "title": "File Word Counter",
+    "slug": "file-word-counter",
+    "difficulty": "medium",
+    "description": "In UNIX operating systems, the `wc` (word count) utility is an essential tool for inspecting text files. It reads a file or standard input stream until the end-of-file (EOF) indicator and computes three vital statistics: the number of lines, words, and total characters (bytes).\n\nImplement a robust C program that reads an arbitrary text stream from standard input until EOF and calculates:\n1. **Lines**: Count of newline characters (`'\\n'`). Each occurrence of `'\\n'` represents the completion of a line.\n2. **Words**: Count of words. A word is defined as a contiguous sequence of non-whitespace characters delimited by whitespace. Whitespace characters include space (`' '`), horizontal tab (`'\\t'`), carriage return (`'\\r'`), and newline (`'\\n'`).\n3. **Characters**: Total count of all bytes read from standard input, including spaces, tabs, and newlines.\n\nUse a finite-state machine with a boolean flag `in_word` to track transitions between whitespace and words. When a non-whitespace character is encountered while `in_word` is false, a new word begins: increment the word counter and set `in_word` to true. When whitespace is encountered, reset `in_word` to false. Finally, print the three counts separated by single spaces on a single line.",
+    "input_format": "An arbitrary text stream terminated by end-of-file (EOF), containing up to 100,000 characters.",
+    "output_format": "Print three space-separated integers on a single line: lines words characters.",
+    "constraints": "Total input size <= 100000 characters",
+    "examples": [
+      {
+        "input": "Hello World\n",
+        "output": "1 2 12\n",
+        "explanation": "1 line (ending in \\n), 2 words ('Hello' and 'World'), and 12 characters (including space and newline)."
+      },
+      {
+        "input": "Line one\nLine two\nLine three\n",
+        "output": "3 6 29\n",
+        "explanation": "3 lines, 6 words, and 29 total characters."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <ctype.h>\n\nint main(void) {\n    // Read characters until EOF and track lines, words, characters\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <ctype.h>\n\nint main(void) {\n    long long lines = 0;\n    long long words = 0;\n    long long chars = 0;\n    int in_word = 0;\n    int ch;\n    \n    while ((ch = getchar()) != EOF) {\n        chars++;\n        if (ch == '\\n') {\n            lines++;\n        }\n        \n        if (isspace(ch)) {\n            in_word = 0;\n        } else if (!in_word) {\n            in_word = 1;\n            words++;\n        }\n    }\n    \n    printf(\"%lld %lld %lld\\n\", lines, words, chars);\n    return 0;\n}\n",
+    "hints": [
+      "Use getchar() in a loop checking against EOF: while ((ch = getchar()) != EOF).",
+      "Maintain an in_word flag: set it to 1 when entering a non-whitespace character, and 0 when entering whitespace.",
+      "Use isspace() from <ctype.h> to check for spaces, tabs, and newlines."
+    ],
+    "explanation": "We read one character at a time using getchar() until EOF. Every character read increments chars. Whenever ch == '\\n', lines increments. A state flag in_word toggles based on isspace(ch); transitioning from whitespace to a non-whitespace character marks the start of a new word, incrementing words.",
+    "time_complexity": "O(N) where N is the number of characters",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Declaring ch as char instead of int; EOF is typically -1 and might not fit or be distinguished in an unsigned char.",
+      "Failing to count a word if the text does not end with a newline or trailing whitespace.",
+      "Incrementing line count for text that does not terminate with '\\n'."
+    ],
+    "related_problems": [
+      "csv-parser",
+      "robust-input-parser"
+    ],
+    "topic_slug": "file-handling-preprocessor",
+    "company_slugs": [
+      "redhat",
+      "canonical",
+      "microsoft",
+      "amazon"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "Hello World\n",
+        "expected_output": "1 2 12\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Simple single line with two words"
+      },
+      {
+        "input": "Line one\nLine two\nLine three\n",
+        "expected_output": "3 6 29\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Three lines with two words each"
+      },
+      {
+        "input": "",
+        "expected_output": "0 0 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty input stream"
+      },
+      {
+        "input": "   \t \n \n",
+        "expected_output": "2 0 8\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Whitespace only input with 2 newlines"
+      },
+      {
+        "input": "OneWordWithoutNewline",
+        "expected_output": "0 1 21\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single word without trailing newline"
+      },
+      {
+        "input": "C programming is powerful and versatile.\nEnjoy CForge coding tests!\n",
+        "expected_output": "2 10 69\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multi-line sentence with punctuation"
+      }
+    ]
+  },
+  {
+    "id": 169,
+    "title": "Binary File Record Manager",
+    "slug": "binary-file-record-manager",
+    "difficulty": "hard",
+    "description": "In systems programming and embedded databases, fixed-size binary records are stored on disk and accessed using file seek operations (`fseek`, `ftell`, `fwrite`, `fread`). Because records have a uniform byte width, the byte offset for record $i$ is calculated directly as $offset = i \\times \\text{sizeof}(\\text{Record})$, permitting $O(1)$ random access without scanning preceding records.\n\nSimulate a binary record file in memory using the following C structure:\n```c\ntypedef struct {\n    int id;\n    char name[24];\n    int score;\n    int is_active;\n} Record;\n```\nThe file manager starts empty and processes $Q$ commands sequentially:\n1. `INSERT <id> <name> <score>`: Writes a new record at the end of the file with `is_active = 1`.\n2. `READ <index>`: Seeks to slot `index` (0-indexed). If `index` is within bounds and the record has `is_active == 1`, print:\n   `ID: <id>, Name: <name>, Score: <score>`\n   Otherwise, print `RECORD NOT FOUND`.\n3. `UPDATE <index> <new_score>`: Seeks to slot `index`. If within bounds and `is_active == 1`, update `score` to `new_score` and print `RECORD UPDATED`. Otherwise, print `UPDATE FAILED`.\n4. `DELETE <index>`: Seeks to slot `index`. If within bounds and `is_active == 1`, set `is_active = 0` (soft delete) and print `RECORD DELETED`. Otherwise, print `DELETE FAILED`.",
+    "input_format": "The first line contains an integer Q (1 <= Q <= 1000). The next Q lines each contain an operation command: INSERT, READ, UPDATE, or DELETE.",
+    "output_format": "Print the output corresponding to each READ, UPDATE, and DELETE operation on a new line.",
+    "constraints": "1 <= Q <= 1000, 0 <= id <= 10^6, names alphanumeric without spaces up to 23 chars, 0 <= score <= 1000",
+    "examples": [
+      {
+        "input": "5\nINSERT 1 Alice 95\nINSERT 2 Bob 88\nREAD 0\nREAD 1\nREAD 2\n",
+        "output": "ID: 1, Name: Alice, Score: 95\nID: 2, Name: Bob, Score: 88\nRECORD NOT FOUND\n",
+        "explanation": "Reads records at indices 0 and 1 successfully. Index 2 is out of bounds."
+      },
+      {
+        "input": "5\nINSERT 1 Alice 95\nUPDATE 0 100\nREAD 0\nDELETE 0\nREAD 0\n",
+        "output": "RECORD UPDATED\nID: 1, Name: Alice, Score: 100\nRECORD DELETED\nRECORD NOT FOUND\n",
+        "explanation": "Updates Alice's score, deletes Alice, then subsequent read fails because is_active is 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    int id;\n    char name[24];\n    int score;\n    int is_active;\n} Record;\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    // Simulate binary record manager\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    int id;\n    char name[24];\n    int score;\n    int is_active;\n} Record;\n\nstatic Record database[1005];\nstatic int total_records = 0;\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    char cmd[32];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%31s\", cmd) != 1) break;\n        \n        if (strcmp(cmd, \"INSERT\") == 0) {\n            int id, score;\n            char name[24];\n            scanf(\"%d %23s %d\", &id, name, &score);\n            database[total_records].id = id;\n            strncpy(database[total_records].name, name, 23);\n            database[total_records].name[23] = '\\0';\n            database[total_records].score = score;\n            database[total_records].is_active = 1;\n            total_records++;\n        } else if (strcmp(cmd, \"READ\") == 0) {\n            int idx;\n            scanf(\"%d\", &idx);\n            if (idx >= 0 && idx < total_records && database[idx].is_active) {\n                printf(\"ID: %d, Name: %s, Score: %d\\n\", database[idx].id, database[idx].name, database[idx].score);\n            } else {\n                printf(\"RECORD NOT FOUND\\n\");\n            }\n        } else if (strcmp(cmd, \"UPDATE\") == 0) {\n            int idx, new_score;\n            scanf(\"%d %d\", &idx, &new_score);\n            if (idx >= 0 && idx < total_records && database[idx].is_active) {\n                database[idx].score = new_score;\n                printf(\"RECORD UPDATED\\n\");\n            } else {\n                printf(\"UPDATE FAILED\\n\");\n            }\n        } else if (strcmp(cmd, \"DELETE\") == 0) {\n            int idx;\n            scanf(\"%d\", &idx);\n            if (idx >= 0 && idx < total_records && database[idx].is_active) {\n                database[idx].is_active = 0;\n                printf(\"RECORD DELETED\\n\");\n            } else {\n                printf(\"DELETE FAILED\\n\");\n            }\n        }\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Store records in a fixed-size struct array simulating contiguous disk sectors.",
+      "Maintain total_records count as records are inserted.",
+      "For READ, UPDATE, and DELETE, check both the index bounds (0 <= idx < total_records) and the is_active flag."
+    ],
+    "explanation": "Fixed-size structs enable O(1) random access by index. In an actual binary file, seeking to byte offset idx * sizeof(Record) positions the file cursor directly at the record. In our simulation, database[idx] models the record at that slot, with is_active acting as a tombstone flag for deletion.",
+    "time_complexity": "O(1) per operation, O(Q) total",
+    "space_complexity": "O(Q)",
+    "common_mistakes": [
+      "Failing to check if an index is negative or greater than total_records, causing buffer over-read.",
+      "Allowing updates or reads on soft-deleted records where is_active == 0.",
+      "Buffer overflow when reading strings into name array without width specifier."
+    ],
+    "related_problems": [
+      "file-word-counter",
+      "csv-parser"
+    ],
+    "topic_slug": "file-handling-preprocessor",
+    "company_slugs": [
+      "oracle",
+      "mongodb",
+      "microsoft",
+      "cisco"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "5\nINSERT 1 Alice 95\nINSERT 2 Bob 88\nREAD 0\nREAD 1\nREAD 2\n",
+        "expected_output": "ID: 1, Name: Alice, Score: 95\nID: 2, Name: Bob, Score: 88\nRECORD NOT FOUND\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard insert and read operations"
+      },
+      {
+        "input": "5\nINSERT 1 Alice 95\nUPDATE 0 100\nREAD 0\nDELETE 0\nREAD 0\n",
+        "expected_output": "RECORD UPDATED\nID: 1, Name: Alice, Score: 100\nRECORD DELETED\nRECORD NOT FOUND\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Update, delete, and read soft-deleted record"
+      },
+      {
+        "input": "3\nREAD 0\nUPDATE 0 50\nDELETE 0\n",
+        "expected_output": "RECORD NOT FOUND\nUPDATE FAILED\nDELETE FAILED\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Operations on empty database"
+      },
+      {
+        "input": "6\nINSERT 10 Carol 70\nINSERT 20 Dave 85\nDELETE 0\nDELETE 0\nREAD 0\nREAD 1\n",
+        "expected_output": "RECORD DELETED\nDELETE FAILED\nRECORD NOT FOUND\nID: 20, Name: Dave, Score: 85\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Double delete on the same record slot"
+      },
+      {
+        "input": "5\nINSERT 99 Eve 90\nUPDATE 0 95\nUPDATE 0 99\nREAD 0\nDELETE 0\n",
+        "expected_output": "RECORD UPDATED\nRECORD UPDATED\nID: 99, Name: Eve, Score: 99\nRECORD DELETED\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple updates on single record"
+      }
+    ]
+  },
+  {
+    "id": 170,
+    "title": "CSV Parser",
+    "slug": "csv-parser",
+    "difficulty": "hard",
+    "description": "Comma-Separated Values (CSV) is a standard format for tabular data interchange. While naive parsers split lines simply on commas (`,`), standard RFC 4180 CSV specifications require handling complex edge cases:\n1. **Commas inside fields**: A field may contain commas if the entire field is enclosed within double quotes (`\"...\"`). For example, `\"Smith, John\"` is a single field containing `Smith, John`.\n2. **Escaped quotes**: If a quoted field contains a double quote character, it is escaped by doubling it (`\"\"`). For example, `\"He said \"\"Hello\"\" to me\"` represents the field value `He said \"Hello\" to me`.\n3. **Empty fields**: Adjacent commas (e.g. `a,,c`) represent an empty field between them.\n4. **Stripping quotes**: The outer enclosing quotes used for escaping must be removed in the parsed output, while unescaping `\"\"` into a single `\"`.\n\nImplement a robust CSV line parser in C. The program reads $N$ CSV lines from standard input and parses each line into its component fields. For each line, output `Line X:` (1-indexed) followed by each field on its own line: `Field Y: <parsed_content>` (where $Y$ is 0-indexed).",
+    "input_format": "The first line contains an integer N (1 <= N <= 100). The next N lines each contain a valid CSV line (maximum length 2048 characters).",
+    "output_format": "For each CSV line, print 'Line X:' followed by each field formatted as 'Field Y: <content>'.",
+    "constraints": "1 <= N <= 100, line length <= 2048 characters",
+    "examples": [
+      {
+        "input": "2\napple,banana,cherry\n\"Smith, John\",\"He said \"\"Hello\"\" to me\",42\n",
+        "output": "Line 1:\nField 0: apple\nField 1: banana\nField 2: cherry\nLine 2:\nField 0: Smith, John\nField 1: He said \"Hello\" to me\nField 2: 42\n",
+        "explanation": "Line 1 has 3 plain fields. Line 2 has a field with comma, a field with escaped quotes, and an integer."
+      },
+      {
+        "input": "1\na,,c,\"\"\n",
+        "output": "Line 1:\nField 0: a\nField 1: \nField 2: c\nField 3: \n",
+        "explanation": "Field 1 is empty between commas; Field 3 is empty quoted string."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n#define MAX_LINE 4096\n\nvoid parse_csv_line(const char *line, int line_num) {\n    // Implement RFC 4180 CSV parser\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\\n\", &n) != 1) return 0;\n    \n    // Read and parse N lines\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\n#define MAX_LINE 4096\n\nstatic void trim_trailing_newline(char *s) {\n    size_t len = strlen(s);\n    while (len > 0 && (s[len - 1] == '\\n' || s[len - 1] == '\\r')) {\n        s[len - 1] = '\\0';\n        len--;\n    }\n}\n\nstatic void parse_csv_line(const char *line, int line_num) {\n    printf(\"Line %d:\\n\", line_num);\n    \n    char field[MAX_LINE];\n    int field_idx = 0;\n    int out_pos = 0;\n    int in_quotes = 0;\n    int len = (int)strlen(line);\n    \n    for (int i = 0; i <= len; i++) {\n        char c = line[i];\n        \n        if (in_quotes) {\n            if (c == '\"') {\n                if (line[i + 1] == '\"') {\n                    // Escaped quote: \"\" -> \"\n                    field[out_pos++] = '\"';\n                    i++;\n                } else {\n                    // Closing quote\n                    in_quotes = 0;\n                }\n            } else {\n                field[out_pos++] = c;\n            }\n        } else {\n            if (c == '\"') {\n                // Opening quote\n                in_quotes = 1;\n            } else if (c == ',' || c == '\\0') {\n                // End of field\n                field[out_pos] = '\\0';\n                printf(\"Field %d: %s\\n\", field_idx++, field);\n                out_pos = 0;\n            } else {\n                field[out_pos++] = c;\n            }\n        }\n    }\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Consume newline after n\n    int ch;\n    while ((ch = getchar()) != '\\n' && ch != EOF);\n    \n    char line[MAX_LINE];\n    for (int i = 1; i <= n; i++) {\n        if (!fgets(line, sizeof(line), stdin)) break;\n        trim_trailing_newline(line);\n        parse_csv_line(line, i);\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Use a state variable in_quotes to distinguish commas inside quotes from field-separating commas.",
+      "When inside quotes and you see '\"', peek at the next character: if it is also '\"', it is an escaped quote (\"\"); otherwise, it closes the quoted string.",
+      "When encountering a comma outside quotes or the end-of-string '\\0', flush the accumulated field buffer and print."
+    ],
+    "explanation": "We maintain an in_quotes flag. When outside quotes, a comma signifies the end of a field, and an opening quote enters quote mode without adding the quote to the buffer. Inside quotes, a quote followed immediately by another quote unescapes into a single quote character; a lone quote ends quote mode. At comma or string termination, the current field is printed.",
+    "time_complexity": "O(L) per line, where L is line length",
+    "space_complexity": "O(L) for field buffer",
+    "common_mistakes": [
+      "Using strtok(), which cannot handle quoted commas, escaped quotes, or empty fields (it skips consecutive delimiters).",
+      "Leaving trailing '\\r' or '\\n' in the last field.",
+      "Failing to handle an empty field at the beginning or end of a line (e.g. ',apple,')."
+    ],
+    "related_problems": [
+      "file-word-counter",
+      "robust-input-parser"
+    ],
+    "topic_slug": "file-handling-preprocessor",
+    "company_slugs": [
+      "snowflake",
+      "salesforce",
+      "microsoft",
+      "google"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "2\napple,banana,cherry\n\"Smith, John\",\"He said \"\"Hello\"\" to me\",42\n",
+        "expected_output": "Line 1:\nField 0: apple\nField 1: banana\nField 2: cherry\nLine 2:\nField 0: Smith, John\nField 1: He said \"Hello\" to me\nField 2: 42\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard fields and quoted fields with escaped quotes"
+      },
+      {
+        "input": "1\na,,c,\"\"\n",
+        "expected_output": "Line 1:\nField 0: a\nField 1: \nField 2: c\nField 3: \n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty fields and empty quoted strings"
+      },
+      {
+        "input": "1\n\"Everything, inside, one, field\"\n",
+        "expected_output": "Line 1:\nField 0: Everything, inside, one, field\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single field entirely quoted containing multiple commas"
+      },
+      {
+        "input": "1\n\"10,000\",\"\"\"Special\"\"\",Simple,123\n",
+        "expected_output": "Line 1:\nField 0: 10,000\nField 1: \"Special\"\nField 2: Simple\nField 3: 123\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Quoted string containing quotes (\"\"Special\"\")"
+      },
+      {
+        "input": "2\nalpha,beta\ngamma,delta\n",
+        "expected_output": "Line 1:\nField 0: alpha\nField 1: beta\nLine 2:\nField 0: gamma\nField 1: delta\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple plain lines"
+      }
+    ]
+  },
+  {
+    "id": 171,
+    "title": "Macro-Based Generic Max",
+    "slug": "macro-based-generic-max",
+    "difficulty": "hard",
+    "description": "In C, implementing a generic `MAX(a, b)` macro using naive ternary syntax `#define MAX(a, b) ((a) > (b) ? (a) : (b))` introduces a notorious bug: **multiple evaluation of side effects**.\n\nIf either argument contains side effects—such as post-increment `x++` or a function call—the winning operand is evaluated twice: once in the condition `(a) > (b)` and a second time in the result branch `(a)` or `(b)`. For instance, in `MAX(x++, y)`, if $x > y$, $x$ is incremented twice instead of once!\n\nTo solve this, modern production codebases (such as the Linux kernel's `max(x, y)`) implement safe macros using temporary variables and GCC statement expressions `({ ... })` or typed inline functions to guarantee that each argument expression is evaluated **strictly once from left to right**.\n\nImplement an evaluation engine that processes expressions involving two variables $X$ and $Y$ and computes safe `MAX(exprA, exprB)`.\nEach query is formatted as:\n`INIT <initial_X> <initial_Y>; MAX(<exprA>, <exprB>)`\nwhere `exprA` and `exprB` can be:\n- `X++`: evaluates to current $X$, then increments $X$ by 1.\n- `Y++`: evaluates to current $Y$, then increments $Y$ by 1.\n- `X`: evaluates to current $X$ without incrementing.\n- `Y`: evaluates to current $Y$ without incrementing.\n- An integer constant (e.g. `10` or `-5`).\n\nBecause evaluation is safe and strictly once from left to right, `exprA` is evaluated first (applying any side effect), followed by `exprB` (applying any side effect), and the maximum of the two resulting values is returned. Print `RESULT: <max>, X: <final_X>, Y: <final_Y>` for each query.",
+    "input_format": "The first line contains an integer Q (1 <= Q <= 100). The next Q lines each contain an expression in the format: INIT <X> <Y>; MAX(<exprA>, <exprB>).",
+    "output_format": "For each query, print: RESULT: <max_val>, X: <final_X>, Y: <final_Y>",
+    "constraints": "1 <= Q <= 100, -1000 <= initial X, Y <= 1000",
+    "examples": [
+      {
+        "input": "2\nINIT 5 10; MAX(X++, Y++)\nINIT 20 15; MAX(X++, Y)\n",
+        "output": "RESULT: 10, X: 6, Y: 11\nRESULT: 20, X: 21, Y: 15\n",
+        "explanation": "Query 1: X++ gives 5 (X becomes 6), Y++ gives 10 (Y becomes 11). Max is 10. Query 2: X++ gives 20 (X becomes 21), Y gives 15. Max is 20."
+      },
+      {
+        "input": "1\nINIT 0 0; MAX(X++, X++)\n",
+        "output": "RESULT: 1, X: 2, Y: 0\n",
+        "explanation": "First X++ evaluates to 0 (X becomes 1). Second X++ evaluates to 1 (X becomes 2). Max is 1."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\n// Implement safe macro evaluation simulator\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\\n\", &q) != 1) return 0;\n    \n    // Process queries\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <ctype.h>\n\nstatic int eval_operand(const char *expr, int *pX, int *pY) {\n    while (*expr == ' ') expr++;\n    if (strcmp(expr, \"X++\") == 0) {\n        int val = *pX;\n        (*pX)++;\n        return val;\n    } else if (strcmp(expr, \"Y++\") == 0) {\n        int val = *pY;\n        (*pY)++;\n        return val;\n    } else if (strcmp(expr, \"X\") == 0) {\n        return *pX;\n    } else if (strcmp(expr, \"Y\") == 0) {\n        return *pY;\n    } else {\n        return atoi(expr);\n    }\n}\n\nstatic void trim_trailing(char *s) {\n    size_t len = strlen(s);\n    while (len > 0 && (s[len - 1] == ' ' || s[len - 1] == '\\n' || s[len - 1] == '\\r')) {\n        s[len - 1] = '\\0';\n        len--;\n    }\n}\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    char line[512];\n    // Consume newline\n    fgets(line, sizeof(line), stdin);\n    \n    for (int i = 0; i < q; i++) {\n        if (!fgets(line, sizeof(line), stdin)) break;\n        trim_trailing(line);\n        if (strlen(line) == 0) continue;\n        \n        int x = 0, y = 0;\n        char *semicolon = strchr(line, ';');\n        if (!semicolon) continue;\n        \n        *semicolon = '\\0';\n        sscanf(line, \"INIT %d %d\", &x, &y);\n        \n        char *max_part = semicolon + 1;\n        while (*max_part == ' ') max_part++;\n        \n        char *open_paren = strchr(max_part, '(');\n        char *close_paren = strrchr(max_part, ')');\n        if (!open_paren || !close_paren || open_paren >= close_paren) continue;\n        \n        *close_paren = '\\0';\n        char *inner = open_paren + 1;\n        \n        char *comma = strchr(inner, ',');\n        if (!comma) continue;\n        *comma = '\\0';\n        char *opA = inner;\n        char *opB = comma + 1;\n        \n        trim_trailing(opA);\n        while (*opB == ' ') opB++;\n        trim_trailing(opB);\n        \n        // Evaluate strictly once from left to right\n        int valA = eval_operand(opA, &x, &y);\n        int valB = eval_operand(opB, &x, &y);\n        int max_val = (valA > valB) ? valA : valB;\n        \n        printf(\"RESULT: %d, X: %d, Y: %d\\n\", max_val, x, y);\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Parse the initial values of X and Y from the 'INIT' section.",
+      "Parse the two operands inside MAX(a, b).",
+      "Evaluate operand A first (updating X/Y if post-incremented), then evaluate operand B, guaranteeing single evaluation."
+    ],
+    "explanation": "In standard safe macros like Linux's max(x, y), variables are assigned to local temporary variables typeof(x) _x = (x); typeof(y) _y = (y); before comparison. Our parser models this single-evaluation contract by evaluating operand A once, then operand B once, producing the correct side effects.",
+    "time_complexity": "O(Q)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Evaluating operands multiple times like a naive macro would.",
+      "Evaluating operand B before operand A, violating C's left-to-right sequencing in comma expressions.",
+      "Failing to trim spaces around operand strings."
+    ],
+    "related_problems": [
+      "multi-file-compilation-simulator",
+      "robust-input-parser"
+    ],
+    "topic_slug": "file-handling-preprocessor",
+    "company_slugs": [
+      "intel",
+      "redhat",
+      "apple",
+      "arm"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "2\nINIT 5 10; MAX(X++, Y++)\nINIT 20 15; MAX(X++, Y)\n",
+        "expected_output": "RESULT: 10, X: 6, Y: 11\nRESULT: 20, X: 21, Y: 15\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard queries testing post-increment evaluation"
+      },
+      {
+        "input": "1\nINIT 0 0; MAX(X++, X++)\n",
+        "expected_output": "RESULT: 1, X: 2, Y: 0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Both operands incrementing the same variable X"
+      },
+      {
+        "input": "1\nINIT -5 -10; MAX(X, Y++)\n",
+        "expected_output": "RESULT: -5, X: -5, Y: -9\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Negative numbers with Y post-increment"
+      },
+      {
+        "input": "1\nINIT 100 100; MAX(X++, Y++)\n",
+        "expected_output": "RESULT: 100, X: 101, Y: 101\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Equal values both post-incremented"
+      },
+      {
+        "input": "2\nINIT 10 20; MAX(50, X++)\nINIT 5 5; MAX(Y, 100)\n",
+        "expected_output": "RESULT: 50, X: 11, Y: 20\nRESULT: 100, X: 5, Y: 5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Operands with constant numeric literals"
+      }
+    ]
+  },
+  {
+    "id": 172,
+    "title": "Multi-File Compilation Simulator",
+    "slug": "multi-file-compilation-simulator",
+    "difficulty": "very_hard",
+    "description": "When building large C programs spanning multiple translation units (`.c` source files), the C compiler compiles each source file independently into an object file (`.o`), and the linker connects symbols across object files to produce the final executable.\n\nThe linker enforces fundamental rules of symbol linkage:\n1. **Internal Linkage (`STATIC_DEF`)**: Symbols declared with the `static` keyword are internal to their translation unit. Multiple files may define `static` symbols with the exact same name without conflict.\n2. **External Linkage (`DEF`)**: Global variables and functions defined without `static` have external linkage. If two different files define an external symbol with the same name, the linker raises a `MULTIPLE_DEFINITION` error.\n3. **External Reference (`EXTERN_REF`)**: An `extern` declaration references a symbol defined in another file. If a symbol is referenced via `EXTERN_REF` but is never defined as a `DEF` in any file, the linker raises an `UNDEFINED_REFERENCE` error.\n\nSimulate a C linker that inspects symbol declarations and definitions across $F$ source files. If any conflict occurs, report the first error in order of rule priority:\n- If any external symbol is defined more than once: print `ERROR: MULTIPLE_DEFINITION <symbol_name>`\n- Else if any extern reference has no matching external definition: print `ERROR: UNDEFINED_REFERENCE <symbol_name>`\n- If all references resolve with no duplicate definitions: print `LINK SUCCESS: <count> EXTERNAL SYMBOLS` (where count is the total number of distinct external definitions).",
+    "input_format": "The first line contains an integer F (1 <= F <= 20). For each of the F files, the first line gives the filename and an integer S (the number of symbol entries, 1 <= S <= 50). The next S lines each contain: <linkage> <symbol_name> (where linkage is DEF, STATIC_DEF, or EXTERN_REF).",
+    "output_format": "Print the linker result: 'ERROR: MULTIPLE_DEFINITION <symbol>', 'ERROR: UNDEFINED_REFERENCE <symbol>', or 'LINK SUCCESS: <count> EXTERNAL SYMBOLS'.",
+    "constraints": "1 <= F <= 20, 1 <= S <= 50, symbol names alphanumeric up to 32 characters",
+    "examples": [
+      {
+        "input": "2\nmain.c 2\nEXTERN_REF foo\nDEF main\nmath.c 1\nDEF foo\n",
+        "output": "LINK SUCCESS: 2 EXTERNAL SYMBOLS\n",
+        "explanation": "Symbols 'main' and 'foo' are uniquely defined. 'foo' resolves the EXTERN_REF in main.c."
+      },
+      {
+        "input": "2\nfile1.c 1\nDEF foo\nfile2.c 1\nDEF foo\n",
+        "output": "ERROR: MULTIPLE_DEFINITION foo\n",
+        "explanation": "'foo' is defined as an external symbol in both file1.c and file2.c."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n// Simulate C linker symbol resolution\n\nint main(void) {\n    int f;\n    if (scanf(\"%d\", &f) != 1) return 0;\n    \n    // Read files and resolve symbols\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\n#define MAX_SYMBOLS 1000\n\ntypedef struct {\n    char name[36];\n    int def_count;\n} DefEntry;\n\nstatic DefEntry defs[MAX_SYMBOLS];\nstatic int def_total = 0;\n\ntypedef struct {\n    char name[36];\n} RefEntry;\n\nstatic RefEntry refs[MAX_SYMBOLS];\nstatic int ref_total = 0;\n\nstatic int find_def(const char *name) {\n    for (int i = 0; i < def_total; i++) {\n        if (strcmp(defs[i].name, name) == 0) return i;\n    }\n    return -1;\n}\n\nint main(void) {\n    int f;\n    if (scanf(\"%d\", &f) != 1) return 0;\n    \n    char mult_def_symbol[36] = \"\";\n    int has_mult_def = 0;\n    \n    for (int file_idx = 0; file_idx < f; file_idx++) {\n        char filename[64];\n        int s;\n        scanf(\"%63s %d\", filename, &s);\n        \n        for (int j = 0; j < s; j++) {\n            char linkage[20], name[36];\n            scanf(\"%19s %35s\", linkage, name);\n            \n            if (strcmp(linkage, \"DEF\") == 0) {\n                int idx = find_def(name);\n                if (idx != -1) {\n                    defs[idx].def_count++;\n                    if (!has_mult_def) {\n                        strncpy(mult_def_symbol, name, 35);\n                        has_mult_def = 1;\n                    }\n                } else {\n                    strncpy(defs[def_total].name, name, 35);\n                    defs[def_total].def_count = 1;\n                    def_total++;\n                }\n            } else if (strcmp(linkage, \"EXTERN_REF\") == 0) {\n                strncpy(refs[ref_total].name, name, 35);\n                ref_total++;\n            }\n            // STATIC_DEF is ignored globally as it is internal to the translation unit\n        }\n    }\n    \n    if (has_mult_def) {\n        printf(\"ERROR: MULTIPLE_DEFINITION %s\\n\", mult_def_symbol);\n        return 0;\n    }\n    \n    for (int i = 0; i < ref_total; i++) {\n        if (find_def(refs[i].name) == -1) {\n            printf(\"ERROR: UNDEFINED_REFERENCE %s\\n\", refs[i].name);\n            return 0;\n        }\n    }\n    \n    printf(\"LINK SUCCESS: %d EXTERNAL SYMBOLS\\n\", def_total);\n    return 0;\n}\n",
+    "hints": [
+      "Ignore STATIC_DEF symbols globally; they are scoped only to their source file and never conflict.",
+      "Record DEF symbols and their counts. If any DEF symbol is defined more than once, report MULTIPLE_DEFINITION.",
+      "For all EXTERN_REF entries, verify that a corresponding DEF exists; otherwise report UNDEFINED_REFERENCE."
+    ],
+    "explanation": "The linker tracks global symbols. External definitions ('DEF') are cataloged; if a symbol name is registered more than once, a multiple definition conflict occurs. Once definitions are validated, every external reference ('EXTERN_REF') must resolve to an entry in the definition table. If any reference remains unsatisfied, an undefined reference error is triggered.",
+    "time_complexity": "O(F * S * N_symbols)",
+    "space_complexity": "O(F * S)",
+    "common_mistakes": [
+      "Treating STATIC_DEF as external symbols, causing false positive duplicate definition errors.",
+      "Reporting undefined reference before checking for duplicate definitions.",
+      "Allowing multiple definitions of a symbol across different files."
+    ],
+    "related_problems": [
+      "macro-based-generic-max",
+      "binary-file-record-manager"
+    ],
+    "topic_slug": "file-handling-preprocessor",
+    "company_slugs": [
+      "redhat",
+      "apple",
+      "google",
+      "meta"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "2\nmain.c 2\nEXTERN_REF foo\nDEF main\nmath.c 1\nDEF foo\n",
+        "expected_output": "LINK SUCCESS: 2 EXTERNAL SYMBOLS\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Successful link with cross-file reference"
+      },
+      {
+        "input": "2\nfile1.c 1\nDEF foo\nfile2.c 1\nDEF foo\n",
+        "expected_output": "ERROR: MULTIPLE_DEFINITION foo\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Duplicate external definition in two files"
+      },
+      {
+        "input": "2\nfile1.c 1\nSTATIC_DEF helper\nfile2.c 1\nSTATIC_DEF helper\n",
+        "expected_output": "LINK SUCCESS: 0 EXTERNAL SYMBOLS\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Static definitions with identical names do not conflict"
+      },
+      {
+        "input": "1\nmain.c 2\nDEF main\nEXTERN_REF missing_func\n",
+        "expected_output": "ERROR: UNDEFINED_REFERENCE missing_func\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Unresolved external reference"
+      },
+      {
+        "input": "3\nmain.c 2\nDEF main\nEXTERN_REF calc\ncalc.c 2\nDEF calc\nEXTERN_REF util\nutil.c 2\nDEF util\nSTATIC_DEF internal\n",
+        "expected_output": "LINK SUCCESS: 3 EXTERNAL SYMBOLS\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Chain of 3 files linking successfully"
+      }
+    ]
+  }
+]

@@ -1,0 +1,1052 @@
+[
+  {
+    "id": 84,
+    "title": "Build and Display Linked List",
+    "slug": "build-and-display-linked-list",
+    "difficulty": "medium",
+    "description": "### Problem Statement\nA **singly linked list** is a linear data structure in which elements are stored in independent memory nodes on the heap. Each node consists of a data value and a pointer (`next`) to the subsequent node in the sequence. Unlike arrays, linked lists allow $O(1)$ insertions and deletions without contiguous memory reallocation.\n\nIn this problem, you will implement the foundational operations for building and printing a singly linked list from scratch in C:\n```c\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n```\n\n#### Specifications:\n1. Read an integer $N$ representing the number of elements.\n2. If $N > 0$, read $N$ space-separated integers from standard input.\n3. Dynamically allocate each node on the heap using `malloc`.\n4. Insert nodes sequentially such that the original input order is strictly preserved (append to tail or maintain tail pointer).\n5. Traverse and display the list in standard linked list notation:\n   `val1 -> val2 -> val3 -> NULL`\n6. If $N == 0$, print `EMPTY`.\n7. Traverse the list once more to explicitly deallocate every node with `free` to prevent memory leaks.",
+    "input_format": "The first line contains integer N (number of elements).\nIf N > 0, the second line contains N space-separated integers.",
+    "output_format": "Print the list in the format 'val1 -> val2 -> ... -> NULL', or 'EMPTY' if N == 0.",
+    "constraints": "0 <= N <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "4\n10 20 30 40\n",
+        "output": "10 -> 20 -> 30 -> 40 -> NULL\n",
+        "explanation": "Four elements are read and inserted sequentially at the tail, yielding the formatted chain ending with NULL."
+      },
+      {
+        "input": "0\n",
+        "output": "EMPTY\n",
+        "explanation": "With 0 elements, the list is empty."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* create_node(int val) {\n    // TODO: Allocate node and initialize data and next\n    return NULL;\n}\n\nvoid print_list(Node *head) {\n    // TODO: Print list formatted as \"val -> ... -> NULL\" or \"EMPTY\"\n}\n\nvoid free_list(Node *head) {\n    // TODO: Free all nodes\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // TODO: Build linked list from n integers and display\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* create_node(int val) {\n    Node *node = (Node *)malloc(sizeof(Node));\n    node->data = val;\n    node->next = NULL;\n    return node;\n}\n\nvoid print_list(Node *head) {\n    if (head == NULL) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    Node *curr = head;\n    while (curr != NULL) {\n        printf(\"%d -> \", curr->data);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid free_list(Node *head) {\n    Node *curr = head;\n    while (curr != NULL) {\n        Node *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    Node *head = NULL;\n    Node *tail = NULL;\n    \n    for (int i = 0; i < n; i++) {\n        int val;\n        scanf(\"%d\", &val);\n        Node *node = create_node(val);\n        if (head == NULL) {\n            head = node;\n            tail = node;\n        } else {\n            tail->next = node;\n            tail = node;\n        }\n    }\n    \n    print_list(head);\n    free_list(head);\n    return 0;\n}\n",
+    "hints": [
+      "Maintain a tail pointer alongside head so insertions at the end run in O(1) time rather than O(N).",
+      "Check for N == 0 before attempting to read elements or traverse.",
+      "Always save the next pointer (temp = curr->next) before freeing curr."
+    ],
+    "explanation": "Maintaining a tail pointer during construction allows sequential O(1) appends, reducing total list creation time to O(N). Traversal simply follows the next pointers until NULL is reached.",
+    "time_complexity": "O(N) to build, display, and free the list",
+    "space_complexity": "O(N) heap memory for node storage",
+    "common_mistakes": [
+      "Failing to maintain a tail pointer, resulting in O(N^2) insertion by traversing the entire list on every element.",
+      "Freeing the current node before saving curr->next, resulting in undefined behavior.",
+      "Not handling N == 0 gracefully."
+    ],
+    "related_problems": [
+      "reverse-a-linked-list",
+      "find-middle-node"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "google"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\n10 20 30 40\n",
+        "expected_output": "10 -> 20 -> 30 -> 40 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 4-element linked list"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty list (N=0)"
+      },
+      {
+        "input": "1\n999\n",
+        "expected_output": "999 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element list"
+      },
+      {
+        "input": "5\n-5 0 15 -20 100\n",
+        "expected_output": "-5 -> 0 -> 15 -> -20 -> 100 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "List containing negative numbers and zero"
+      },
+      {
+        "input": "6\n1 1 1 1 1 1\n",
+        "expected_output": "1 -> 1 -> 1 -> 1 -> 1 -> 1 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "List with duplicate values"
+      }
+    ]
+  },
+  {
+    "id": 85,
+    "title": "Reverse a Linked List",
+    "slug": "reverse-a-linked-list",
+    "difficulty": "medium",
+    "description": "### Problem Statement\nReversing a singly linked list is a fundamental interview problem testing pointer manipulation in C. In a singly linked list, each node only knows the location of the node that follows it (`next`). To reverse the direction of all pointers without allocating extra nodes on the heap, you must redirect each node's `next` pointer toward its predecessor.\n\nYou must implement an in-place, iterative reversal using three sliding pointer references: `prev`, `curr`, and `next`.\n\n#### Requirements:\n1. Build a singly linked list from $N$ input integers.\n2. If $N == 0$, print `EMPTY`.\n3. If $N > 0$, reverse the list **in-place** in $O(N)$ time and $O(1)$ auxiliary space.\n4. Output the reversed list in standard notation:\n   `valN -> ... -> val1 -> NULL`\n5. Free all allocated nodes before exit.",
+    "input_format": "The first line contains integer N.\nIf N > 0, the second line contains N space-separated integers.",
+    "output_format": "Print the reversed list in standard notation, or 'EMPTY' if N == 0.",
+    "constraints": "0 <= N <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "output": "5 -> 4 -> 3 -> 2 -> 1 -> NULL\n",
+        "explanation": "Pointers are inverted iteratively so 5 becomes head, pointing back down to 1."
+      },
+      {
+        "input": "0\n",
+        "output": "EMPTY\n",
+        "explanation": "Empty list outputs EMPTY."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* reverse_list(Node *head) {\n    // TODO: Invert next pointers iteratively using prev, curr, next pointers\n    return NULL;\n}\n\nvoid print_list(Node *head) {\n    // TODO: Print formatted list or EMPTY\n}\n\nvoid free_list(Node *head) {\n    // TODO: Free memory\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // TODO: Read integers, reverse list, print, and free\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* reverse_list(Node *head) {\n    Node *prev = NULL;\n    Node *curr = head;\n    while (curr != NULL) {\n        Node *next = curr->next;\n        curr->next = prev;\n        prev = curr;\n        curr = next;\n    }\n    return prev;\n}\n\nvoid print_list(Node *head) {\n    if (head == NULL) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    Node *curr = head;\n    while (curr != NULL) {\n        printf(\"%d -> \", curr->data);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid free_list(Node *head) {\n    Node *curr = head;\n    while (curr != NULL) {\n        Node *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    Node *head = NULL;\n    Node *tail = NULL;\n    for (int i = 0; i < n; i++) {\n        int val;\n        scanf(\"%d\", &val);\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = val;\n        node->next = NULL;\n        if (!head) {\n            head = node;\n            tail = node;\n        } else {\n            tail->next = node;\n            tail = node;\n        }\n    }\n    \n    head = reverse_list(head);\n    print_list(head);\n    free_list(head);\n    return 0;\n}\n",
+    "hints": [
+      "Use three pointers: Node *prev = NULL, *curr = head, *next = NULL;",
+      "In each loop iteration: save next = curr->next; set curr->next = prev; advance prev = curr; advance curr = next;",
+      "When curr becomes NULL, prev is the new head of the reversed list."
+    ],
+    "explanation": "The three-pointer sliding window traverses the list once. By saving curr->next before modifying curr->next to point backwards to prev, the list is reversed in strict O(N) time and O(1) auxiliary memory without allocating any extra nodes.",
+    "time_complexity": "O(N) single-pass traversal",
+    "space_complexity": "O(1) auxiliary space",
+    "common_mistakes": [
+      "Losing the rest of the list by assigning curr->next = prev before saving curr->next.",
+      "Returning head instead of prev as the new head pointer.",
+      "Creating memory leaks by creating new nodes instead of modifying existing pointers in place."
+    ],
+    "related_problems": [
+      "build-and-display-linked-list",
+      "reverse-in-groups-of-k"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "meta",
+      "google",
+      "amazon",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "expected_output": "5 -> 4 -> 3 -> 2 -> 1 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 5-element reversal"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty list reversal"
+      },
+      {
+        "input": "1\n42\n",
+        "expected_output": "42 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single-element list reversal"
+      },
+      {
+        "input": "2\n10 20\n",
+        "expected_output": "20 -> 10 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Two-element list reversal"
+      },
+      {
+        "input": "6\n7 -3 100 0 25 8\n",
+        "expected_output": "8 -> 25 -> 0 -> 100 -> -3 -> 7 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Reversal of mixed positive, negative, and zero values"
+      }
+    ]
+  },
+  {
+    "id": 86,
+    "title": "Find Middle Node",
+    "slug": "find-middle-node",
+    "difficulty": "medium",
+    "description": "### Problem Statement\nFinding the middle of a linked list in an array is trivial via indexing ($arr[N/2]$). However, in a singly linked list where length is not known in advance and random access is impossible, a naive approach requires two passes: one to count the nodes and a second to advance to index $N/2$.\n\nThe **slow-and-fast pointer technique** (also known as the Tortoise and Hare algorithm) finds the middle node in a **single pass**:\n- Initialize two pointers: `slow` and `fast` at `head`.\n- In each step, advance `slow` by 1 node and `fast` by 2 nodes:\n  ```c\n  slow = slow->next;\n  fast = fast->next->next;\n  ```\n- When `fast` reaches the end of the list (`fast == NULL` or `fast->next == NULL`), `slow` will point directly to the middle node.\n\n#### Convention for Even Length:\nWhen the list has an even number of nodes ($2k$), there are two middle nodes (at indices $k-1$ and $k$). Follow standard competitive programming convention by selecting the **second middle node** (at index $k$).\n\n#### Output Format:\n- If $N == 0$, print `EMPTY`.\n- If $N > 0$, print two lines:\n  - Line 1: `MIDDLE: <val>`\n  - Line 2: `REMAINDER: <val> -> ... -> NULL` (displaying the sublist starting from the middle node).",
+    "input_format": "The first line contains integer N.\nIf N > 0, the second line contains N space-separated integers.",
+    "output_format": "If N == 0, print 'EMPTY'.\nOtherwise, print 'MIDDLE: <val>' on line 1, and 'REMAINDER: <val> -> ... -> NULL' on line 2.",
+    "constraints": "0 <= N <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "5\n10 20 30 40 50\n",
+        "output": "MIDDLE: 30\nREMAINDER: 30 -> 40 -> 50 -> NULL\n",
+        "explanation": "List has 5 elements. Middle is 30. Remainder list starting from 30 is printed."
+      },
+      {
+        "input": "6\n1 2 3 4 5 6\n",
+        "output": "MIDDLE: 4\nREMAINDER: 4 -> 5 -> 6 -> NULL\n",
+        "explanation": "List has 6 elements. The two middle nodes are 3 and 4; by convention, the second middle (4) is chosen."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* find_middle(Node *head) {\n    // TODO: Find middle using slow and fast pointer technique\n    return NULL;\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // TODO: Build list, find middle node, print results, and free memory\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* find_middle(Node *head) {\n    if (head == NULL) return NULL;\n    Node *slow = head;\n    Node *fast = head;\n    while (fast != NULL && fast->next != NULL) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n    return slow;\n}\n\nvoid free_list(Node *head) {\n    Node *curr = head;\n    while (curr != NULL) {\n        Node *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    if (n == 0) {\n        printf(\"EMPTY\\n\");\n        return 0;\n    }\n    \n    Node *head = NULL;\n    Node *tail = NULL;\n    for (int i = 0; i < n; i++) {\n        int val;\n        scanf(\"%d\", &val);\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = val;\n        node->next = NULL;\n        if (!head) {\n            head = node;\n            tail = node;\n        } else {\n            tail->next = node;\n            tail = node;\n        }\n    }\n    \n    Node *mid = find_middle(head);\n    printf(\"MIDDLE: %d\\n\", mid->data);\n    printf(\"REMAINDER: \");\n    Node *curr = mid;\n    while (curr != NULL) {\n        printf(\"%d -> \", curr->data);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n    \n    free_list(head);\n    return 0;\n}\n",
+    "hints": [
+      "Initialize slow = head, fast = head.",
+      "Loop condition: while (fast != NULL && fast->next != NULL).",
+      "Inside loop: slow = slow->next; fast = fast->next->next;",
+      "When loop finishes, slow points to the middle node."
+    ],
+    "explanation": "Because fast moves at twice the speed of slow, when fast reaches the end of the list (position N), slow will have traveled exactly N/2 nodes. This achieves single-pass O(N) time and O(1) space.",
+    "time_complexity": "O(N) single pass",
+    "space_complexity": "O(1) auxiliary space",
+    "common_mistakes": [
+      "Dereferencing NULL: checking fast->next->next without first checking fast->next != NULL.",
+      "Picking the first middle node instead of second middle node for even-length lists.",
+      "Traversing the list twice when a single pass suffices."
+    ],
+    "related_problems": [
+      "reverse-a-linked-list",
+      "detect-cycle-floyds"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "adobe"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\n10 20 30 40 50\n",
+        "expected_output": "MIDDLE: 30\nREMAINDER: 30 -> 40 -> 50 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Odd length list (5 nodes, middle is index 2)"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6\n",
+        "expected_output": "MIDDLE: 4\nREMAINDER: 4 -> 5 -> 6 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Even length list (6 nodes, middle is second middle, index 3)"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty list (N=0)"
+      },
+      {
+        "input": "1\n777\n",
+        "expected_output": "MIDDLE: 777\nREMAINDER: 777 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single node list"
+      },
+      {
+        "input": "2\n100 200\n",
+        "expected_output": "MIDDLE: 200\nREMAINDER: 200 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Two node list (second node is middle)"
+      }
+    ]
+  },
+  {
+    "id": 87,
+    "title": "Detect Cycle (Floyd's)",
+    "slug": "detect-cycle-floyds",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nA cycle in a linked list occurs when a node's `next` pointer points back to a previously visited node, causing an infinite loop during standard traversal. **Floyd's Cycle-Finding Algorithm** (also known as the Tortoise and Hare algorithm) detects cycles and determines the cycle's starting node and length in $O(N)$ time and $O(1)$ space.\n\n#### Mathematical Foundation:\n1. **Detection Phase:** Advance `slow` by 1 step and `fast` by 2 steps. If they ever point to the same node (`slow == fast`), a cycle is proven to exist. If `fast` or `fast->next` reaches `NULL`, no cycle exists.\n2. **Finding the Cycle Start:** Let $L_1$ be the distance from head to cycle entrance, and $C$ be the cycle length. When `slow` and `fast` first meet, resetting `slow` to `head` and advancing both `slow` and `fast` one step at a time guarantees they will meet precisely at the **cycle starting node**.\n3. **Finding Cycle Length:** Once at the cycle start, keep one pointer stationary and advance the other around the loop until it returns to start, counting the number of steps ($C$).\n\n#### Input & Output:\n- Input format:\n  - First line: integer $N$ (number of nodes).\n  - Second line: $N$ space-separated values.\n  - Third line: integer `pos` (0-based index of the node that the tail points to, or `-1` if tail points to `NULL`).\n- Output:\n  - If no cycle exists (`pos == -1` or $N == 0$): print `NO_CYCLE`.\n  - If a cycle exists: print `CYCLE_DETECTED START_INDEX: <k> LENGTH: <L>`.",
+    "input_format": "The first line contains N (number of nodes).\nThe second line contains N space-separated integers.\nThe third line contains pos (index where tail points, or -1 for NULL).",
+    "output_format": "Print 'NO_CYCLE' if no cycle exists.\nOtherwise print 'CYCLE_DETECTED START_INDEX: <k> LENGTH: <L>'.",
+    "constraints": "0 <= N <= 1000\n-1 <= pos < N\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "4\n3 2 0 -4\n1\n",
+        "output": "CYCLE_DETECTED START_INDEX: 1 LENGTH: 3\n",
+        "explanation": "Tail (-4) points to node at index 1 (val 2). The cycle comprises nodes [1, 2, 3] with length 3."
+      },
+      {
+        "input": "4\n1 2 3 4\n-1\n",
+        "output": "NO_CYCLE\n",
+        "explanation": "pos is -1, meaning tail points to NULL. No cycle exists."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nvoid detect_cycle(Node *head, int n) {\n    // TODO: Implement Floyd's cycle detection, find cycle start index and cycle length\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // TODO: Build list and connect tail->next to node at pos if pos != -1\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nvoid detect_cycle(Node *head, int n) {\n    if (head == NULL) {\n        printf(\"NO_CYCLE\\n\");\n        return;\n    }\n    \n    Node *slow = head;\n    Node *fast = head;\n    int has_cycle = 0;\n    \n    while (fast != NULL && fast->next != NULL) {\n        slow = slow->next;\n        fast = fast->next->next;\n        if (slow == fast) {\n            has_cycle = 1;\n            break;\n        }\n    }\n    \n    if (!has_cycle) {\n        printf(\"NO_CYCLE\\n\");\n        return;\n    }\n    \n    // Find cycle start\n    slow = head;\n    int start_index = 0;\n    while (slow != fast) {\n        slow = slow->next;\n        fast = fast->next;\n        start_index++;\n    }\n    \n    // Find cycle length\n    int cycle_len = 1;\n    Node *curr = slow->next;\n    while (curr != slow) {\n        curr = curr->next;\n        cycle_len++;\n    }\n    \n    printf(\"CYCLE_DETECTED START_INDEX: %d LENGTH: %d\\n\", start_index, cycle_len);\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    if (n == 0) {\n        printf(\"NO_CYCLE\\n\");\n        return 0;\n    }\n    \n    Node **nodes = (Node **)malloc(n * sizeof(Node *));\n    for (int i = 0; i < n; i++) {\n        int val;\n        scanf(\"%d\", &val);\n        nodes[i] = (Node *)malloc(sizeof(Node));\n        nodes[i]->data = val;\n        nodes[i]->next = NULL;\n        if (i > 0) {\n            nodes[i - 1]->next = nodes[i];\n        }\n    }\n    \n    int pos;\n    scanf(\"%d\", &pos);\n    if (pos >= 0 && pos < n) {\n        nodes[n - 1]->next = nodes[pos];\n    }\n    \n    detect_cycle(nodes[0], n);\n    \n    // Clean up\n    for (int i = 0; i < n; i++) {\n        free(nodes[i]);\n    }\n    free(nodes);\n    return 0;\n}\n",
+    "hints": [
+      "Use slow = head and fast = head. Advance slow by 1 and fast by 2.",
+      "If slow == fast, a cycle exists. If fast or fast->next is NULL, no cycle exists.",
+      "To find cycle start: reset slow to head, advance slow and fast 1 step simultaneously until slow == fast.",
+      "To find cycle length: advance curr = slow->next until curr == slow, counting steps."
+    ],
+    "explanation": "Floyd's cycle detection relies on the relative speed of two pointers (1 step per iteration). When inside a cycle of length C, fast closes the gap by 1 node per step, guaranteeing meeting within C steps. Mathematical parity guarantees that moving one pointer to head and advancing both at speed 1 meets at the cycle entrance.",
+    "time_complexity": "O(N) time complexity",
+    "space_complexity": "O(1) auxiliary space",
+    "common_mistakes": [
+      "Freeing the cyclic list with a naive while(curr != NULL) loop, causing an infinite loop crash.",
+      "Advancing fast two steps during the second phase (both pointers must advance 1 step to find cycle start).",
+      "Assuming cycle starts at index 0 without verifying with the phase 2 walk."
+    ],
+    "related_problems": [
+      "find-middle-node",
+      "find-intersection-point"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "google",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\n3 2 0 -4\n1\n",
+        "expected_output": "CYCLE_DETECTED START_INDEX: 1 LENGTH: 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard cycle: tail points to node 1; cycle length is 3"
+      },
+      {
+        "input": "4\n1 2 3 4\n-1\n",
+        "expected_output": "NO_CYCLE\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Acyclic list (pos = -1)"
+      },
+      {
+        "input": "1\n42\n0\n",
+        "expected_output": "CYCLE_DETECTED START_INDEX: 0 LENGTH: 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Self-loop on single node (pos = 0, length 1)"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "NO_CYCLE\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty list (N=0)"
+      },
+      {
+        "input": "5\n10 20 30 40 50\n0\n",
+        "expected_output": "CYCLE_DETECTED START_INDEX: 0 LENGTH: 5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Full circular list (tail points back to head, start = 0, length = 5)"
+      }
+    ]
+  },
+  {
+    "id": 88,
+    "title": "Remove Nth from End",
+    "slug": "remove-nth-from-end",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nGiven a singly linked list, delete the $K$-th node from the end of the list and return its head. The challenge is to complete this removal in a **single pass** without pre-computing the length of the list.\n\n#### Algorithm (Two Pointers with Fixed Offset):\n1. Use a **dummy node** preceding the head (`dummy->next = head`) to gracefully handle edge cases such as deleting the head node.\n2. Initialize two pointers: `fast` and `slow`, both starting at `dummy`.\n3. Advance `fast` forward by $K$ steps.\n   - If the list has fewer than $K$ nodes (i.e. `fast` becomes `NULL` before taking $K$ steps) or $K \\le 0$, the operation is invalid: print `INVALID_K`.\n4. Advance both `slow` and `fast` one step at a time until `fast->next == NULL`.\n5. Now, `slow->next` points precisely to the node to be removed.\n6. Relink `slow->next = slow->next->next` and free the unlinked node.\n7. Print the resulting list, or `EMPTY` if the list is now empty.",
+    "input_format": "The first line contains N (number of nodes) and K (1-based index from end).\nThe second line contains N space-separated integers.",
+    "output_format": "Print 'INVALID_K' if K is invalid.\nOtherwise print the resulting list, or 'EMPTY' if all nodes are deleted.",
+    "constraints": "0 <= N <= 1000\n-100 <= K <= 2000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "5 2\n1 2 3 4 5\n",
+        "output": "1 -> 2 -> 3 -> 5 -> NULL\n",
+        "explanation": "2nd node from end is 4. Deleting it yields 1 -> 2 -> 3 -> 5 -> NULL."
+      },
+      {
+        "input": "1 1\n42\n",
+        "output": "EMPTY\n",
+        "explanation": "Only node is removed, leaving an empty list."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* remove_nth_from_end(Node *head, int k, int *err) {\n    // TODO: Remove kth node from end in single pass using fast and slow pointers\n    return NULL;\n}\n\nint main() {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    \n    // TODO: Read list, remove kth from end, print, and free\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* remove_nth_from_end(Node *head, int k, int *err) {\n    if (k <= 0) {\n        *err = 1;\n        return head;\n    }\n    \n    Node dummy;\n    dummy.data = 0;\n    dummy.next = head;\n    \n    Node *fast = &dummy;\n    Node *slow = &dummy;\n    \n    for (int i = 0; i < k; i++) {\n        if (fast->next == NULL) {\n            *err = 1;\n            return head;\n        }\n        fast = fast->next;\n    }\n    \n    while (fast->next != NULL) {\n        fast = fast->next;\n        slow = slow->next;\n    }\n    \n    Node *to_delete = slow->next;\n    slow->next = to_delete->next;\n    free(to_delete);\n    \n    return dummy.next;\n}\n\nvoid print_list(Node *head) {\n    if (head == NULL) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    Node *curr = head;\n    while (curr != NULL) {\n        printf(\"%d -> \", curr->data);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid free_list(Node *head) {\n    Node *curr = head;\n    while (curr != NULL) {\n        Node *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n}\n\nint main() {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    \n    Node *head = NULL;\n    Node *tail = NULL;\n    for (int i = 0; i < n; i++) {\n        int val;\n        scanf(\"%d\", &val);\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = val;\n        node->next = NULL;\n        if (!head) {\n            head = node;\n            tail = node;\n        } else {\n            tail->next = node;\n            tail = node;\n        }\n    }\n    \n    int err = 0;\n    head = remove_nth_from_end(head, k, &err);\n    if (err) {\n        printf(\"INVALID_K\\n\");\n    } else {\n        print_list(head);\n    }\n    free_list(head);\n    return 0;\n}\n",
+    "hints": [
+      "Use a dummy head node: Node dummy; dummy.next = head; slow = &dummy; fast = &dummy;",
+      "Advance fast by K steps first. If fast->next is NULL before taking K steps, K > length.",
+      "Advance slow and fast together until fast->next == NULL; slow->next is the node to delete.",
+      "Free the target node with free(to_delete) to prevent memory leaks."
+    ],
+    "explanation": "The two-pointer gap technique maintains an invariant distance of K nodes between fast and slow. When fast reaches the tail, slow is positioned exactly at the predecessor of the K-th node from the end. This allows single-pass O(N) deletion with zero auxiliary space.",
+    "time_complexity": "O(N) single-pass traversal",
+    "space_complexity": "O(1) auxiliary space",
+    "common_mistakes": [
+      "Crashing when deleting the head node because no dummy node was used.",
+      "Not checking if K > length or K <= 0.",
+      "Failing to call free() on the deleted node."
+    ],
+    "related_problems": [
+      "find-middle-node",
+      "reverse-a-linked-list"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "facebook",
+      "amazon",
+      "apple"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5 2\n1 2 3 4 5\n",
+        "expected_output": "1 -> 2 -> 3 -> 5 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Removing 2nd from end (node 4)"
+      },
+      {
+        "input": "1 1\n42\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single element list with k=1 leaves EMPTY"
+      },
+      {
+        "input": "3 5\n10 20 30\n",
+        "expected_output": "INVALID_K\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "k > list length (out of bounds)"
+      },
+      {
+        "input": "4 4\n10 20 30 40\n",
+        "expected_output": "20 -> 30 -> 40 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Removing head node (k == length)"
+      },
+      {
+        "input": "4 1\n10 20 30 40\n",
+        "expected_output": "10 -> 20 -> 30 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Removing tail node (k == 1)"
+      }
+    ]
+  },
+  {
+    "id": 89,
+    "title": "Merge Two Sorted Lists",
+    "slug": "merge-two-sorted-lists",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nMerging two previously sorted linked lists is the core operation in **Merge Sort for Linked Lists**. Because elements are linked by pointers, the merge must be accomplished **in-place** in $O(1)$ auxiliary memory by re-pointing existing node pointers (`next`), without allocating any new nodes on the heap.\n\nGiven two singly linked lists sorted in non-decreasing order:\n- $L_1$: $N$ sorted integers\n- $L_2$: $M$ sorted integers\n\n#### Requirements:\n1. Merge the two lists into a single sorted linked list in non-decreasing order.\n2. The merging process must splice nodes together by adjusting existing `next` pointers.\n3. If both input lists are empty, print `EMPTY`.\n4. Output the merged list in standard notation:\n   `val1 -> val2 -> ... -> NULL`\n5. Free all nodes before termination.",
+    "input_format": "The first line contains N and M (sizes of lists 1 and 2).\nIf N > 0, the second line contains N sorted integers.\nIf M > 0, the third line contains M sorted integers.",
+    "output_format": "Print the merged list in standard notation, or 'EMPTY' if both lists are empty.",
+    "constraints": "0 <= N, M <= 1000\n-10^9 <= val <= 10^9\nInput lists are sorted in non-decreasing order",
+    "examples": [
+      {
+        "input": "3 3\n1 3 5\n2 4 6\n",
+        "output": "1 -> 2 -> 3 -> 4 -> 5 -> 6 -> NULL\n",
+        "explanation": "Lists [1, 3, 5] and [2, 4, 6] are merged in-place into [1, 2, 3, 4, 5, 6]."
+      },
+      {
+        "input": "0 0\n",
+        "output": "EMPTY\n",
+        "explanation": "Both lists are empty, yielding EMPTY."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* merge_sorted_lists(Node *l1, Node *l2) {\n    // TODO: In-place merge of l1 and l2 by rewiring next pointers\n    return NULL;\n}\n\nint main() {\n    int n, m;\n    if (scanf(\"%d %d\", &n, &m) != 2) return 0;\n    \n    // TODO: Read l1 and l2, merge, display, and free\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* merge_sorted_lists(Node *l1, Node *l2) {\n    Node dummy;\n    dummy.next = NULL;\n    Node *tail = &dummy;\n    \n    while (l1 != NULL && l2 != NULL) {\n        if (l1->data <= l2->data) {\n            tail->next = l1;\n            l1 = l1->next;\n        } else {\n            tail->next = l2;\n            l2 = l2->next;\n        }\n        tail = tail->next;\n    }\n    \n    if (l1 != NULL) {\n        tail->next = l1;\n    } else {\n        tail->next = l2;\n    }\n    \n    return dummy.next;\n}\n\nvoid print_list(Node *head) {\n    if (head == NULL) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    Node *curr = head;\n    while (curr != NULL) {\n        printf(\"%d -> \", curr->data);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid free_list(Node *head) {\n    Node *curr = head;\n    while (curr != NULL) {\n        Node *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n}\n\nNode* read_list(int count) {\n    Node *head = NULL, *tail = NULL;\n    for (int i = 0; i < count; i++) {\n        int val;\n        scanf(\"%d\", &val);\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = val;\n        node->next = NULL;\n        if (!head) {\n            head = node;\n            tail = node;\n        } else {\n            tail->next = node;\n            tail = node;\n        }\n    }\n    return head;\n}\n\nint main() {\n    int n, m;\n    if (scanf(\"%d %d\", &n, &m) != 2) return 0;\n    \n    Node *l1 = read_list(n);\n    Node *l2 = read_list(m);\n    \n    Node *merged = merge_sorted_lists(l1, l2);\n    print_list(merged);\n    free_list(merged);\n    return 0;\n}\n",
+    "hints": [
+      "Use a dummy head: Node dummy; Node *tail = &dummy; to simplify edge cases.",
+      "Compare l1->data and l2->data, attach smaller to tail->next, and advance pointer.",
+      "When one list runs out, directly attach the remainder of the other list: tail->next = (l1 != NULL) ? l1 : l2;",
+      "Return dummy.next as the head of the merged list."
+    ],
+    "explanation": "The in-place merge rewires the next pointers of existing nodes. Comparing heads and advancing the smaller pointer achieves optimal O(N + M) time and O(1) space with no heap allocation.",
+    "time_complexity": "O(N + M) linear time",
+    "space_complexity": "O(1) auxiliary space",
+    "common_mistakes": [
+      "Allocating new nodes with malloc during merge rather than reusing existing nodes.",
+      "Forgetting to attach the non-empty remaining tail when one list is exhausted.",
+      "Not using a dummy node, leading to repetitive conditionals for setting head."
+    ],
+    "related_problems": [
+      "reverse-a-linked-list",
+      "build-and-display-linked-list"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "apple",
+      "google"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3 3\n1 3 5\n2 4 6\n",
+        "expected_output": "1 -> 2 -> 3 -> 4 -> 5 -> 6 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard interleaved sorted lists"
+      },
+      {
+        "input": "0 0\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Both lists empty"
+      },
+      {
+        "input": "3 0\n10 20 30\n",
+        "expected_output": "10 -> 20 -> 30 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "One list empty, other non-empty"
+      },
+      {
+        "input": "2 4\n1 2\n3 4 5 6\n",
+        "expected_output": "1 -> 2 -> 3 -> 4 -> 5 -> 6 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "List 1 strictly precedes List 2"
+      },
+      {
+        "input": "3 3\n5 5 5\n5 5 5\n",
+        "expected_output": "5 -> 5 -> 5 -> 5 -> 5 -> 5 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All identical elements across both lists"
+      }
+    ]
+  },
+  {
+    "id": 90,
+    "title": "Find Intersection Point",
+    "slug": "find-intersection-point",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nGiven heads of two singly linked lists $A$ and $B$, determine whether the two lists intersect and find the value of the intersecting node. Two lists intersect when they share the exact same node in memory (meaning all subsequent nodes are also shared, forming a Y-shape).\n\n#### Two-Pointer Length Alignment Algorithm:\n1. Traverse list $A$ to compute its length $N$ and find its tail node.\n2. Traverse list $B$ to compute its length $M$ and find its tail node.\n3. If the tails of $A$ and $B$ are different, the lists do not intersect: print `NO_INTERSECTION`.\n4. If they share the same tail, align the starting pointers:\n   - Calculate difference $D = |N - M|$.\n   - Advance the pointer of the longer list forward by $D$ steps.\n   - Advance both pointers together one step at a time until they point to the identical node address (`currA == currB`).\n   - Print `INTERSECTION_VAL: <val>`.\n\n#### Input Format:\n- Line 1: $N$ (number of nodes unique to A before intersection).\n- Line 2: $N$ values for prefix A.\n- Line 3: $M$ (number of nodes unique to B before intersection).\n- Line 4: $M$ values for prefix B.\n- Line 5: $K$ (number of shared intersection nodes).\n- Line 6: $K$ shared values (if $K > 0$).",
+    "input_format": "Line 1: N (length of list A prefix).\nLine 2: N space-separated integers for prefix A.\nLine 3: M (length of list B prefix).\nLine 4: M space-separated integers for prefix B.\nLine 5: K (length of shared intersection suffix).\nLine 6: K space-separated integers for shared nodes (if K > 0).",
+    "output_format": "Print 'INTERSECTION_VAL: <val>' or 'NO_INTERSECTION'.",
+    "constraints": "0 <= N, M, K <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "2\n4 1\n3\n5 6 1\n3\n8 4 5\n",
+        "output": "INTERSECTION_VAL: 8\n",
+        "explanation": "List A is [4, 1, 8, 4, 5]. List B is [5, 6, 1, 8, 4, 5]. Both converge at the node containing 8."
+      },
+      {
+        "input": "3\n1 2 3\n2\n4 5\n0\n",
+        "output": "NO_INTERSECTION\n",
+        "explanation": "Lists have no shared nodes, outputting NO_INTERSECTION."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nvoid find_intersection(Node *headA, Node *headB) {\n    // TODO: Determine if lists intersect; print INTERSECTION_VAL: <val> or NO_INTERSECTION\n}\n\nint main() {\n    // TODO: Read inputs, construct intersecting or disjoint lists, and evaluate\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nint get_length(Node *head) {\n    int len = 0;\n    while (head != NULL) {\n        len++;\n        head = head->next;\n    }\n    return len;\n}\n\nvoid find_intersection(Node *headA, Node *headB) {\n    if (headA == NULL || headB == NULL) {\n        printf(\"NO_INTERSECTION\\n\");\n        return;\n    }\n    \n    int lenA = get_length(headA);\n    int lenB = get_length(headB);\n    \n    Node *currA = headA;\n    Node *currB = headB;\n    \n    if (lenA > lenB) {\n        for (int i = 0; i < lenA - lenB; i++) {\n            currA = currA->next;\n        }\n    } else {\n        for (int i = 0; i < lenB - lenA; i++) {\n            currB = currB->next;\n        }\n    }\n    \n    while (currA != NULL && currB != NULL) {\n        if (currA == currB) {\n            printf(\"INTERSECTION_VAL: %d\\n\", currA->data);\n            return;\n        }\n        currA = currA->next;\n        currB = currB->next;\n    }\n    printf(\"NO_INTERSECTION\\n\");\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    Node *headA = NULL, *tailA = NULL;\n    for (int i = 0; i < n; i++) {\n        int v; scanf(\"%d\", &v);\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = v; node->next = NULL;\n        if (!headA) headA = tailA = node;\n        else { tailA->next = node; tailA = node; }\n    }\n    \n    int m;\n    if (scanf(\"%d\", &m) != 1) return 0;\n    Node *headB = NULL, *tailB = NULL;\n    for (int i = 0; i < m; i++) {\n        int v; scanf(\"%d\", &v);\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = v; node->next = NULL;\n        if (!headB) headB = tailB = node;\n        else { tailB->next = node; tailB = node; }\n    }\n    \n    int k;\n    if (scanf(\"%d\", &k) != 1) return 0;\n    Node *headShared = NULL, *tailShared = NULL;\n    for (int i = 0; i < k; i++) {\n        int v; scanf(\"%d\", &v);\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = v; node->next = NULL;\n        if (!headShared) headShared = tailShared = node;\n        else { tailShared->next = node; tailShared = node; }\n    }\n    \n    if (k > 0) {\n        if (tailA) tailA->next = headShared;\n        else headA = headShared;\n        \n        if (tailB) tailB->next = headShared;\n        else headB = headShared;\n    }\n    \n    find_intersection(headA, headB);\n    \n    // Cleanup: free prefix A, prefix B, and shared\n    Node *c = headA;\n    for (int i = 0; i < n; i++) { Node *nxt = c->next; free(c); c = nxt; }\n    c = headB;\n    for (int i = 0; i < m; i++) { Node *nxt = c->next; free(c); c = nxt; }\n    c = headShared;\n    for (int i = 0; i < k; i++) { Node *nxt = c->next; free(c); c = nxt; }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Compute lengths lenA and lenB by walking both lists.",
+      "Advance the pointer of the longer list by |lenA - lenB| steps.",
+      "Traverse both lists in lockstep until currA == currB (pointer equality, not just value equality).",
+      "If pointers reach NULL without meeting, no intersection exists."
+    ],
+    "explanation": "By offsetting the longer list by the difference in lengths, both pointers are equidistant from the intersection point. Stepping in unison ensures they collide at the first shared node address in O(N + M) time without hash sets or extra memory.",
+    "time_complexity": "O(N + M) linear time",
+    "space_complexity": "O(1) auxiliary space",
+    "common_mistakes": [
+      "Comparing node values (data == data) instead of pointer memory addresses (currA == currB).",
+      "Double-freeing the shared nodes when deallocating both lists.",
+      "Failing to handle when one list is a prefix of the other."
+    ],
+    "related_problems": [
+      "detect-cycle-floyds",
+      "merge-two-sorted-lists"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "apple",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "2\n4 1\n3\n5 6 1\n3\n8 4 5\n",
+        "expected_output": "INTERSECTION_VAL: 8\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard intersection at node with value 8"
+      },
+      {
+        "input": "3\n1 2 3\n2\n4 5\n0\n",
+        "expected_output": "NO_INTERSECTION\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Disjoint lists with no shared nodes (K=0)"
+      },
+      {
+        "input": "0\n0\n2\n99 100\n",
+        "expected_output": "INTERSECTION_VAL: 99\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Both lists start immediately at the shared intersection node"
+      },
+      {
+        "input": "4\n10 20 30 40\n0\n1\n50\n",
+        "expected_output": "INTERSECTION_VAL: 50\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "List B begins directly at intersection node while A has prefix"
+      },
+      {
+        "input": "0\n0\n0\n",
+        "expected_output": "NO_INTERSECTION\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Both lists empty"
+      }
+    ]
+  },
+  {
+    "id": 91,
+    "title": "Reverse in Groups of K",
+    "slug": "reverse-in-groups-of-k",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nGiven a singly linked list, reverse the nodes of the list $K$ at a time and return its modified list. $K$ is a positive integer. If the number of nodes is not a multiple of $K$, then left-out nodes in the final group must **remain in their original order**.\n\nYou may not alter node values; only node pointers (`next`) may be changed.\n\n#### Algorithm:\n1. Count if at least $K$ nodes exist ahead of the current group head.\n   - If fewer than $K$ nodes remain, leave them untouched and terminate.\n2. If at least $K$ nodes exist, reverse those $K$ nodes in-place.\n3. Recursively or iteratively connect the tail of the newly reversed group to the result of processing the next group.\n4. If $N == 0$, print `EMPTY`.\n5. Output the resulting list in standard format: `val1 -> val2 -> ... -> NULL`.",
+    "input_format": "The first line contains N (number of nodes) and K (group size).\nIf N > 0, the second line contains N space-separated integers.",
+    "output_format": "Print the modified list in standard notation, or 'EMPTY' if N == 0.",
+    "constraints": "0 <= N <= 1000\n1 <= K <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "5 2\n1 2 3 4 5\n",
+        "output": "2 -> 1 -> 4 -> 3 -> 5 -> NULL\n",
+        "explanation": "Nodes 1 and 2 are reversed to 2->1. Nodes 3 and 4 are reversed to 4->3. Node 5 is alone (< K) and remains in place."
+      },
+      {
+        "input": "5 3\n1 2 3 4 5\n",
+        "output": "3 -> 2 -> 1 -> 4 -> 5 -> NULL\n",
+        "explanation": "First 3 nodes are reversed into 3->2->1. Remaining 2 nodes (< 3) stay in original order 4->5."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* reverse_k_group(Node *head, int k) {\n    // TODO: Reverse nodes in groups of k. Keep remaining < k nodes untouched.\n    return NULL;\n}\n\nint main() {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    \n    // TODO: Read list, reverse in groups of k, print, and free\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* reverse_k_group(Node *head, int k) {\n    if (head == NULL || k <= 1) return head;\n    \n    Node *curr = head;\n    int count = 0;\n    while (curr != NULL && count < k) {\n        curr = curr->next;\n        count++;\n    }\n    \n    if (count == k) {\n        Node *reversed_sub = reverse_k_group(curr, k);\n        \n        Node *prev = reversed_sub;\n        Node *p = head;\n        while (count > 0) {\n            Node *next = p->next;\n            p->next = prev;\n            prev = p;\n            p = next;\n            count--;\n        }\n        head = prev;\n    }\n    return head;\n}\n\nvoid print_list(Node *head) {\n    if (head == NULL) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    Node *curr = head;\n    while (curr != NULL) {\n        printf(\"%d -> \", curr->data);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid free_list(Node *head) {\n    Node *curr = head;\n    while (curr != NULL) {\n        Node *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n}\n\nint main() {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    \n    Node *head = NULL, *tail = NULL;\n    for (int i = 0; i < n; i++) {\n        int v; scanf(\"%d\", &v);\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = v; node->next = NULL;\n        if (!head) head = tail = node;\n        else { tail->next = node; tail = node; }\n    }\n    \n    head = reverse_k_group(head, k);\n    print_list(head);\n    free_list(head);\n    return 0;\n}\n",
+    "hints": [
+      "Before reversing, scan ahead K nodes to verify that a full group exists.",
+      "If fewer than K nodes remain, return head immediately.",
+      "Use recursion: reverse K nodes, setting the tail's next to the recursive call on the remainder.",
+      "Handle K == 1 as a no-op."
+    ],
+    "explanation": "Reversing in groups of K combines block verification with standard 3-pointer list reversal. Scanning K nodes ahead ensures incomplete trailing groups are preserved, and connecting each group's original head (now tail) to the recursively reversed next block preserves overall continuity in O(N) time.",
+    "time_complexity": "O(N) linear time",
+    "space_complexity": "O(N/K) call stack space for recursion or O(1) iterative",
+    "common_mistakes": [
+      "Reversing the leftover nodes when their count is less than K.",
+      "Losing connection between the tail of group i and the head of group i+1.",
+      "Swapping values instead of re-linking pointers."
+    ],
+    "related_problems": [
+      "reverse-a-linked-list",
+      "remove-nth-from-end"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "google",
+      "facebook",
+      "amazon",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5 2\n1 2 3 4 5\n",
+        "expected_output": "2 -> 1 -> 4 -> 3 -> 5 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "N=5, K=2: [1,2] reversed, [3,4] reversed, [5] remains"
+      },
+      {
+        "input": "5 3\n1 2 3 4 5\n",
+        "expected_output": "3 -> 2 -> 1 -> 4 -> 5 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "N=5, K=3: [1,2,3] reversed, [4,5] remains"
+      },
+      {
+        "input": "0 2\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty list (N=0)"
+      },
+      {
+        "input": "4 4\n10 20 30 40\n",
+        "expected_output": "40 -> 30 -> 20 -> 10 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K equals list length N"
+      },
+      {
+        "input": "4 1\n10 20 30 40\n",
+        "expected_output": "10 -> 20 -> 30 -> 40 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K=1 leaves list unmodified"
+      }
+    ]
+  },
+  {
+    "id": 92,
+    "title": "Doubly Linked List Operations",
+    "slug": "doubly-linked-list-operations",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nA **doubly linked list (DLL)** contains nodes with two pointer fields: `next` pointing to the successor and `prev` pointing to the predecessor. This bidirectional linking enables $O(1)$ deletions given a node pointer and bidirectional traversal.\n\nDefine the DLL node structure:\n```c\ntypedef struct DNode {\n    int data;\n    struct DNode *prev;\n    struct DNode *next;\n} DNode;\n```\n\n#### Supported Operations:\n1. `PUSH_FRONT <val>`: Insert `<val>` at the head of the DLL.\n2. `PUSH_BACK <val>`: Insert `<val>` at the tail of the DLL.\n3. `DELETE <val>`: Remove the **first occurrence** of `<val>` from the list, update surrounding pointers, free the node, and print `DELETED`. If `<val>` is not found, print `NOT_FOUND`.\n4. `PRINT_FORWARD`: Print list from head to tail:\n   `val1 <-> val2 <-> ... <-> NULL` (or `EMPTY` if empty).\n5. `PRINT_BACKWARD`: Print list from tail to head:\n   `valN <-> ... <-> val1 <-> NULL` (or `EMPTY` if empty).\n\nEnsure all remaining nodes are freed before termination.",
+    "input_format": "The first line contains Q (number of operations).\nThe next Q lines contain commands: PUSH_FRONT <val>, PUSH_BACK <val>, DELETE <val>, PRINT_FORWARD, or PRINT_BACKWARD.",
+    "output_format": "Print the response for each command on a separate line.",
+    "constraints": "1 <= Q <= 500\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "7\nPUSH_BACK 10\nPUSH_BACK 20\nPUSH_FRONT 5\nPRINT_FORWARD\nPRINT_BACKWARD\nDELETE 10\nPRINT_FORWARD\n",
+        "output": "5 <-> 10 <-> 20 <-> NULL\n20 <-> 10 <-> 5 <-> NULL\nDELETED\n5 <-> 20 <-> NULL\n",
+        "explanation": "5 is pushed to front, 10 and 20 to back. Forward print shows 5, 10, 20; backward shows 20, 10, 5. Deleting 10 splices 5 directly to 20."
+      },
+      {
+        "input": "4\nPRINT_FORWARD\nPRINT_BACKWARD\nDELETE 100\nPRINT_FORWARD\n",
+        "output": "EMPTY\nEMPTY\nNOT_FOUND\nEMPTY\n",
+        "explanation": "Operating on empty list returns EMPTY and NOT_FOUND."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct DNode {\n    int data;\n    struct DNode *prev;\n    struct DNode *next;\n} DNode;\n\ntypedef struct {\n    DNode *head;\n    DNode *tail;\n} DoublyLinkedList;\n\nvoid dll_push_front(DoublyLinkedList *list, int val) {\n    // TODO: Insert at head\n}\n\nvoid dll_push_back(DoublyLinkedList *list, int val) {\n    // TODO: Insert at tail\n}\n\nvoid dll_delete(DoublyLinkedList *list, int val) {\n    // TODO: Delete first occurrence of val or print NOT_FOUND\n}\n\nvoid dll_print_forward(DoublyLinkedList *list) {\n    // TODO: Print head to tail or EMPTY\n}\n\nvoid dll_print_backward(DoublyLinkedList *list) {\n    // TODO: Print tail to head or EMPTY\n}\n\nvoid dll_free(DoublyLinkedList *list) {\n    // TODO: Free all nodes\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    DoublyLinkedList list = { NULL, NULL };\n    \n    char cmd[20];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        // TODO: Process commands\n    }\n    \n    dll_free(&list);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct DNode {\n    int data;\n    struct DNode *prev;\n    struct DNode *next;\n} DNode;\n\ntypedef struct {\n    DNode *head;\n    DNode *tail;\n} DoublyLinkedList;\n\nvoid dll_push_front(DoublyLinkedList *list, int val) {\n    DNode *node = (DNode *)malloc(sizeof(DNode));\n    node->data = val;\n    node->prev = NULL;\n    node->next = list->head;\n    if (list->head != NULL) {\n        list->head->prev = node;\n    } else {\n        list->tail = node;\n    }\n    list->head = node;\n}\n\nvoid dll_push_back(DoublyLinkedList *list, int val) {\n    DNode *node = (DNode *)malloc(sizeof(DNode));\n    node->data = val;\n    node->next = NULL;\n    node->prev = list->tail;\n    if (list->tail != NULL) {\n        list->tail->next = node;\n    } else {\n        list->head = node;\n    }\n    list->tail = node;\n}\n\nvoid dll_delete(DoublyLinkedList *list, int val) {\n    DNode *curr = list->head;\n    while (curr != NULL) {\n        if (curr->data == val) {\n            if (curr->prev != NULL) {\n                curr->prev->next = curr->next;\n            } else {\n                list->head = curr->next;\n            }\n            if (curr->next != NULL) {\n                curr->next->prev = curr->prev;\n            } else {\n                list->tail = curr->prev;\n            }\n            free(curr);\n            printf(\"DELETED\\n\");\n            return;\n        }\n        curr = curr->next;\n    }\n    printf(\"NOT_FOUND\\n\");\n}\n\nvoid dll_print_forward(DoublyLinkedList *list) {\n    if (list->head == NULL) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    DNode *curr = list->head;\n    while (curr != NULL) {\n        printf(\"%d <-> \", curr->data);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid dll_print_backward(DoublyLinkedList *list) {\n    if (list->tail == NULL) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    DNode *curr = list->tail;\n    while (curr != NULL) {\n        printf(\"%d <-> \", curr->data);\n        curr = curr->prev;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid dll_free(DoublyLinkedList *list) {\n    DNode *curr = list->head;\n    while (curr != NULL) {\n        DNode *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n    list->head = list->tail = NULL;\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    DoublyLinkedList list = { NULL, NULL };\n    \n    char cmd[20];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"PUSH_FRONT\") == 0) {\n            int val; scanf(\"%d\", &val);\n            dll_push_front(&list, val);\n        } else if (strcmp(cmd, \"PUSH_BACK\") == 0) {\n            int val; scanf(\"%d\", &val);\n            dll_push_back(&list, val);\n        } else if (strcmp(cmd, \"DELETE\") == 0) {\n            int val; scanf(\"%d\", &val);\n            dll_delete(&list, val);\n        } else if (strcmp(cmd, \"PRINT_FORWARD\") == 0) {\n            dll_print_forward(&list);\n        } else if (strcmp(cmd, \"PRINT_BACKWARD\") == 0) {\n            dll_print_backward(&list);\n        }\n    }\n    \n    dll_free(&list);\n    return 0;\n}\n",
+    "hints": [
+      "Maintain both head and tail pointers in your list struct.",
+      "When deleting a node, update both curr->prev->next and curr->next->prev.",
+      "Handle special cases when deleting the head (update list->head) or tail (update list->tail).",
+      "When deleting the last remaining node, set both head and tail to NULL."
+    ],
+    "explanation": "Doubly linked lists support symmetrical bi-directional operations. Correctly updating four pointers (prev's next and next's prev, plus head/tail pointers when modifying boundaries) is essential to preserve list integrity.",
+    "time_complexity": "O(1) for PUSH_FRONT and PUSH_BACK, O(N) for DELETE, PRINT_FORWARD, PRINT_BACKWARD",
+    "space_complexity": "O(N) heap memory for node storage",
+    "common_mistakes": [
+      "Failing to update list->tail when inserting into an empty list or deleting the last node.",
+      "Dangling pointers: forgetting to set node->prev to NULL when inserting at head.",
+      "Null pointer dereference when accessing curr->next->prev when curr is tail."
+    ],
+    "related_problems": [
+      "build-and-display-linked-list",
+      "reverse-a-linked-list"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "microsoft",
+      "bloomberg",
+      "amazon"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7\nPUSH_BACK 10\nPUSH_BACK 20\nPUSH_FRONT 5\nPRINT_FORWARD\nPRINT_BACKWARD\nDELETE 10\nPRINT_FORWARD\n",
+        "expected_output": "5 <-> 10 <-> 20 <-> NULL\n20 <-> 10 <-> 5 <-> NULL\nDELETED\n5 <-> 20 <-> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Push front/back, forward/backward printing, and middle node deletion"
+      },
+      {
+        "input": "4\nPRINT_FORWARD\nPRINT_BACKWARD\nDELETE 100\nPRINT_FORWARD\n",
+        "expected_output": "EMPTY\nEMPTY\nNOT_FOUND\nEMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on empty DLL"
+      },
+      {
+        "input": "6\nPUSH_FRONT 42\nDELETE 42\nPRINT_FORWARD\nPRINT_BACKWARD\nDELETE 42\nPRINT_FORWARD\n",
+        "expected_output": "DELETED\nEMPTY\nEMPTY\nNOT_FOUND\nEMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element deletion emptying the list"
+      },
+      {
+        "input": "6\nPUSH_BACK 1\nPUSH_BACK 2\nPUSH_BACK 3\nDELETE 1\nDELETE 3\nPRINT_FORWARD\n",
+        "expected_output": "DELETED\nDELETED\n2 <-> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Deleting head node and tail node"
+      },
+      {
+        "input": "6\nPUSH_BACK 5\nPUSH_BACK 5\nDELETE 5\nPRINT_FORWARD\nPRINT_BACKWARD\nDELETE 5\n",
+        "expected_output": "DELETED\n5 <-> NULL\n5 <-> NULL\nDELETED\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Deleting duplicates one at a time"
+      }
+    ]
+  },
+  {
+    "id": 93,
+    "title": "Circular Linked List Josephus",
+    "slug": "circular-linked-list-josephus",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nThe **Josephus Problem** is a renowned theoretical puzzle: $N$ people stand in a circle numbered $1$ to $N$ clockwise. Starting with person $1$, counting proceeds around the circle. In each turn, $K$ people are counted, and the $K$-th person is executed/eliminated from the circle. The circle then closes in, and counting restarts with the next person immediately clockwise. This elimination process repeats until only one person survives.\n\nYou must solve this problem by **constructing an explicit circular singly linked list** in memory:\n- Create $N$ nodes containing values $1, 2, \\dots, N$.\n- The $N$-th node's `next` pointer must loop back to the $1$-st node (`tail->next = head`).\n- Step $K-1$ times forward to reach the predecessor of the person to eliminate.\n- Unlink and free the $K$-th node, printing its number.\n- Repeat until only one node remains.\n- Print the survivor and free the final node.\n\n#### Output Format:\n- Line 1: `ELIMINATED: <p1> <p2> ... <p_{N-1}>`\n- Line 2: `SURVIVOR: <survivor>`",
+    "input_format": "The first line contains two integers N (number of people) and K (step size).",
+    "output_format": "Line 1: 'ELIMINATED: <p1> <p2> ... <p_{N-1}>'\nLine 2: 'SURVIVOR: <survivor>'",
+    "constraints": "1 <= N <= 1000\n1 <= K <= 1000",
+    "examples": [
+      {
+        "input": "7 3\n",
+        "output": "ELIMINATED: 3 6 2 7 5 1\nSURVIVOR: 4\n",
+        "explanation": "Starting at 1: count 1,2,3 -> eliminate 3. Next from 4: count 4,5,6 -> eliminate 6. Continuing around yields 4 as the last remaining person."
+      },
+      {
+        "input": "5 2\n",
+        "output": "ELIMINATED: 2 4 1 5\nSURVIVOR: 3\n",
+        "explanation": "Every 2nd person is eliminated: 2, 4, 1, 5, leaving 3."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int id;\n    struct Node *next;\n} Node;\n\nvoid solve_josephus(int n, int k) {\n    // TODO: Build circular linked list of size n, simulate elimination with step k\n}\n\nint main() {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    \n    solve_josephus(n, k);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int id;\n    struct Node *next;\n} Node;\n\nvoid solve_josephus(int n, int k) {\n    if (n <= 0) return;\n    \n    Node *head = (Node *)malloc(sizeof(Node));\n    head->id = 1;\n    head->next = NULL;\n    \n    Node *prev = head;\n    for (int i = 2; i <= n; i++) {\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->id = i;\n        node->next = NULL;\n        prev->next = node;\n        prev = node;\n    }\n    prev->next = head; // Make circular\n    \n    printf(\"ELIMINATED: \");\n    Node *curr = head;\n    Node *p = prev;\n    \n    for (int count = 1; count < n; count++) {\n        for (int i = 0; i < k - 1; i++) {\n            p = curr;\n            curr = curr->next;\n        }\n        printf(\"%d%s\", curr->id, (count == n - 1) ? \"\" : \" \");\n        p->next = curr->next;\n        Node *temp = curr;\n        curr = curr->next;\n        free(temp);\n    }\n    printf(\"\\nSURVIVOR: %d\\n\", curr->id);\n    free(curr);\n}\n\nint main() {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    \n    solve_josephus(n, k);\n    return 0;\n}\n",
+    "hints": [
+      "Link the last node's next pointer back to the head: prev->next = head;",
+      "Maintain a predecessor pointer p so unlinking curr is simply p->next = curr->next;",
+      "To eliminate the K-th node, take K - 1 steps forward from the current position.",
+      "Free each eliminated node immediately to avoid leaks."
+    ],
+    "explanation": "A circular singly linked list inherently models the circular geometry of the Josephus problem without requiring modulo arithmetic array shifting. Iterating K-1 steps and unlinking the K-th node runs in O(N * K) time and frees each node as it is eliminated.",
+    "time_complexity": "O(N * K) time complexity",
+    "space_complexity": "O(N) heap memory for circular nodes",
+    "common_mistakes": [
+      "Forgetting to link the tail node back to head, causing an unexpected NULL dereference.",
+      "Stepping K times instead of K - 1 times before unlinking.",
+      "Memory leaks from not freeing eliminated nodes."
+    ],
+    "related_problems": [
+      "detect-cycle-floyds",
+      "doubly-linked-list-operations"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "google",
+      "bloomberg",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7 3\n",
+        "expected_output": "ELIMINATED: 3 6 2 7 5 1\nSURVIVOR: 4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard Josephus with N=7, K=3"
+      },
+      {
+        "input": "5 2\n",
+        "expected_output": "ELIMINATED: 2 4 1 5\nSURVIVOR: 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "N=5, K=2: elimination of every 2nd person"
+      },
+      {
+        "input": "1 5\n",
+        "expected_output": "ELIMINATED: \nSURVIVOR: 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single person list (immediate survivor)"
+      },
+      {
+        "input": "6 1\n",
+        "expected_output": "ELIMINATED: 1 2 3 4 5\nSURVIVOR: 6\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K=1: eliminates 1, 2, 3, 4, 5 in sequential order; 6 survives"
+      },
+      {
+        "input": "10 4\n",
+        "expected_output": "ELIMINATED: 4 8 2 7 3 10 9 1 6\nSURVIVOR: 5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "N=10, K=4"
+      }
+    ]
+  },
+  {
+    "id": 94,
+    "title": "Add Two Numbers as Lists",
+    "slug": "add-two-numbers-as-lists",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nYou are given two non-empty linked lists representing two non-negative integers. The digits are stored in **reverse order**, such that the 1's digit is at the head of the list. Each of their nodes contains a single digit ($0-9$). Add the two numbers and return the sum as a linked list in the same reverse digit format.\n\n#### Mathematical Logic:\nJust like column addition by hand:\n- Sum the corresponding digits of both lists along with any `carry` from the previous position:\n  $$\\text{total} = \\text{val}_1 + \\text{val}_2 + \\text{carry}$$\n- The new node value is $\\text{total} \\% 10$.\n- The new carry is $\\lfloor \\text{total} / 10 \\rfloor$.\n- Continue while list 1 has nodes, list 2 has nodes, or `carry > 0`.\n\n#### Input & Output:\n- Line 1: $N$ and $M$ (lengths of numbers 1 and 2).\n- Line 2: $N$ space-separated digits for number 1.\n- Line 3: $M$ space-separated digits for number 2.\n- Output: The sum list formatted as `d1 -> d2 -> ... -> NULL`.",
+    "input_format": "Line 1: N and M (number of digits in lists 1 and 2).\nLine 2: N space-separated digits (0-9) for number 1 in reverse order.\nLine 3: M space-separated digits (0-9) for number 2 in reverse order.",
+    "output_format": "Print the sum list in standard reverse-digit notation: 'd1 -> d2 -> ... -> NULL'.",
+    "constraints": "1 <= N, M <= 100\n0 <= digit <= 9\nNo leading zeros except the number 0 itself",
+    "examples": [
+      {
+        "input": "3 3\n2 4 3\n5 6 4\n",
+        "output": "7 -> 0 -> 8 -> NULL\n",
+        "explanation": "Digits represent 342 and 465. 342 + 465 = 807, stored as 7 -> 0 -> 8 -> NULL."
+      },
+      {
+        "input": "1 1\n0\n0\n",
+        "output": "0 -> NULL\n",
+        "explanation": "0 + 0 = 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* add_two_numbers(Node *l1, Node *l2) {\n    // TODO: Add numbers digit-by-digit propagating carry\n    return NULL;\n}\n\nint main() {\n    int n, m;\n    if (scanf(\"%d %d\", &n, &m) != 2) return 0;\n    \n    // TODO: Read lists, compute sum, print, and free\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nNode* add_two_numbers(Node *l1, Node *l2) {\n    Node dummy;\n    dummy.next = NULL;\n    Node *tail = &dummy;\n    int carry = 0;\n    \n    while (l1 != NULL || l2 != NULL || carry > 0) {\n        int sum = carry;\n        if (l1 != NULL) {\n            sum += l1->data;\n            l1 = l1->next;\n        }\n        if (l2 != NULL) {\n            sum += l2->data;\n            l2 = l2->next;\n        }\n        carry = sum / 10;\n        \n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = sum % 10;\n        node->next = NULL;\n        tail->next = node;\n        tail = node;\n    }\n    \n    return dummy.next;\n}\n\nvoid print_list(Node *head) {\n    Node *curr = head;\n    while (curr != NULL) {\n        printf(\"%d -> \", curr->data);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid free_list(Node *head) {\n    Node *curr = head;\n    while (curr != NULL) {\n        Node *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n}\n\nNode* read_list(int count) {\n    Node *head = NULL, *tail = NULL;\n    for (int i = 0; i < count; i++) {\n        int v; scanf(\"%d\", &v);\n        Node *node = (Node *)malloc(sizeof(Node));\n        node->data = v; node->next = NULL;\n        if (!head) head = tail = node;\n        else { tail->next = node; tail = node; }\n    }\n    return head;\n}\n\nint main() {\n    int n, m;\n    if (scanf(\"%d %d\", &n, &m) != 2) return 0;\n    \n    Node *l1 = read_list(n);\n    Node *l2 = read_list(m);\n    \n    Node *sum_list = add_two_numbers(l1, l2);\n    print_list(sum_list);\n    \n    free_list(l1);\n    free_list(l2);\n    free_list(sum_list);\n    return 0;\n}\n",
+    "hints": [
+      "Use a while loop with condition (l1 != NULL || l2 != NULL || carry > 0).",
+      "Extract values from l1 and l2 if non-null, add carry, and update carry = sum / 10.",
+      "Create a new node with data = sum % 10 and attach to tail.",
+      "Free all three lists (l1, l2, and result) after printing."
+    ],
+    "explanation": "Because digits are arranged least-significant first, addition can proceed from head to tail. Propagating the carry across nodes ensures arbitrary-precision addition without integer overflow limitations.",
+    "time_complexity": "O(max(N, M)) linear time",
+    "space_complexity": "O(max(N, M)) for the resulting sum list",
+    "common_mistakes": [
+      "Forgetting to process the final carry when both l1 and l2 have reached NULL (e.g. 5 + 5 = 0 without carry 1).",
+      "Trying to convert lists into 64-bit integers first, causing integer overflow on 100-digit numbers.",
+      "Memory leaks from not deallocating input and result lists."
+    ],
+    "related_problems": [
+      "merge-two-sorted-lists",
+      "build-and-display-linked-list"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "google",
+      "meta",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3 3\n2 4 3\n5 6 4\n",
+        "expected_output": "7 -> 0 -> 8 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "342 + 465 = 807 (represented in reverse as 7 -> 0 -> 8)"
+      },
+      {
+        "input": "1 1\n0\n0\n",
+        "expected_output": "0 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "0 + 0 = 0"
+      },
+      {
+        "input": "7 4\n9 9 9 9 9 9 9\n9 9 9 9\n",
+        "expected_output": "8 -> 9 -> 9 -> 9 -> 0 -> 0 -> 0 -> 1 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Different lengths with cascading carries"
+      },
+      {
+        "input": "1 1\n5\n5\n",
+        "expected_output": "0 -> 1 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "5 + 5 = 10 (carry creates an extra node at the end)"
+      },
+      {
+        "input": "1 4\n1\n9 9 9 9\n",
+        "expected_output": "0 -> 0 -> 0 -> 0 -> 1 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Adding 1 to 9999"
+      }
+    ]
+  },
+  {
+    "id": 95,
+    "title": "Flatten a Multilevel List",
+    "slug": "flatten-a-multilevel-list",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nIn a **multilevel linked list**, in addition to standard `next` pointers, each node may possess a `child` pointer that points to the head of a completely separate sublist. These sublists may in turn contain nodes with their own child sublists, forming a tree-like hierarchy of linked nodes.\n\nDefine the multilevel node:\n```c\ntypedef struct MNode {\n    int val;\n    struct MNode *next;\n    struct MNode *child;\n} MNode;\n```\n\n#### Flattening Rule:\nFlatten the multilevel list into a single standard singly linked list such that:\n- Whenever a node has a `child`, the entire child list is spliced in immediately after the current node in a **depth-first (pre-order)** fashion, followed by the remaining `next` nodes.\n- All `child` pointers in the flattened list must be reset to `NULL`.\n\n#### Input Format:\nTo serialize this multilevel structure simply and cleanly:\n- Line 1: $N$ (number of operations).\n- Operations:\n  - `APPEND <val>`: Append node `<val>` to the tail of the current main level list.\n  - `CHILD <parent_val> <child_val>`: Find the first node with value `<parent_val>`. Attach a new node `<child_val>` as its child (or append to the end of its existing child list).\n  - `FLATTEN`: Flatten the entire hierarchy depth-first and print: `val1 -> val2 -> ... -> NULL` (or `EMPTY` if empty).",
+    "input_format": "The first line contains N (number of operations).\nThe next N lines contain operations: APPEND <val>, CHILD <parent_val> <child_val>, or FLATTEN.",
+    "output_format": "Print the flattened list in standard notation, or 'EMPTY' if empty.",
+    "constraints": "1 <= N <= 200\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "7\nAPPEND 1\nAPPEND 2\nAPPEND 3\nCHILD 2 20\nCHILD 2 21\nCHILD 20 200\nFLATTEN\n",
+        "output": "1 -> 2 -> 20 -> 200 -> 21 -> 3 -> NULL\n",
+        "explanation": "Node 2 has children [20, 21]. Node 20 has child 200. Depth-first traversal flattens 2 -> 20 -> 200 -> 21 before continuing to 3."
+      },
+      {
+        "input": "1\nFLATTEN\n",
+        "output": "EMPTY\n",
+        "explanation": "Empty list outputs EMPTY."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct MNode {\n    int val;\n    struct MNode *next;\n    struct MNode *child;\n} MNode;\n\nMNode* flatten_list(MNode *head) {\n    // TODO: Depth-first flattening of child pointers into a single linked list\n    return NULL;\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // TODO: Parse operations, flatten list, display, and free\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct MNode {\n    int val;\n    struct MNode *next;\n    struct MNode *child;\n} MNode;\n\nMNode* find_node(MNode *root, int val) {\n    if (!root) return NULL;\n    if (root->val == val) return root;\n    MNode *res = find_node(root->child, val);\n    if (res) return res;\n    return find_node(root->next, val);\n}\n\nMNode* flatten_dfs(MNode *head) {\n    if (!head) return NULL;\n    MNode *curr = head;\n    while (curr != NULL) {\n        if (curr->child != NULL) {\n            MNode *next_node = curr->next;\n            MNode *child_head = curr->child;\n            curr->child = NULL;\n            \n            MNode *flat_child = flatten_dfs(child_head);\n            curr->next = flat_child;\n            \n            MNode *tail = flat_child;\n            while (tail->next != NULL) {\n                tail = tail->next;\n            }\n            tail->next = next_node;\n            curr = next_node;\n        } else {\n            curr = curr->next;\n        }\n    }\n    return head;\n}\n\nvoid print_list(MNode *head) {\n    if (!head) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    MNode *curr = head;\n    while (curr != NULL) {\n        printf(\"%d -> \", curr->val);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid free_flat_list(MNode *head) {\n    MNode *curr = head;\n    while (curr != NULL) {\n        MNode *temp = curr->next;\n        free(curr);\n        curr = temp;\n    }\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    MNode *head = NULL, *tail = NULL;\n    char op[16];\n    \n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", op) != 1) break;\n        if (strcmp(op, \"APPEND\") == 0) {\n            int val; scanf(\"%d\", &val);\n            MNode *node = (MNode *)malloc(sizeof(MNode));\n            node->val = val; node->next = NULL; node->child = NULL;\n            if (!head) head = tail = node;\n            else { tail->next = node; tail = node; }\n        } else if (strcmp(op, \"CHILD\") == 0) {\n            int pval, cval; scanf(\"%d %d\", &pval, &cval);\n            MNode *parent = find_node(head, pval);\n            if (parent) {\n                MNode *cnode = (MNode *)malloc(sizeof(MNode));\n                cnode->val = cval; cnode->next = NULL; cnode->child = NULL;\n                if (!parent->child) {\n                    parent->child = cnode;\n                } else {\n                    MNode *ctail = parent->child;\n                    while (ctail->next) ctail = ctail->next;\n                    ctail->next = cnode;\n                }\n            }\n        } else if (strcmp(op, \"FLATTEN\") == 0) {\n            head = flatten_dfs(head);\n            print_list(head);\n        }\n    }\n    \n    free_flat_list(head);\n    return 0;\n}\n",
+    "hints": [
+      "Use recursion or a stack to perform depth-first traversal.",
+      "When curr has a child: flatten the child list, attach child to curr->next, find tail of child list, and attach original next to tail.",
+      "Always set curr->child = NULL after splicing.",
+      "Remember to handle nested children (children of children)."
+    ],
+    "explanation": "Flattening a multilevel list mirrors tree pre-order traversal. For each node with a child, recursively flattening the child branch and inserting it between curr and curr->next resolves arbitrary nesting levels while ensuring O(N) total node visits.",
+    "time_complexity": "O(N) total traversal time",
+    "space_complexity": "O(D) call stack space where D is maximum nesting depth",
+    "common_mistakes": [
+      "Forgetting to set curr->child = NULL after splicing, leaving dangling references.",
+      "Losing track of the original curr->next when inserting child list.",
+      "Attaching children in breadth-first rather than depth-first order."
+    ],
+    "related_problems": [
+      "reverse-in-groups-of-k",
+      "merge-two-sorted-lists"
+    ],
+    "topic_slug": "linked-lists",
+    "company_slugs": [
+      "bloomberg",
+      "amazon",
+      "google",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7\nAPPEND 1\nAPPEND 2\nAPPEND 3\nCHILD 2 20\nCHILD 2 21\nCHILD 20 200\nFLATTEN\n",
+        "expected_output": "1 -> 2 -> 20 -> 200 -> 21 -> 3 -> NULL\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Multilevel child hierarchy flattened in pre-order depth-first order"
+      },
+      {
+        "input": "1\nFLATTEN\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty multilevel list"
+      },
+      {
+        "input": "4\nAPPEND 10\nAPPEND 20\nAPPEND 30\nFLATTEN\n",
+        "expected_output": "10 -> 20 -> 30 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "List with zero child branches"
+      },
+      {
+        "input": "6\nAPPEND 1\nCHILD 1 2\nCHILD 2 3\nCHILD 3 4\nCHILD 4 5\nFLATTEN\n",
+        "expected_output": "1 -> 2 -> 3 -> 4 -> 5 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Deep vertical child tree (each node has only a child, no next)"
+      },
+      {
+        "input": "6\nAPPEND 5\nAPPEND 6\nCHILD 5 50\nCHILD 6 60\nCHILD 50 500\nFLATTEN\n",
+        "expected_output": "5 -> 50 -> 500 -> 6 -> 60 -> NULL\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple independent child branches across consecutive nodes"
+      }
+    ]
+  }
+]

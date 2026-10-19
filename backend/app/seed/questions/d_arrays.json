@@ -1,0 +1,1335 @@
+[
+  {
+    "id": 29,
+    "title": "Rotate Array K Positions",
+    "slug": "rotate-array-k-positions",
+    "difficulty": "medium",
+    "description": "Given an array of $N$ integers and an integer $K$, your task is to rotate the array to the right by $K$ positions in-place. A right rotation shifts each element in the array towards higher indices, with elements that exceed the array boundary wrapping around to the beginning. For example, rotating the array `[1, 2, 3, 4, 5]` to the right by $K = 2$ positions results in the array `[4, 5, 1, 2, 3]`. \n\nYour solution must modify the array in-place using strictly $O(1)$ auxiliary space and achieve an optimal $O(N)$ time complexity. Note that the rotation count $K$ can be arbitrarily large, potentially much greater than the array size $N$. Therefore, you must first normalize $K$ using modulo arithmetic: $K = K \\pmod N$. An elegant in-place strategy is the three-step reversal algorithm: reverse the entire array, reverse the first $K$ elements, and then reverse the remaining $N-K$ elements. Ensure your implementation carefully accounts for edge cases where $K = 0$ or $K$ is an exact multiple of $N$.",
+    "input_format": "The first line contains two integers $N$ and $K$ ($1 \\le N \\le 10^5$, $0 \\le K \\le 10^9$). The second line contains $N$ space-separated integers.",
+    "output_format": "Print the $N$ integers of the rotated array separated by a single space on a single line.",
+    "constraints": "1 <= N <= 10^5\n0 <= K <= 10^9\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "7 3\n1 2 3 4 5 6 7\n",
+        "output": "5 6 7 1 2 3 4\n",
+        "explanation": "Rotating right by 3 positions places elements 5, 6, 7 at the beginning."
+      },
+      {
+        "input": "5 2\n-1 -100 3 99 10\n",
+        "output": "99 10 -1 -100 3\n",
+        "explanation": "Rotating right by 2 positions moves 99 and 10 to indices 0 and 1."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid reverse(int *arr, int start, int end) {\n    // TODO: Reverse subarray from start to end in-place\n}\n\nvoid rotate_array(int *arr, int n, int k) {\n    // TODO: Implement in-place rotation using reversal\n}\n\nint main(void) {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    rotate_array(arr, n, k);\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nstatic void reverse(int *arr, int start, int end) {\n    while (start < end) {\n        int temp = arr[start];\n        arr[start] = arr[end];\n        arr[end] = temp;\n        start++;\n        end--;\n    }\n}\n\nstatic void rotate_array(int *arr, int n, int k) {\n    if (n <= 1) return;\n    k = k % n;\n    if (k == 0) return;\n    reverse(arr, 0, n - 1);\n    reverse(arr, 0, k - 1);\n    reverse(arr, k, n - 1);\n}\n\nint main(void) {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &arr[i]) != 1) { free(arr); return 0; }\n    }\n    rotate_array(arr, n, k);\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Normalize K first: since rotating by N positions returns the array to its original state, calculate K = K % N.",
+      "Consider what reversing the entire array achieves: the suffix of length K moves to the beginning, but backwards.",
+      "To restore original order in both halves, reverse the first K elements, and reverse the remaining N-K elements."
+    ],
+    "explanation": "We can achieve an in-place rotation in O(N) time and O(1) space using three reversals. First, we reduce K modulo N so that K is in the range [0, N-1]. Next, we reverse the entire array arr[0..N-1]. This moves the last K elements to the front, but in reversed order. Finally, reversing arr[0..K-1] puts the first K elements into correct order, and reversing arr[K..N-1] puts the remaining elements in order.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Forgetting to reduce K modulo N, causing buffer overflows or redundant cycles when K >= N.",
+      "Using an auxiliary array of size N, which violates the O(1) in-place auxiliary space constraint.",
+      "Off-by-one errors when setting boundaries for the two subarray reversals."
+    ],
+    "related_problems": [
+      "reverse-string-in-place",
+      "array-reversal-with-pointers"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "tcs",
+      "infosys"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7 3\n1 2 3 4 5 6 7\n",
+        "expected_output": "5 6 7 1 2 3 4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard rotation with odd length"
+      },
+      {
+        "input": "5 2\n-1 -100 3 99 10\n",
+        "expected_output": "99 10 -1 -100 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Rotation with negative numbers"
+      },
+      {
+        "input": "1 10\n42\n",
+        "expected_output": "42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array with K much larger than N"
+      },
+      {
+        "input": "6 6\n1 2 3 4 5 6\n",
+        "expected_output": "1 2 3 4 5 6\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K is an exact multiple of N (no net change)"
+      },
+      {
+        "input": "4 0\n10 20 30 40\n",
+        "expected_output": "10 20 30 40\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K equals 0"
+      },
+      {
+        "input": "5 13\n2 4 6 8 10\n",
+        "expected_output": "6 8 10 2 4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "K is greater than 2*N"
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "title": "Find Missing Number",
+    "slug": "find-missing-number",
+    "difficulty": "medium",
+    "description": "You are given an integer $N$ and an array containing $N-1$ distinct integers chosen from the complete range of $1$ through $N$. Because only $N-1$ elements are present in the array, exactly one integer from the continuous range $[1, N]$ is missing. Your task is to detect and output this missing integer. \n\nYour program must operate in linear $O(N)$ time and require strictly $O(1)$ auxiliary space without sorting or modifying the input sequence. While the classical arithmetic series formula $N(N+1)/2$ is often applied to this problem, caution is warranted in C because $N = 10^6$ causes the product $N(N+1)$ to reach $10^{12}$, overflowing 32-bit signed integers. Alternatively, bitwise XOR provides an elegant, overflow-immune solution exploiting the self-inverse property $x \\oplus x = 0$.",
+    "input_format": "The first line contains an integer $N$ ($2 \\le N \\le 10^6$). The second line contains $N-1$ space-separated integers representing the array elements.",
+    "output_format": "Print the single missing integer on its own line.",
+    "constraints": "2 <= N <= 10^6\nArray elements are distinct integers in the range [1, N]",
+    "examples": [
+      {
+        "input": "5\n1 2 4 5\n",
+        "output": "3\n",
+        "explanation": "The array has elements 1, 2, 4, 5. The missing number in [1, 5] is 3."
+      },
+      {
+        "input": "3\n3 1\n",
+        "output": "2\n",
+        "explanation": "Elements present are 3 and 1; 2 is missing from [1, 3]."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint find_missing_number(int n, const int *arr) {\n    // TODO: Determine and return the missing integer in O(n) time and O(1) space\n    return 0;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc((n - 1) * sizeof(int));\n    for (int i = 0; i < n - 1; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    printf(\"%d\\n\", find_missing_number(n, arr));\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int xor_sum = 0;\n    for (int i = 1; i <= n; i++) {\n        xor_sum ^= i;\n    }\n    for (int i = 0; i < n - 1; i++) {\n        int val;\n        if (scanf(\"%d\", &val) == 1) {\n            xor_sum ^= val;\n        }\n    }\n    printf(\"%d\\n\", xor_sum);\n    return 0;\n}\n",
+    "hints": [
+      "Recall the properties of the XOR operator: x ^ x = 0 and x ^ 0 = x. Order does not matter.",
+      "If you XOR all integers from 1 to N together, and XOR that with each element in the input array, duplicate numbers cancel out.",
+      "If using arithmetic sums instead of XOR, ensure you use 64-bit integers (`long long`) to prevent overflow."
+    ],
+    "explanation": "XOR-ing all integers from 1 to N gives a combined mask. As we read each integer from the input and XOR it into this mask, every number present in both sets appears twice and evaluates to zero (since x ^ x = 0). The sole integer that appeared only once in the range 1..N and was absent from the input remains as the final value. This runs in strictly O(N) time, uses O(1) auxiliary space, and cannot overflow.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Integer overflow when calculating n*(n+1)/2 using standard 32-bit signed int when n = 10^6.",
+      "Allocating a boolean array or hash table of size N, which violates the O(1) auxiliary space constraint.",
+      "Sorting the array first, which increases time complexity from O(n) to O(n log n)."
+    ],
+    "related_problems": [
+      "single-number",
+      "two-sum-problem"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "tcs",
+      "wipro"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\n1 2 4 5\n",
+        "expected_output": "3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Missing number in the middle"
+      },
+      {
+        "input": "3\n3 1\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small array with missing middle number"
+      },
+      {
+        "input": "2\n1\n",
+        "expected_output": "2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Missing the last number in range [1, 2]"
+      },
+      {
+        "input": "2\n2\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Missing the first number in range [1, 2]"
+      },
+      {
+        "input": "8\n8 7 6 5 4 3 2\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Missing 1 with array presented in descending order"
+      },
+      {
+        "input": "10\n1 2 3 4 5 6 7 8 10\n",
+        "expected_output": "9\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Missing 9 in an array of size 10"
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "title": "Maximum Subarray Sum (Kadane's)",
+    "slug": "maximum-subarray-sum-kadanes",
+    "difficulty": "hard",
+    "description": "Given an array of $N$ integers which may contain both positive and negative values, find the contiguous subarray that produces the largest sum. A subarray is a contiguous segment of the array consisting of at least one element. Your goal is to compute and output this maximum contiguous sum using Kadane's algorithm in optimal $O(N)$ time and $O(1)$ auxiliary space. \n\nPay special attention to edge cases where all numbers in the array are negative: in such instances, the maximum subarray sum corresponds to the single least-negative (maximum) element, not zero. Initialize your tracking variables carefully using 64-bit integers (`long long`) to prevent overflow when summing large values.",
+    "input_format": "The first line contains an integer $N$ ($1 \\le N \\le 2 \\times 10^5$). The second line contains $N$ space-separated integers ($ -10^9 \\le arr[i] \\le 10^9 $).",
+    "output_format": "Print the maximum subarray sum on a single line.",
+    "constraints": "1 <= N <= 2 * 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "9\n-2 1 -3 4 -1 2 1 -5 4\n",
+        "output": "6\n",
+        "explanation": "The contiguous subarray [4, -1, 2, 1] has the largest sum = 6."
+      },
+      {
+        "input": "5\n5 4 -1 7 8\n",
+        "output": "23\n",
+        "explanation": "The entire array has the largest sum: 5 + 4 - 1 + 7 + 8 = 23."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nlong long max_subarray_sum(const int *arr, int n) {\n    // TODO: Implement Kadane's algorithm\n    return 0;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    printf(\"%lld\\n\", max_subarray_sum(arr, n));\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &arr[i]) != 1) { free(arr); return 0; }\n    }\n    long long max_so_far = arr[0];\n    long long current_max = arr[0];\n    for (int i = 1; i < n; i++) {\n        long long val = arr[i];\n        if (current_max + val > val) {\n            current_max += val;\n        } else {\n            current_max = val;\n        }\n        if (current_max > max_so_far) {\n            max_so_far = current_max;\n        }\n    }\n    printf(\"%lld\\n\", max_so_far);\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Kadane's algorithm maintains the maximum subarray sum ending at each position i: current_max = max(arr[i], current_max + arr[i]).",
+      "Never initialize max_so_far to 0, because if all array elements are negative, the correct answer is the largest negative number.",
+      "Accumulating sums of up to 2*10^5 integers of magnitude 10^9 can reach 2*10^14, which requires a 64-bit integer (`long long`)."
+    ],
+    "explanation": "At each index i, we decide whether to extend the previous maximum contiguous subarray (current_max + arr[i]) or begin a new subarray starting directly at arr[i]. We update max_so_far with the largest sum encountered so far. This dynamic programming approach computes the answer in a single pass of O(N) time and O(1) space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Initializing max_so_far or current_max to 0 instead of arr[0], causing wrong results on all-negative arrays.",
+      "Using 32-bit signed int for sums, causing integer overflow when summing many large positive numbers.",
+      "Using a nested loop O(N^2) approach which results in Time Limit Exceeded (TLE) for N = 200,000."
+    ],
+    "related_problems": [
+      "maximum-sum-subarray-of-size-k",
+      "subarray-sum-equals-k"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "microsoft",
+      "infosys"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "9\n-2 1 -3 4 -1 2 1 -5 4\n",
+        "expected_output": "6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard mixed positive and negative array"
+      },
+      {
+        "input": "5\n5 4 -1 7 8\n",
+        "expected_output": "23\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Subarray spanning all elements"
+      },
+      {
+        "input": "1\n-7\n",
+        "expected_output": "-7\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single negative element"
+      },
+      {
+        "input": "5\n-3 -2 -5 -1 -4\n",
+        "expected_output": "-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All negative elements where maximum is -1"
+      },
+      {
+        "input": "6\n10 -5 20 -30 40 -10\n",
+        "expected_output": "40\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Alternating sequence with single dominant positive element"
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "title": "Two Sum Problem",
+    "slug": "two-sum-problem",
+    "difficulty": "medium",
+    "description": "Given an array of $N$ integers and a target integer $Target$, determine the 0-based indices $i$ and $j$ ($i < j$) such that $arr[i] + arr[j] = Target$. If multiple valid pairs of indices exist, return the pair with the smallest first index $i$. If there is still a tie, pick the pair with the smallest second index $j$. If no such pair exists, print `-1 -1`. \n\nYour solution must correctly handle both positive and negative numbers. Because you must output the original indices of the elements, if you choose to sort the array or use a hash-based lookup, you must preserve each element's original position.",
+    "input_format": "The first line contains two integers $N$ and $Target$ ($2 \\le N \\le 10^5$, $-2 \\times 10^9 \\le Target \\le 2 \\times 10^9$). The second line contains $N$ space-separated integers.",
+    "output_format": "Print two space-separated indices $i$ and $j$ ($i < j$) on a single line, or `-1 -1` if no pair exists.",
+    "constraints": "2 <= N <= 10^5\n-10^9 <= arr[i] <= 10^9\n-2*10^9 <= Target <= 2*10^9",
+    "examples": [
+      {
+        "input": "4 9\n2 7 11 15\n",
+        "output": "0 1\n",
+        "explanation": "arr[0] + arr[1] = 2 + 7 = 9. Output indices 0 1."
+      },
+      {
+        "input": "3 6\n3 2 4\n",
+        "output": "1 2\n",
+        "explanation": "arr[1] + arr[2] = 2 + 4 = 6. Output indices 1 2."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid find_two_sum(const int *arr, int n, long long target) {\n    // TODO: Find 0-based indices i and j (i < j) such that arr[i] + arr[j] == target\n}\n\nint main(void) {\n    int n;\n    long long target;\n    if (scanf(\"%d %lld\", &n, &target) != 2) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    find_two_sum(arr, n, target);\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct {\n    long long val;\n    int idx;\n} Element;\n\nstatic int cmp_val(const void *a, const void *b) {\n    const Element *ea = (const Element *)a;\n    const Element *eb = (const Element *)b;\n    if (ea->val < eb->val) return -1;\n    if (ea->val > eb->val) return 1;\n    return ea->idx - eb->idx;\n}\n\nint main(void) {\n    int n;\n    long long target;\n    if (scanf(\"%d %lld\", &n, &target) != 2) return 0;\n    Element *elems = (Element *)malloc(n * sizeof(Element));\n    for (int i = 0; i < n; i++) {\n        int v;\n        if (scanf(\"%d\", &v) != 1) { free(elems); return 0; }\n        elems[i].val = v;\n        elems[i].idx = i;\n    }\n    qsort(elems, n, sizeof(Element), cmp_val);\n    int best_i = -1, best_j = -1;\n    int left = 0, right = n - 1;\n    while (left < right) {\n        long long sum = elems[left].val + elems[right].val;\n        if (sum == target) {\n            int i1 = elems[left].idx;\n            int i2 = elems[right].idx;\n            int u = (i1 < i2) ? i1 : i2;\n            int v = (i1 < i2) ? i2 : i1;\n            if (best_i == -1 || u < best_i || (u == best_i && v < best_j)) {\n                best_i = u;\n                best_j = v;\n            }\n            // Check other pairs with duplicate values\n            if (elems[left].val == elems[left + 1].val) left++;\n            else right--;\n        } else if (sum < target) {\n            left++;\n        } else {\n            right--;\n        }\n    }\n    if (best_i != -1) {\n        printf(\"%d %d\\n\", best_i, best_j);\n    } else {\n        printf(\"-1 -1\\n\");\n    }\n    free(elems);\n    return 0;\n}\n",
+    "hints": [
+      "If you sort the array, you must preserve each element's original index using a struct { int val; int idx; }.",
+      "With a sorted array of pairs, use two pointers starting at opposite ends to find matches in O(N log N) total time.",
+      "When a match is found, record the pair of original indices and continue searching if duplicate values exist to guarantee the tie-breaking condition."
+    ],
+    "explanation": "We store elements along with their original indices and sort them by value in O(N log N) time. Using a two-pointer approach from both ends, if the sum equals target, we record the normalized original indices (min, max). We maintain the pair that minimizes the first index, then the second index, ensuring full conformance with the tie-breaking rule.",
+    "time_complexity": "O(n log n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Returning the sorted indices instead of the original 0-based indices from the input array.",
+      "Failing to tie-break properly when multiple distinct pairs sum to the target.",
+      "Using an element twice when target == 2 * arr[i] if arr[i] appears only once."
+    ],
+    "related_problems": [
+      "three-sum-to-zero",
+      "find-missing-number"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "meta",
+      "tcs"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4 9\n2 7 11 15\n",
+        "expected_output": "0 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard case with pair at front"
+      },
+      {
+        "input": "3 6\n3 2 4\n",
+        "expected_output": "1 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Pair in unordered array"
+      },
+      {
+        "input": "2 6\n3 3\n",
+        "expected_output": "0 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Pair with identical values summing to target"
+      },
+      {
+        "input": "4 100\n1 2 3 4\n",
+        "expected_output": "-1 -1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "No pair exists summing to target"
+      },
+      {
+        "input": "5 10\n5 1 5 9 3\n",
+        "expected_output": "0 2\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple valid pairs: arr[0]+arr[2]=10 and arr[1]+arr[3]=10, tie-breaker chooses 0 2"
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "title": "Three Sum to Zero",
+    "slug": "three-sum-to-zero",
+    "difficulty": "hard",
+    "description": "Given an integer array $nums$ of $N$ integers, find all unique triplets $[a, b, c]$ such that $a + b + c = 0$ and the triplet elements are distinct elements from the array. Each output triplet must be sorted such that $a \\le b \\le c$. The triplets themselves must be printed in lexicographical order, with one triplet per line. If no triplet sums to zero, print `NONE`. \n\nYour solution must avoid duplicate triplets in the output. For example, given `[-1, 0, 1, 2, -1, -4]`, the two unique triplets that sum to zero are `[-1, -1, 2]` and `[-1, 0, 1]`. An optimal solution sorts the array first in $O(N \\log N)$ time, then iterates through each element and uses a two-pointer technique to find pairs in $O(N)$ time per element, achieving $O(N^2)$ overall time complexity.",
+    "input_format": "The first line contains an integer $N$ ($3 \\le N \\le 3000$). The second line contains $N$ space-separated integers ($ -10^5 \\le nums[i] \\le 10^5 $).",
+    "output_format": "Print each unique triplet on a new line with elements separated by a space. If no triplet exists, print `NONE`.",
+    "constraints": "3 <= N <= 3000\n-10^5 <= nums[i] <= 10^5",
+    "examples": [
+      {
+        "input": "6\n-1 0 1 2 -1 -4\n",
+        "output": "-1 -1 2\n-1 0 1\n",
+        "explanation": "The two unique triplets summing to zero are [-1, -1, 2] and [-1, 0, 1]."
+      },
+      {
+        "input": "3\n0 1 1\n",
+        "output": "NONE\n",
+        "explanation": "The only triplet is [0, 1, 1], whose sum is 2 != 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid three_sum(int *nums, int n) {\n    // TODO: Sort nums and use two pointers to find all unique triplets summing to 0\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *nums = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &nums[i]);\n    }\n    three_sum(nums, n);\n    free(nums);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nstatic int cmp_int(const void *a, const void *b) {\n    int ia = *(const int *)a;\n    int ib = *(const int *)b;\n    return (ia > ib) - (ia < ib);\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *nums = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &nums[i]) != 1) { free(nums); return 0; }\n    }\n    qsort(nums, n, sizeof(int), cmp_int);\n    int found = 0;\n    for (int i = 0; i < n - 2; i++) {\n        if (i > 0 && nums[i] == nums[i - 1]) continue;\n        if (nums[i] > 0) break;\n        int left = i + 1;\n        int right = n - 1;\n        while (left < right) {\n            long long sum = (long long)nums[i] + nums[left] + nums[right];\n            if (sum == 0) {\n                printf(\"%d %d %d\\n\", nums[i], nums[left], nums[right]);\n                found = 1;\n                while (left < right && nums[left] == nums[left + 1]) left++;\n                while (left < right && nums[right] == nums[right - 1]) right--;\n                left++;\n                right--;\n            } else if (sum < 0) {\n                left++;\n            } else {\n                right--;\n            }\n        }\n    }\n    if (!found) {\n        printf(\"NONE\\n\");\n    }\n    free(nums);\n    return 0;\n}\n",
+    "hints": [
+      "Sort the array first. Sorting enables two-pointer convergence and makes duplicate skipping trivial.",
+      "Fix the first element nums[i]. Skip duplicates if nums[i] == nums[i-1].",
+      "Use two pointers (left = i + 1, right = n - 1). Whenever a match sum == 0 is found, advance both pointers past all identical elements."
+    ],
+    "explanation": "Sorting the array enables us to avoid duplicate triplets easily. We iterate through the array with index i. For each i, we initialize left = i + 1 and right = n - 1. We check the sum of nums[i] + nums[left] + nums[right]. If it is zero, we output the triplet, then increment left and decrement right while skipping adjacent duplicates. If the sum is less than zero, we increment left; otherwise, we decrement right. This takes O(N^2) time and O(1) extra space.",
+    "time_complexity": "O(n^2)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Printing duplicate triplets by not skipping equal consecutive values for i, left, and right.",
+      "Missing the `NONE` output when no matching triplets exist.",
+      "Using an O(N^3) brute force approach which times out for N = 3000."
+    ],
+    "related_problems": [
+      "two-sum-problem",
+      "subarray-sum-equals-k"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "amazon",
+      "meta",
+      "google",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "6\n-1 0 1 2 -1 -4\n",
+        "expected_output": "-1 -1 2\n-1 0 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard array with multiple unique triplets"
+      },
+      {
+        "input": "3\n0 1 1\n",
+        "expected_output": "NONE\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Array of 3 elements with no sum zero"
+      },
+      {
+        "input": "4\n0 0 0 0\n",
+        "expected_output": "0 0 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Array of all zeros (must output exactly one triplet)"
+      },
+      {
+        "input": "7\n-2 0 1 1 2 -1 -4\n",
+        "expected_output": "-2 0 2\n-2 1 1\n-1 0 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple positive and negative combinations"
+      },
+      {
+        "input": "3\n1 2 3\n",
+        "expected_output": "NONE\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All positive numbers (impossible to sum to 0)"
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "title": "Majority Element (Boyer-Moore)",
+    "slug": "majority-element-boyer-moore",
+    "difficulty": "hard",
+    "description": "Given an array of $N$ integers, determine whether a majority element exists, and if so, print its value. A majority element is defined as an element that appears strictly more than $\\lfloor N / 2 \\rfloor$ times in the array. If no such majority element exists, your program must output `-1`. \n\nYour solution must implement the Boyer-Moore Voting Algorithm to find a candidate in $O(N)$ time and $O(1)$ auxiliary space, followed by a second linear pass over the array to verify whether the candidate actually appears more than $\\lfloor N / 2 \\rfloor$ times. Be aware that elements can be negative or large, and the input may contain arrays where no element satisfies the majority condition.",
+    "input_format": "The first line contains an integer $N$ ($1 \\le N \\le 10^5$). The second line contains $N$ space-separated integers.",
+    "output_format": "Print the majority element on a single line, or `-1` if no majority element exists.",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "7\n2 2 1 1 1 2 2\n",
+        "output": "2\n",
+        "explanation": "2 appears 4 times out of 7, which is > 7/2 (3). Majority element is 2."
+      },
+      {
+        "input": "8\n3 3 4 2 4 4 2 4\n",
+        "output": "-1\n",
+        "explanation": "4 appears 4 times out of 8, which is NOT strictly greater than 8/2 (4). Thus, no majority element exists."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint find_majority_element(const int *arr, int n) {\n    // TODO: Implement Boyer-Moore Voting Algorithm with verification\n    return -1;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    printf(\"%d\\n\", find_majority_element(arr, n));\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &arr[i]) != 1) { free(arr); return 0; }\n    }\n    // Step 1: Boyer-Moore Voting Phase\n    int candidate = 0;\n    int count = 0;\n    for (int i = 0; i < n; i++) {\n        if (count == 0) {\n            candidate = arr[i];\n            count = 1;\n        } else if (arr[i] == candidate) {\n            count++;\n        } else {\n            count--;\n        }\n    }\n    // Step 2: Verification Phase\n    int actual_count = 0;\n    for (int i = 0; i < n; i++) {\n        if (arr[i] == candidate) actual_count++;\n    }\n    if (actual_count > n / 2) {\n        printf(\"%d\\n\", candidate);\n    } else {\n        printf(\"-1\\n\");\n    }\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "In Boyer-Moore voting, maintain a candidate and a counter. Whenever counter is 0, pick current element as candidate.",
+      "Increment counter when seeing the candidate; decrement when seeing a different element.",
+      "Crucially: the voting phase only guarantees finding the majority element IF one exists. You must do a second pass to count occurrences and confirm count > n/2."
+    ],
+    "explanation": "Boyer-Moore voting pairs up distinct elements and cancels them out. If an element appears more than n/2 times, it will survive the cancellation and remain as the candidate. In the second pass, we verify that this candidate's actual frequency exceeds floor(n/2). Both passes take O(N) time and use O(1) extra space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Skipping the second verification pass, which leads to false positives when no majority element exists.",
+      "Using >= n/2 instead of strictly > n/2.",
+      "Using a hash table or sorting, which consumes O(N) space or O(N log N) time."
+    ],
+    "related_problems": [
+      "find-missing-number",
+      "two-sum-problem"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "amazon",
+      "google",
+      "infosys",
+      "wipro"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7\n2 2 1 1 1 2 2\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard odd-length array with clear majority element"
+      },
+      {
+        "input": "8\n3 3 4 2 4 4 2 4\n",
+        "expected_output": "-1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Even-length array where highest frequency is exactly N/2 (not strictly > N/2)"
+      },
+      {
+        "input": "1\n100\n",
+        "expected_output": "100\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "5\n3 2 3 1 3\n",
+        "expected_output": "3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Majority element appearing 3 out of 5 times"
+      },
+      {
+        "input": "4\n1 2 3 4\n",
+        "expected_output": "-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All distinct elements, no majority element"
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "title": "Merge Two Sorted Arrays",
+    "slug": "merge-two-sorted-arrays",
+    "difficulty": "medium",
+    "description": "You are given two sorted integer arrays, $A$ of size $M$ and $B$ of size $N$. Your task is to merge the elements of $B$ into array $A$ so that the merged array is fully sorted in non-decreasing order. Array $A$ has a total allocated capacity of $M + N$, where the first $M$ positions contain its original sorted elements, and the remaining $N$ positions are allocated to receive elements from $B$. \n\nYour solution must perform the merge in-place in $O(M + N)$ time and $O(1)$ auxiliary space without creating a third array. To accomplish this without overwriting unmerged elements in $A$, use a three-pointer approach starting from the back: compare the largest unmerged elements of $A$ and $B$, placing the larger one at the very end of $A$.",
+    "input_format": "The first line contains two integers $M$ and $N$ ($0 \\le M, N \\le 10^5$, $M + N \\ge 1$). If $M > 0$, the second line contains $M$ space-separated integers for $A$. If $N > 0$, the third line (or second if $M=0$) contains $N$ space-separated integers for $B$.",
+    "output_format": "Print all $M + N$ merged integers in sorted order separated by a single space on a single line.",
+    "constraints": "0 <= M, N <= 10^5\n1 <= M + N <= 2 * 10^5\n-10^9 <= A[i], B[i] <= 10^9",
+    "examples": [
+      {
+        "input": "3 3\n1 2 3\n2 5 6\n",
+        "output": "1 2 2 3 5 6\n",
+        "explanation": "Merging [1, 2, 3] and [2, 5, 6] produces [1, 2, 2, 3, 5, 6]."
+      },
+      {
+        "input": "1 0\n1\n",
+        "output": "1\n",
+        "explanation": "B is empty; array A remains [1]."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid merge_sorted(int *a, int m, const int *b, int n) {\n    // TODO: Merge b into a in-place starting from the back\n}\n\nint main(void) {\n    int m, n;\n    if (scanf(\"%d %d\", &m, &n) != 2) return 0;\n    int *a = (int *)malloc((m + n) * sizeof(int));\n    for (int i = 0; i < m; i++) scanf(\"%d\", &a[i]);\n    int *b = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) scanf(\"%d\", &b[i]);\n    merge_sorted(a, m, b, n);\n    for (int i = 0; i < m + n; i++) {\n        printf(\"%d%c\", a[i], (i == m + n - 1) ? '\\n' : ' ');\n    }\n    free(a);\n    free(b);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nstatic void merge_sorted(int *a, int m, const int *b, int n) {\n    int p1 = m - 1;\n    int p2 = n - 1;\n    int p = m + n - 1;\n    while (p1 >= 0 && p2 >= 0) {\n        if (a[p1] > b[p2]) {\n            a[p--] = a[p1--];\n        } else {\n            a[p--] = b[p2--];\n        }\n    }\n    while (p2 >= 0) {\n        a[p--] = b[p2--];\n    }\n}\n\nint main(void) {\n    int m, n;\n    if (scanf(\"%d %d\", &m, &n) != 2) return 0;\n    int *a = (int *)malloc((m + n) * sizeof(int));\n    for (int i = 0; i < m; i++) {\n        if (scanf(\"%d\", &a[i]) != 1) break;\n    }\n    int *b = (int *)malloc((n > 0 ? n : 1) * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &b[i]) != 1) break;\n    }\n    merge_sorted(a, m, b, n);\n    for (int i = 0; i < m + n; i++) {\n        printf(\"%d%c\", a[i], (i == m + n - 1) ? '\\n' : ' ');\n    }\n    free(a);\n    free(b);\n    return 0;\n}\n",
+    "hints": [
+      "Merging from the front would overwrite elements in A that have not yet been placed. What happens if you merge from the back?",
+      "Set pointers p1 = m - 1, p2 = n - 1, and p = m + n - 1.",
+      "Compare a[p1] and b[p2], place the larger at a[p], and decrement the respective pointer. If b still has remaining elements after p1 < 0, copy them over."
+    ],
+    "explanation": "Because array A has spare space at indices m through m+n-1, working backwards allows us to write merged elements into their final positions without overwriting unvisited elements in A. We place the maximum of a[p1] and b[p2] at a[p]. If elements remain in b when p1 < 0, we copy them directly. If elements remain in a when p2 < 0, they are already in place.",
+    "time_complexity": "O(m + n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Merging from front to back, which overwrites values in array A before they are processed.",
+      "Forgetting to flush remaining elements of B into A when array A runs out first (p1 < 0 while p2 >= 0).",
+      "Improper handling when M = 0 or N = 0."
+    ],
+    "related_problems": [
+      "rotate-array-k-positions",
+      "sort-array-of-strings-with-pointers"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "tcs",
+      "cognizant"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3 3\n1 2 3\n2 5 6\n",
+        "expected_output": "1 2 2 3 5 6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard two arrays of equal size with overlapping values"
+      },
+      {
+        "input": "1 0\n1\n",
+        "expected_output": "1\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Second array B is empty"
+      },
+      {
+        "input": "0 1\n1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "First array A is empty"
+      },
+      {
+        "input": "4 3\n1 3 5 7\n2 4 6\n",
+        "expected_output": "1 2 3 4 5 6 7\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Interleaved values of different lengths"
+      },
+      {
+        "input": "3 3\n-5 -2 0\n-3 1 4\n",
+        "expected_output": "-5 -3 -2 0 1 4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Arrays containing negative numbers"
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "title": "Prefix Sum Range Queries",
+    "slug": "prefix-sum-range-queries",
+    "difficulty": "hard",
+    "description": "You are given an array of $N$ integers and $Q$ range sum queries. Each query is defined by two 0-based indices $L$ and $R$ ($0 \\le L \\le R < N$), and asks for the sum of all elements in the subarray from index $L$ to index $R$ inclusive: $\\sum_{i=L}^{R} arr[i]$. Your goal is to answer all $Q$ queries efficiently. \n\nAnswering each query by iterating through the range $[L, R]$ requires $O(N)$ time per query, yielding $O(N \\times Q)$ total time which times out for $N, Q = 10^5$. Instead, precompute a 64-bit prefix sum array in $O(N)$ time, allowing each subsequent range query to be answered in $O(1)$ constant time as $prefix[R] - prefix[L - 1]$. Ensure your prefix sum array uses 64-bit integers (`long long`) to avoid integer overflow.",
+    "input_format": "The first line contains two integers $N$ and $Q$ ($1 \\le N, Q \\le 10^5$). The second line contains $N$ space-separated integers. The following $Q$ lines each contain two integers $L$ and $R$ ($0 \\le L \\le R < N$).",
+    "output_format": "For each query, print the sum of elements from index $L$ to $R$ inclusive on a new line.",
+    "constraints": "1 <= N, Q <= 10^5\n-10^9 <= arr[i] <= 10^9\n0 <= L <= R < N",
+    "examples": [
+      {
+        "input": "5 3\n2 4 5 7 8\n0 2\n1 4\n3 3\n",
+        "output": "11\n24\n7\n",
+        "explanation": "Query [0, 2]: 2+4+5 = 11. Query [1, 4]: 4+5+7+8 = 24. Query [3, 3]: 7 = 7."
+      },
+      {
+        "input": "4 2\n-1 2 -3 4\n0 3\n1 2\n",
+        "output": "2\n-1\n",
+        "explanation": "Query [0, 3]: -1+2-3+4 = 2. Query [1, 2]: 2+(-3) = -1."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n, q;\n    if (scanf(\"%d %d\", &n, &q) != 2) return 0;\n    // TODO: Build prefix sum array of size n using long long\n    // TODO: Process q queries in O(1) time each\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n, q;\n    if (scanf(\"%d %d\", &n, &q) != 2) return 0;\n    long long *pref = (long long *)malloc((n + 1) * sizeof(long long));\n    pref[0] = 0;\n    for (int i = 1; i <= n; i++) {\n        int val;\n        if (scanf(\"%d\", &val) != 1) val = 0;\n        pref[i] = pref[i - 1] + val;\n    }\n    for (int i = 0; i < q; i++) {\n        int l, r;\n        if (scanf(\"%d %d\", &l, &r) == 2) {\n            long long sum = pref[r + 1] - pref[l];\n            printf(\"%lld\\n\", sum);\n        }\n    }\n    free(pref);\n    return 0;\n}\n",
+    "hints": [
+      "Define pref[0] = 0 and pref[i] = pref[i-1] + arr[i-1] for 1 <= i <= N.",
+      "The sum in range [L, R] (0-indexed) is simply pref[R + 1] - pref[L].",
+      "Make sure pref is an array of `long long` integers, as summing 10^5 elements of magnitude 10^9 easily exceeds 32-bit integer limits."
+    ],
+    "explanation": "By constructing a 1-indexed prefix sum array where pref[k] stores the cumulative sum of the first k elements, any range query sum(L..R) can be answered in O(1) arithmetic operations: pref[R + 1] - pref[L]. Preprocessing takes O(N) time and Q queries take O(Q) time, yielding optimal O(N + Q) total runtime.",
+    "time_complexity": "O(n + q)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Iterating over [L, R] for each query, which takes O(N * Q) and causes Time Limit Exceeded (TLE).",
+      "Using 32-bit signed integers for prefix sums, leading to overflow wrap-around bugs.",
+      "Index boundary errors when computing range sums if L = 0."
+    ],
+    "related_problems": [
+      "subarray-sum-equals-k",
+      "maximum-subarray-sum-kadanes"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "infosys",
+      "tcs"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5 3\n2 4 5 7 8\n0 2\n1 4\n3 3\n",
+        "expected_output": "11\n24\n7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard queries on positive array"
+      },
+      {
+        "input": "4 2\n-1 2 -3 4\n0 3\n1 2\n",
+        "expected_output": "2\n-1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Queries on array with mixed signs"
+      },
+      {
+        "input": "1 1\n10\n0 0\n",
+        "expected_output": "10\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array with L = R = 0"
+      },
+      {
+        "input": "6 3\n1 1 1 1 1 1\n0 5\n2 4\n0 0\n",
+        "expected_output": "6\n3\n1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Uniform array with whole array, middle slice, and single element query"
+      },
+      {
+        "input": "5 2\n100000 200000 300000 400000 500000\n0 4\n1 3\n",
+        "expected_output": "1500000\n900000\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Large values verifying accumulator accuracy"
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "title": "Sliding Window Maximum",
+    "slug": "sliding-window-maximum",
+    "difficulty": "very_hard",
+    "description": "You are given an array of $N$ integers and a sliding window of size $K$ that moves from the extreme left of the array to the extreme right. You can only see the $K$ numbers in the window at any one time. Each time the sliding window moves rightwards by one position, exactly one number enters the window and one number exits it. Your task is to determine the maximum value within the window for each of the $N - K + 1$ window positions. \n\nA naive scan takes $O(K)$ per window position resulting in $O(N \\times K)$ total time, which fails on large inputs. To achieve an optimal $O(N)$ runtime, implement a monotonic double-ended queue (deque) in C that stores array indices. Maintain the deque in monotonically decreasing order of element values: elements smaller than the newly arriving element are popped from the tail, and elements outside the current window boundary are popped from the head.",
+    "input_format": "The first line contains two integers $N$ and $K$ ($1 \\le K \\le N \\le 10^5$). The second line contains $N$ space-separated integers ($ -10^9 \\le arr[i] \\le 10^9 $).",
+    "output_format": "Print the $N - K + 1$ sliding window maximums separated by a space on a single line.",
+    "constraints": "1 <= K <= N <= 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "8 3\n1 3 -1 -3 5 3 6 7\n",
+        "output": "3 3 5 5 6 7\n",
+        "explanation": "Window [1, 3, -1] max=3; [3, -1, -3] max=3; [-1, -3, 5] max=5; [-3, 5, 3] max=5; [5, 3, 6] max=6; [3, 6, 7] max=7."
+      },
+      {
+        "input": "1 1\n1\n",
+        "output": "1\n",
+        "explanation": "A single element with window size 1 yields itself."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid sliding_window_maximum(const int *arr, int n, int k) {\n    // TODO: Implement monotonic deque to find window maximums in O(n) time\n}\n\nint main(void) {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    sliding_window_maximum(arr, n, k);\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &arr[i]) != 1) { free(arr); return 0; }\n    }\n    int *deque = (int *)malloc(n * sizeof(int));\n    int head = 0, tail = 0;\n    int printed = 0;\n    for (int i = 0; i < n; i++) {\n        // Remove elements outside the window\n        if (head < tail && deque[head] <= i - k) {\n            head++;\n        }\n        // Maintain decreasing order in deque\n        while (head < tail && arr[deque[tail - 1]] <= arr[i]) {\n            tail--;\n        }\n        deque[tail++] = i;\n        // Window is fully formed\n        if (i >= k - 1) {\n            printf(\"%d%c\", arr[deque[head]], (i == n - 1) ? '\\n' : ' ');\n            printed = 1;\n        }\n    }\n    if (!printed) printf(\"\\n\");\n    free(deque);\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Store array indices instead of values inside the deque so you can easily verify whether an index has expired (deque[head] <= i - k).",
+      "Before inserting the current index i, remove all indices from the back of the deque whose corresponding values are <= arr[i].",
+      "The element at the front of the deque (deque[head]) is always the maximum for the current window once i >= k - 1."
+    ],
+    "explanation": "We maintain a deque of indices such that the values corresponding to these indices are in strictly decreasing order. For each incoming element at index i, any elements at the back of the deque with value <= arr[i] can never be the maximum again and are discarded. Next, we remove the front element if its index has fallen outside the window (deque[head] <= i - k). Because each element is pushed and popped at most once, total runtime is amortized O(N).",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(k)",
+    "common_mistakes": [
+      "Storing values instead of indices in the deque, making it impossible to check if the maximum has left the window.",
+      "Using an O(N * K) brute force nested loop which triggers TLE for N = 10^5 and K = 5*10^4.",
+      "Incorrect condition when popping elements from the back (using `<` instead of `<=`)."
+    ],
+    "related_problems": [
+      "maximum-sum-subarray-of-size-k",
+      "trapping-rain-water"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "amazon",
+      "google",
+      "uber",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "8 3\n1 3 -1 -3 5 3 6 7\n",
+        "expected_output": "3 3 5 5 6 7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard alternating values array"
+      },
+      {
+        "input": "1 1\n1\n",
+        "expected_output": "1\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single element array with window size 1"
+      },
+      {
+        "input": "6 2\n9 11 8 5 7 10\n",
+        "expected_output": "11 11 8 7 10\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Window size 2 with fluctuating peaks"
+      },
+      {
+        "input": "5 5\n1 2 3 4 5\n",
+        "expected_output": "5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K equals N (entire array is the only window)"
+      },
+      {
+        "input": "6 3\n6 5 4 3 2 1\n",
+        "expected_output": "6 5 4 3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Monotonically decreasing array"
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "title": "Product Except Self",
+    "slug": "product-except-self",
+    "difficulty": "hard",
+    "description": "Given an integer array $nums$ of size $N$, compute an array $output$ such that $output[i]$ is equal to the product of all elements of $nums$ except $nums[i]$. The problem must be solved without using the division operation, in $O(N)$ time complexity, and using at most $O(N)$ space. \n\nSolving this problem without division is critical because array elements can be zero, which would cause runtime division-by-zero errors in naive implementations. Furthermore, using division fails when multiple zeros are present. A standard linear approach builds prefix products from the left and suffix products from the right, combining them at each position $i$ as $prefix[i - 1] \\times suffix[i + 1]$.",
+    "input_format": "The first line contains an integer $N$ ($2 \\le N \\le 10^5$). The second line contains $N$ space-separated integers ($ -30 \\le nums[i] \\le 30 $).",
+    "output_format": "Print the $N$ integers of the product array separated by a single space on a single line.",
+    "constraints": "2 <= N <= 10^5\n-30 <= nums[i] <= 30\nThe product of any prefix or suffix fits in a 64-bit integer (`long long`)",
+    "examples": [
+      {
+        "input": "4\n1 2 3 4\n",
+        "output": "24 12 8 6\n",
+        "explanation": "output[0] = 2*3*4=24, output[1] = 1*3*4=12, output[2] = 1*2*4=8, output[3] = 1*2*3=6."
+      },
+      {
+        "input": "5\n-1 1 0 -3 3\n",
+        "output": "0 0 9 0 0\n",
+        "explanation": "Due to 0 at index 2, all outputs except index 2 are 0. output[2] = (-1)*1*(-3)*3 = 9."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid product_except_self(const int *nums, int n, long long *output) {\n    // TODO: Compute product of all elements except nums[i] without division\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *nums = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &nums[i]);\n    }\n    long long *output = (long long *)malloc(n * sizeof(long long));\n    product_except_self(nums, n, output);\n    for (int i = 0; i < n; i++) {\n        printf(\"%lld%c\", output[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    free(nums);\n    free(output);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *nums = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &nums[i]) != 1) { free(nums); return 0; }\n    }\n    long long *output = (long long *)malloc(n * sizeof(long long));\n    output[0] = 1;\n    for (int i = 1; i < n; i++) {\n        output[i] = output[i - 1] * nums[i - 1];\n    }\n    long long suffix = 1;\n    for (int i = n - 1; i >= 0; i--) {\n        output[i] = output[i] * suffix;\n        suffix *= nums[i];\n    }\n    for (int i = 0; i < n; i++) {\n        printf(\"%lld%c\", output[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    free(nums);\n    free(output);\n    return 0;\n}\n",
+    "hints": [
+      "Construct output[i] as (product of all elements to the left of i) * (product of all elements to the right of i).",
+      "Make a first pass from left to right: let output[i] store the product of elements from index 0 to i-1.",
+      "Make a second pass from right to left: maintain a running suffix product and multiply it into output[i]."
+    ],
+    "explanation": "We populate output[i] with the product of all elements to its left during a forward pass. Then, traversing backwards, we maintain a running product of elements to the right (`suffix`) and multiply output[i] by suffix before updating suffix with nums[i]. This runs in two linear passes with O(1) extra space beyond the output array.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using division by nums[i], which fails with a SIGFPE division-by-zero error when array contains zeros.",
+      "Using 32-bit int instead of 64-bit `long long` for accumulating products.",
+      "Using an O(N^2) brute force approach which times out for N = 100,000."
+    ],
+    "related_problems": [
+      "prefix-sum-range-queries",
+      "sliding-window-maximum"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "amazon",
+      "apple",
+      "microsoft",
+      "infosys"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\n1 2 3 4\n",
+        "expected_output": "24 12 8 6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard positive array without zeros"
+      },
+      {
+        "input": "5\n-1 1 0 -3 3\n",
+        "expected_output": "0 0 9 0 0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Array with a single zero"
+      },
+      {
+        "input": "2\n5 10\n",
+        "expected_output": "10 5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Smallest valid size array (N = 2)"
+      },
+      {
+        "input": "4\n0 0 2 3\n",
+        "expected_output": "0 0 0 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Multiple zeros resulting in all zero outputs"
+      },
+      {
+        "input": "3\n-2 -3 -4\n",
+        "expected_output": "12 8 6\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "All negative elements"
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "title": "Spiral Matrix Traversal",
+    "slug": "spiral-matrix-traversal",
+    "difficulty": "hard",
+    "description": "Given a 2D matrix of dimensions $R \\times C$ containing integer values, traverse and print all elements of the matrix in spiral order. The spiral traversal begins at the top-left corner $(0, 0)$, moves completely across the top row to the right, descends down the rightmost column, traverses leftwards across the bottom row, and climbs up the leftmost unvisited column. This clockwise inward cycle repeats until every cell in the matrix has been visited exactly once. \n\nYour program must output all elements in their order of traversal on a single line separated by spaces. Pay special attention to rectangular matrices where $R \\ne C$, especially single-row or single-column matrices, where boundaries must be checked to prevent traversing the same row or column twice during the reverse steps.",
+    "input_format": "The first line contains two integers $R$ and $C$ ($1 \\le R, C \\le 500$). The next $R$ lines each contain $C$ space-separated integers representing the matrix rows.",
+    "output_format": "Print all $R \\times C$ elements in spiral traversal order separated by a single space on a single line.",
+    "constraints": "1 <= R, C <= 500\n-10^5 <= matrix[i][j] <= 10^5",
+    "examples": [
+      {
+        "input": "3 3\n1 2 3\n4 5 6\n7 8 9\n",
+        "output": "1 2 3 6 9 8 7 4 5\n",
+        "explanation": "Top row: 1 2 3; Right col: 6 9; Bottom row: 8 7; Left col: 4; Center: 5."
+      },
+      {
+        "input": "3 4\n1 2 3 4\n5 6 7 8\n9 10 11 12\n",
+        "output": "1 2 3 4 8 12 11 10 9 5 6 7\n",
+        "explanation": "Clockwise spiral inward for a 3x4 rectangular matrix."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid print_spiral(int **matrix, int r, int c) {\n    // TODO: Traverse and print matrix in spiral order\n}\n\nint main(void) {\n    int r, c;\n    if (scanf(\"%d %d\", &r, &c) != 2) return 0;\n    int **matrix = (int **)malloc(r * sizeof(int *));\n    for (int i = 0; i < r; i++) {\n        matrix[i] = (int *)malloc(c * sizeof(int));\n        for (int j = 0; j < c; j++) {\n            scanf(\"%d\", &matrix[i][j]);\n        }\n    }\n    print_spiral(matrix, r, c);\n    for (int i = 0; i < r; i++) free(matrix[i]);\n    free(matrix);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int r, c;\n    if (scanf(\"%d %d\", &r, &c) != 2) return 0;\n    int *matrix = (int *)malloc(r * c * sizeof(int));\n    for (int i = 0; i < r * c; i++) {\n        if (scanf(\"%d\", &matrix[i]) != 1) matrix[i] = 0;\n    }\n    int top = 0, bottom = r - 1;\n    int left = 0, right = c - 1;\n    int total = r * c;\n    int count = 0;\n    while (top <= bottom && left <= right) {\n        // Traverse right across top\n        for (int j = left; j <= right; j++) {\n            count++;\n            printf(\"%d%c\", matrix[top * c + j], (count == total) ? '\\n' : ' ');\n        }\n        top++;\n        // Traverse down rightmost column\n        for (int i = top; i <= bottom; i++) {\n            count++;\n            printf(\"%d%c\", matrix[i * c + right], (count == total) ? '\\n' : ' ');\n        }\n        right--;\n        // Traverse left across bottom if row still valid\n        if (top <= bottom) {\n            for (int j = right; j >= left; j--) {\n                count++;\n                printf(\"%d%c\", matrix[bottom * c + j], (count == total) ? '\\n' : ' ');\n            }\n            bottom--;\n        }\n        // Traverse up leftmost column if col still valid\n        if (left <= right) {\n            for (int i = bottom; i >= top; i--) {\n                count++;\n                printf(\"%d%c\", matrix[i * c + left], (count == total) ? '\\n' : ' ');\n            }\n            left++;\n        }\n    }\n    free(matrix);\n    return 0;\n}\n",
+    "hints": [
+      "Track 4 boundary pointers: top = 0, bottom = R - 1, left = 0, right = C - 1.",
+      "Loop while top <= bottom and left <= right. Perform the 4 directional traversals in order.",
+      "After traversing the top row and right column, verify top <= bottom before traversing left, and verify left <= right before traversing up."
+    ],
+    "explanation": "We maintain four boundary variables representing the current unvisited perimeter of the matrix: top, bottom, left, and right. In each iteration of the outer loop, we visit cells along top row, right column, bottom row, and left column. After completing each direction, we advance the corresponding boundary inward. Checking `top <= bottom` and `left <= right` before the backward sweeps prevents duplicate traversals on rectangular matrices.",
+    "time_complexity": "O(r * c)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Failing to check `top <= bottom` before moving left, leading to duplicate output in 1-row matrices.",
+      "Failing to check `left <= right` before moving up, leading to duplicate output in 1-column matrices.",
+      "Incorrect 2D index calculation when flattening dynamic memory into a 1D array."
+    ],
+    "related_problems": [
+      "pointer-to-pointer-matrix",
+      "rotate-array-k-positions"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "oracle",
+      "tcs"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3 3\n1 2 3\n4 5 6\n7 8 9\n",
+        "expected_output": "1 2 3 6 9 8 7 4 5\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 3x3 square matrix"
+      },
+      {
+        "input": "3 4\n1 2 3 4\n5 6 7 8\n9 10 11 12\n",
+        "expected_output": "1 2 3 4 8 12 11 10 9 5 6 7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Rectangular 3x4 matrix"
+      },
+      {
+        "input": "1 4\n1 2 3 4\n",
+        "expected_output": "1 2 3 4\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single-row matrix (1x4)"
+      },
+      {
+        "input": "4 1\n1\n2\n3\n4\n",
+        "expected_output": "1 2 3 4\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single-column matrix (4x1)"
+      },
+      {
+        "input": "2 2\n1 2\n3 4\n",
+        "expected_output": "1 2 4 3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "2x2 small matrix"
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "title": "Maximum Sum Subarray of Size K",
+    "slug": "maximum-sum-subarray-of-size-k",
+    "difficulty": "medium",
+    "description": "Given an array of $N$ integers and a positive integer $K$ ($K \\le N$), find the maximum sum of any contiguous subarray of size exactly $K$. A contiguous subarray of size $K$ consists of $K$ consecutive elements from the array. Your task is to compute and print the maximum possible sum among all such subarrays of length $K$. \n\nA brute force approach that recomputes the sum of each window from scratch requires $O(N \\times K)$ operations. An optimal solution utilizes the fixed-size sliding window pattern: calculate the sum of the first $K$ elements in $O(K)$, then slide the window across the array by adding the incoming element at the right and subtracting the outgoing element at the left in $O(1)$ per step, yielding an overall $O(N)$ time complexity.",
+    "input_format": "The first line contains two integers $N$ and $K$ ($1 \\le K \\le N \\le 2 \\times 10^5$). The second line contains $N$ space-separated integers ($ -10^9 \\le arr[i] \\le 10^9 $).",
+    "output_format": "Print the maximum sum of any contiguous subarray of size $K$ on a single line.",
+    "constraints": "1 <= K <= N <= 2 * 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "4 2\n100 200 300 400\n",
+        "output": "700\n",
+        "explanation": "Subarrays of size 2: [100, 200] sum=300; [200, 300] sum=500; [300, 400] sum=700. Maximum is 700."
+      },
+      {
+        "input": "6 3\n2 1 5 1 3 2\n",
+        "output": "9\n",
+        "explanation": "Subarray [5, 1, 3] has size 3 and produces the maximum sum 5 + 1 + 3 = 9."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nlong long max_sum_subarray_k(const int *arr, int n, int k) {\n    // TODO: Implement fixed-size sliding window to find max sum of size k\n    return 0;\n}\n\nint main(void) {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    printf(\"%lld\\n\", max_sum_subarray_k(arr, n, k));\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &arr[i]) != 1) { free(arr); return 0; }\n    }\n    long long current_sum = 0;\n    for (int i = 0; i < k; i++) {\n        current_sum += arr[i];\n    }\n    long long max_sum = current_sum;\n    for (int i = k; i < n; i++) {\n        current_sum += (long long)arr[i] - arr[i - k];\n        if (current_sum > max_sum) {\n            max_sum = current_sum;\n        }\n    }\n    printf(\"%lld\\n\", max_sum);\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "First, compute the sum of the initial K elements from index 0 to K-1.",
+      "For each subsequent index i from K to N-1, update current_sum = current_sum + arr[i] - arr[i - K].",
+      "Maintain the maximum value observed so far using 64-bit integers (`long long`) to avoid overflow."
+    ],
+    "explanation": "We compute the sum of the first window of length K. As we slide the window one element to the right, we add the new element entering the window (arr[i]) and subtract the element leaving the window (arr[i - K]). This updates the window sum in O(1) time per step, achieving an overall O(N) runtime and O(1) auxiliary space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Re-summing K elements for every window position, causing O(N*K) time complexity and TLE.",
+      "Using 32-bit int for accumulated sums, which overflows when K elements of magnitude 10^9 are summed.",
+      "Initializing max_sum to 0 instead of the first window's sum, failing when all subarray sums are negative."
+    ],
+    "related_problems": [
+      "maximum-subarray-sum-kadanes",
+      "sliding-window-maximum"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "tcs",
+      "infosys",
+      "wipro",
+      "amazon"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4 2\n100 200 300 400\n",
+        "expected_output": "700\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard positive array with k=2"
+      },
+      {
+        "input": "6 3\n2 1 5 1 3 2\n",
+        "expected_output": "9\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard array with k=3"
+      },
+      {
+        "input": "5 1\n-5 -2 -8 -1 -4\n",
+        "expected_output": "-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Window size 1 with all negative elements"
+      },
+      {
+        "input": "3 3\n5 10 15\n",
+        "expected_output": "30\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K equals N (entire array is the only window)"
+      },
+      {
+        "input": "7 4\n1 4 2 10 23 3 1\n",
+        "expected_output": "39\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Subarray of size 4 [4, 2, 10, 23]"
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "title": "Subarray Sum Equals K",
+    "slug": "subarray-sum-equals-k",
+    "difficulty": "hard",
+    "description": "Given an array of $N$ integers $nums$ and an integer $K$, find the total number of continuous subarrays whose sum equals $K$. A continuous subarray is defined as a non-empty sequence of elements within the array spanning contiguous indices $[i, j]$. \n\nBecause array elements may be negative, zero, or positive, standard two-pointer sliding window approaches fail since window sums do not grow monotonically. Instead, use the prefix sum technique: the sum of elements from index $i$ to $j$ equals $prefix[j] - prefix[i - 1]$. Thus, a subarray summing to $K$ satisfies $prefix[j] - prefix[i - 1] = K$, which rearranges to $prefix[i - 1] = prefix[j] - K$. By tracking the frequencies of prefix sums using a hash table or sorted map as we traverse the array, we can count all matching subarrays in $O(N)$ or $O(N \\log N)$ time.",
+    "input_format": "The first line contains two integers $N$ and $K$ ($1 \\le N \\le 10^5$, $-10^9 \\le K \\le 10^9$). The second line contains $N$ space-separated integers ($ -10^4 \\le nums[i] \\le 10^4 $).",
+    "output_format": "Print a single integer representing the total number of continuous subarrays whose sum equals $K$.",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= K <= 10^9\n-10^4 <= nums[i] <= 10^4",
+    "examples": [
+      {
+        "input": "3 2\n1 1 1\n",
+        "output": "2\n",
+        "explanation": "Subarrays summing to 2 are nums[0..1] = [1, 1] and nums[1..2] = [1, 1]."
+      },
+      {
+        "input": "3 3\n1 2 3\n",
+        "output": "2\n",
+        "explanation": "Subarrays summing to 3 are nums[0..1] = [1, 2] and nums[2..2] = [3]."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nlong long subarray_sum_equals_k(const int *nums, int n, long long k) {\n    // TODO: Count continuous subarrays summing to k using prefix sums and hashing\n    return 0;\n}\n\nint main(void) {\n    int n;\n    long long k;\n    if (scanf(\"%d %lld\", &n, &k) != 2) return 0;\n    int *nums = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &nums[i]);\n    }\n    printf(\"%lld\\n\", subarray_sum_equals_k(nums, n, k));\n    free(nums);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\n#define HASH_SIZE 262144\n#define MASK (HASH_SIZE - 1)\n\ntypedef struct HashNode {\n    long long sum;\n    int count;\n    struct HashNode *next;\n} HashNode;\n\nstatic HashNode *table[HASH_SIZE];\n\nstatic unsigned int hash_func(long long key) {\n    unsigned long long x = (unsigned long long)key;\n    x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ULL;\n    x = (x ^ (x >> 27)) * 0x94d049bb133111ebULL;\n    x = x ^ (x >> 31);\n    return (unsigned int)(x & MASK);\n}\n\nstatic int get_count(long long sum) {\n    unsigned int idx = hash_func(sum);\n    for (HashNode *node = table[idx]; node; node = node->next) {\n        if (node->sum == sum) return node->count;\n    }\n    return 0;\n}\n\nstatic void insert_or_increment(long long sum) {\n    unsigned int idx = hash_func(sum);\n    for (HashNode *node = table[idx]; node; node = node->next) {\n        if (node->sum == sum) {\n            node->count++;\n            return;\n        }\n    }\n    HashNode *new_node = (HashNode *)malloc(sizeof(HashNode));\n    new_node->sum = sum;\n    new_node->count = 1;\n    new_node->next = table[idx];\n    table[idx] = new_node;\n}\n\nint main(void) {\n    int n;\n    long long k;\n    if (scanf(\"%d %lld\", &n, &k) != 2) return 0;\n    int *nums = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &nums[i]) != 1) { free(nums); return 0; }\n    }\n    for (int i = 0; i < HASH_SIZE; i++) table[i] = NULL;\n    insert_or_increment(0);\n    long long current_prefix = 0;\n    long long ans = 0;\n    for (int i = 0; i < n; i++) {\n        current_prefix += nums[i];\n        long long needed = current_prefix - k;\n        ans += get_count(needed);\n        insert_or_increment(current_prefix);\n    }\n    printf(\"%lld\\n\", ans);\n    // Free hash table\n    for (int i = 0; i < HASH_SIZE; i++) {\n        HashNode *node = table[i];\n        while (node) {\n            HashNode *tmp = node->next;\n            free(node);\n            node = tmp;\n        }\n    }\n    free(nums);\n    return 0;\n}\n",
+    "hints": [
+      "Prefix sum relationship: sum(i..j) = pref[j] - pref[i-1] = K  ==>  pref[i-1] = pref[j] - K.",
+      "Store the frequency of each prefix sum seen so far in a hash table.",
+      "Initialize the hash table with prefix sum 0 having count 1 before iterating, to count subarrays starting from index 0."
+    ],
+    "explanation": "We iterate through the array maintaining a running prefix sum `current_prefix`. At each position, any prior prefix sum equal to `current_prefix - k` marks the beginning of a valid subarray ending at the current element. We look up its count in our hash table, add it to our answer, and then insert `current_prefix` into the table. Using chaining hash table with a 64-bit integer mixer provides O(1) average lookup and O(N) total time.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Attempting a two-pointer sliding window on an array with negative numbers, where the window sum is non-monotonic.",
+      "Forgetting to seed the hash table with prefix sum 0 of count 1, missing valid subarrays starting at index 0.",
+      "Using a 32-bit int accumulator for total match count, which overflows when count exceeds 2*10^9."
+    ],
+    "related_problems": [
+      "prefix-sum-range-queries",
+      "maximum-subarray-sum-kadanes"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "google",
+      "meta",
+      "amazon",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3 2\n1 1 1\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small array with multiple positive solutions"
+      },
+      {
+        "input": "3 3\n1 2 3\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Two distinct subarrays summing to 3"
+      },
+      {
+        "input": "4 0\n1 -1 1 -1\n",
+        "expected_output": "4\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Target K = 0 with alternating positive and negative values"
+      },
+      {
+        "input": "5 7\n3 4 7 2 -3\n",
+        "expected_output": "2\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Subarrays [3, 4] and [7]"
+      },
+      {
+        "input": "1 5\n5\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element matching target K"
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "title": "Next Permutation",
+    "slug": "next-permutation",
+    "difficulty": "very_hard",
+    "description": "Implement next permutation, which rearranges an array of numbers into the lexicographically next greater permutation of numbers. If no such greater permutation is possible (i.e., the array is already sorted in descending order), the array must be rearranged into the lowest possible order (i.e., sorted in ascending order). \n\nThe replacement must be performed in-place and use only $O(1)$ constant extra memory with an optimal $O(N)$ time complexity. The canonical algorithm operates in four concise steps: 1. Scan from right to left to find the first index $i$ such that $arr[i] < arr[i + 1]$. 2. If no such index exists, the permutation is the highest possible; reverse the entire array. 3. Otherwise, scan from right to left to find the first index $j > i$ such that $arr[j] > arr[i]$. 4. Swap $arr[i]$ and $arr[j]$, then reverse the subarray from $i + 1$ to $N - 1$.",
+    "input_format": "The first line contains an integer $N$ ($1 \\le N \\le 10^5$). The second line contains $N$ space-separated integers ($ -10^9 \\le arr[i] \\le 10^9 $).",
+    "output_format": "Print the $N$ integers of the next permutation separated by a single space on a single line.",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "3\n1 2 3\n",
+        "output": "1 3 2\n",
+        "explanation": "The permutation lexicographically following [1, 2, 3] is [1, 3, 2]."
+      },
+      {
+        "input": "3\n3 2 1\n",
+        "output": "1 2 3\n",
+        "explanation": "[3, 2, 1] is the highest permutation; wraps around to lowest [1, 2, 3]."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid next_permutation(int *arr, int n) {\n    // TODO: In-place rearrangement to lexicographically next permutation\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    next_permutation(arr, n);\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nstatic void reverse(int *arr, int start, int end) {\n    while (start < end) {\n        int temp = arr[start];\n        arr[start] = arr[end];\n        arr[end] = temp;\n        start++;\n        end--;\n    }\n}\n\nstatic void next_permutation(int *arr, int n) {\n    if (n <= 1) return;\n    int i = n - 2;\n    while (i >= 0 && arr[i] >= arr[i + 1]) {\n        i--;\n    }\n    if (i >= 0) {\n        int j = n - 1;\n        while (arr[j] <= arr[i]) {\n            j--;\n        }\n        int temp = arr[i];\n        arr[i] = arr[j];\n        arr[j] = temp;\n    }\n    reverse(arr, i + 1, n - 1);\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &arr[i]) != 1) { free(arr); return 0; }\n    }\n    next_permutation(arr, n);\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Find the pivot: find the rightmost index i such that arr[i] < arr[i + 1].",
+      "If no such i exists, the sequence is purely descending; reverse the entire array to form the smallest permutation.",
+      "Find the rightmost successor: find index j > i such that arr[j] > arr[i]. Swap arr[i] and arr[j], then reverse the suffix starting at index i + 1."
+    ],
+    "explanation": "The suffix after index i is in strictly descending order. To make the permutation just minimally greater, we swap arr[i] with the smallest element in the suffix that is strictly greater than arr[i] (which is found by scanning from the right). After swapping, the suffix remains in descending order. Reversing the suffix from i+1 to n-1 turns it into ascending order, which produces the lexicographically smallest suffix possible.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using `<` instead of `<=` in `arr[i] >= arr[i + 1]` when duplicates are present.",
+      "Sorting the suffix with qsort O(N log N) instead of simply reversing it in O(N).",
+      "Off-by-one errors when reversing from i + 1 to n - 1."
+    ],
+    "related_problems": [
+      "rotate-array-k-positions",
+      "trapping-rain-water"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "meta",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3\n1 2 3\n",
+        "expected_output": "1 3 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard ascending sequence"
+      },
+      {
+        "input": "3\n3 2 1\n",
+        "expected_output": "1 2 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Descending sequence wrapping to lowest"
+      },
+      {
+        "input": "3\n1 1 5\n",
+        "expected_output": "1 5 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Array containing duplicate elements"
+      },
+      {
+        "input": "1\n10\n",
+        "expected_output": "10\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "5\n1 3 5 4 2\n",
+        "expected_output": "1 4 2 3 5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Intermediate permutation"
+      },
+      {
+        "input": "4\n2 4 3 1\n",
+        "expected_output": "3 1 2 4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Pivot at index 0"
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "title": "Trapping Rain Water",
+    "slug": "trapping-rain-water",
+    "difficulty": "very_hard",
+    "description": "Given $N$ non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining. Water is trapped between higher bars to the left and right. For any bar at index $i$, the height of water it can hold is determined by the minimum of the highest bar to its left and the highest bar to its right, minus its own height: $\\max(0, \\min(left\\_max, right\\_max) - height[i])$. \n\nYour solution must achieve an optimal $O(N)$ runtime. Using the two-pointer technique with pointers `left = 0` and `right = N - 1`, we can solve this problem in $O(1)$ auxiliary space. At each step, we advance the pointer with the smaller maximum height (`left_max` or `right_max`), because the water trapped at that bar is strictly bounded by the smaller of the two outer walls regardless of what lies in between.",
+    "input_format": "The first line contains an integer $N$ ($1 \\le N \\le 2 \\times 10^5$). The second line contains $N$ space-separated integers representing bar heights ($ 0 \\le height[i] \\le 10^9 $).",
+    "output_format": "Print a single integer representing the total units of trapped rainwater.",
+    "constraints": "1 <= N <= 2 * 10^5\n0 <= height[i] <= 10^9",
+    "examples": [
+      {
+        "input": "12\n0 1 0 2 1 0 1 3 2 1 2 1\n",
+        "output": "6\n",
+        "explanation": "The elevation map traps 6 total units of rainwater."
+      },
+      {
+        "input": "6\n4 2 0 3 2 5\n",
+        "output": "9\n",
+        "explanation": "Trapped water: 0 + 2 + 4 + 1 + 2 + 0 = 9 units."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nlong long trap_water(const int *height, int n) {\n    // TODO: Calculate trapped rainwater in O(n) time and O(1) auxiliary space\n    return 0;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *height = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &height[i]);\n    }\n    printf(\"%lld\\n\", trap_water(height, n));\n    free(height);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *height = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &height[i]) != 1) { free(height); return 0; }\n    }\n    int left = 0, right = n - 1;\n    long long left_max = 0, right_max = 0;\n    long long total_water = 0;\n    while (left < right) {\n        if (height[left] < height[right]) {\n            if (height[left] >= left_max) {\n                left_max = height[left];\n            } else {\n                total_water += left_max - height[left];\n            }\n            left++;\n        } else {\n            if (height[right] >= right_max) {\n                right_max = height[right];\n            } else {\n                total_water += right_max - height[right];\n            }\n            right--;\n        }\n    }\n    printf(\"%lld\\n\", total_water);\n    free(height);\n    return 0;\n}\n",
+    "hints": [
+      "Water at index i is trapped only when there are taller walls both to its left and right: min(left_max, right_max) - height[i].",
+      "Two pointers: maintain left and right pointers moving inward, keeping track of left_max and right_max.",
+      "If height[left] < height[right], then left_max is the limiting boundary; process left and advance it. Otherwise, process right."
+    ],
+    "explanation": "Using two pointers starting from both ends, if height[left] < height[right], we know for sure that any water trapped at index left depends solely on left_max, because height[right] guarantees a wall at least as tall exists somewhere to the right. Thus, if height[left] < left_max, trapped water increases by left_max - height[left]; otherwise left_max is updated. Symmetrically, if height[right] <= height[left], we process right_max and decrement right. This runs in O(N) time with O(1) space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using 32-bit int for accumulated water, which overflows on large arrays with tall bars.",
+      "Using an O(N^2) brute force search for left_max and right_max at every bar.",
+      "Incorrect termination condition or missing updates to left_max / right_max."
+    ],
+    "related_problems": [
+      "sliding-window-maximum",
+      "next-permutation"
+    ],
+    "topic_slug": "arrays",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "goldman-sachs",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "12\n0 1 0 2 1 0 1 3 2 1 2 1\n",
+        "expected_output": "6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard classic elevation profile"
+      },
+      {
+        "input": "6\n4 2 0 3 2 5\n",
+        "expected_output": "9\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Deep valley profile trapping 9 units"
+      },
+      {
+        "input": "3\n3 0 2\n",
+        "expected_output": "2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Minimal 3-bar dip trapping water"
+      },
+      {
+        "input": "2\n1 2\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Two bars (cannot trap water)"
+      },
+      {
+        "input": "5\n5 4 3 2 1\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Monotonically descending bars trapping no water"
+      },
+      {
+        "input": "7\n3 0 0 2 0 4 1\n",
+        "expected_output": "10\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Wide uneven basin trapping 10 units"
+      }
+    ]
+  }
+]

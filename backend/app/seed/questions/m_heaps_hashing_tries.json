@@ -1,0 +1,700 @@
+[
+  {
+    "id": 130,
+    "title": "Min Heap Implementation",
+    "slug": "min-heap-implementation",
+    "difficulty": "hard",
+    "description": "Implement a binary **Min Heap** data structure from scratch in C supporting dynamic insertion, minimum element extraction, and size inspection.\n\nA Min Heap is a complete binary tree represented inside an array where each parent node satisfies $\\text{arr}[parent] \\le \\text{arr}[child]$. For a 0-indexed array, the parent of index $i$ is $\\lfloor (i - 1) / 2 \\rfloor$, and its children are at $2i + 1$ and $2i + 2$.\n\nSupport four commands:\n1. `insert X`: Insert integer $X$ at the end of the heap and sift it up until the min-heap invariant is restored.\n2. `extractMin`: Remove and print the minimum element (root). Replace root with the last element and sift it down. If the heap is empty, print `EMPTY`.\n3. `getMin`: Print the minimum element without removing it. If the heap is empty, print `EMPTY`.\n4. `size`: Print the current number of elements stored in the heap.\n\nAll operations must execute in $O(\\log N)$ time (except `getMin` and `size` in $O(1)$).",
+    "input_format": "The first line contains an integer $Q$ (number of operations).\nThe next $Q$ lines each contain an operation command: `insert X`, `extractMin`, `getMin`, or `size`.",
+    "output_format": "Print the result of each `extractMin`, `getMin`, and `size` command on a new line.",
+    "constraints": "1 <= Q <= 10^5\n-10^9 <= X <= 10^9",
+    "examples": [
+      {
+        "input": "7\ninsert 10\ninsert 5\ngetMin\nextractMin\ngetMin\nsize\nextractMin\n",
+        "output": "5\n5\n10\n1\n10\n",
+        "explanation": "Min heap maintains 5 at top. extractMin pops 5, leaving 10. Next getMin returns 10, size is 1."
+      },
+      {
+        "input": "3\ngetMin\nextractMin\nsize\n",
+        "output": "EMPTY\nEMPTY\n0\n",
+        "explanation": "Operations on empty heap return EMPTY, size is 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct MinHeap {\n    int *data;\n    int size;\n    int capacity;\n} MinHeap;\n\n// TODO: Implement Min Heap operations\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct MinHeap {\n    int *data;\n    int size;\n    int capacity;\n} MinHeap;\n\nMinHeap* create_heap(int capacity) {\n    MinHeap *h = (MinHeap *)malloc(sizeof(MinHeap));\n    h->data = (int *)malloc(sizeof(int) * capacity);\n    h->size = 0;\n    h->capacity = capacity;\n    return h;\n}\n\nvoid swap(int *a, int *b) {\n    int t = *a;\n    *a = *b;\n    *b = t;\n}\n\nvoid sift_up(MinHeap *h, int idx) {\n    while (idx > 0) {\n        int parent = (idx - 1) / 2;\n        if (h->data[idx] < h->data[parent]) {\n            swap(&h->data[idx], &h->data[parent]);\n            idx = parent;\n        } else {\n            break;\n        }\n    }\n}\n\nvoid sift_down(MinHeap *h, int idx) {\n    while (2 * idx + 1 < h->size) {\n        int smallest = idx;\n        int left = 2 * idx + 1;\n        int right = 2 * idx + 2;\n        \n        if (left < h->size && h->data[left] < h->data[smallest]) smallest = left;\n        if (right < h->size && h->data[right] < h->data[smallest]) smallest = right;\n        \n        if (smallest != idx) {\n            swap(&h->data[idx], &h->data[smallest]);\n            idx = smallest;\n        } else {\n            break;\n        }\n    }\n}\n\nvoid insert(MinHeap *h, int val) {\n    if (h->size >= h->capacity) {\n        h->capacity *= 2;\n        h->data = (int *)realloc(h->data, sizeof(int) * h->capacity);\n    }\n    h->data[h->size] = val;\n    sift_up(h, h->size);\n    h->size++;\n}\n\nvoid extract_min(MinHeap *h) {\n    if (h->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    int min_val = h->data[0];\n    h->data[0] = h->data[h->size - 1];\n    h->size--;\n    sift_down(h, 0);\n    printf(\"%d\\n\", min_val);\n}\n\nvoid get_min(MinHeap *h) {\n    if (h->size == 0) {\n        printf(\"EMPTY\\n\");\n    } else {\n        printf(\"%d\\n\", h->data[0]);\n    }\n}\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    MinHeap *h = create_heap(1024);\n    \n    char cmd[32];\n    while (q--) {\n        scanf(\"%s\", cmd);\n        if (strcmp(cmd, \"insert\") == 0) {\n            int x;\n            scanf(\"%d\", &x);\n            insert(h, x);\n        } else if (strcmp(cmd, \"extractMin\") == 0) {\n            extract_min(h);\n        } else if (strcmp(cmd, \"getMin\") == 0) {\n            get_min(h);\n        } else if (strcmp(cmd, \"size\") == 0) {\n            printf(\"%d\\n\", h->size);\n        }\n    }\n    \n    free(h->data);\n    free(h);\n    return 0;\n}\n",
+    "hints": [
+      "In 0-indexed heap, parent = (idx - 1) / 2, left = 2*idx + 1, right = 2*idx + 2.",
+      "In sift_up, swap with parent while data[idx] < data[parent].",
+      "In extract_min, replace root data[0] with data[size - 1], decrement size, and sift_down from root.",
+      "In sift_down, find the smallest among idx, left, and right, and swap with smallest."
+    ],
+    "explanation": "A binary min-heap stores a complete binary tree compactly inside a contiguous array. By maintaining the heap-order property (each parent is smaller than or equal to both children), the minimum element is always accessible in O(1) at index 0. Insertion appends to the array and bubbles up in O(log N). Extraction replaces the root with the last element and bubbles down in O(log N).",
+    "time_complexity": "O(log n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Sifting down without checking if right child index is within heap bounds.",
+      "Attempting to extractMin or getMin on an empty heap without printing EMPTY.",
+      "Off-by-one errors in parent calculation: (idx - 1) / 2 vs idx / 2."
+    ],
+    "related_problems": [
+      "heap-sort-from-scratch",
+      "top-k-frequent-elements"
+    ],
+    "topic_slug": "heaps-hashing-tries",
+    "company_slugs": [
+      "amazon",
+      "google",
+      "facebook"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "7\ninsert 10\ninsert 5\ngetMin\nextractMin\ngetMin\nsize\nextractMin\n",
+        "expected_output": "5\n5\n10\n1\n10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard insert and extract sequence"
+      },
+      {
+        "input": "3\ngetMin\nextractMin\nsize\n",
+        "expected_output": "EMPTY\nEMPTY\n0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on empty heap"
+      },
+      {
+        "input": "6\ninsert 30\ninsert 20\ninsert 10\nextractMin\nextractMin\nextractMin\n",
+        "expected_output": "10\n20\n30\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Extract all elements in ascending order"
+      },
+      {
+        "input": "5\ninsert -5\ninsert -10\ngetMin\nsize\nextractMin\n",
+        "expected_output": "-10\n2\n-10\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Negative integers in min heap"
+      },
+      {
+        "input": "8\ninsert 1\nsize\nextractMin\nsize\nextractMin\ninsert 2\ngetMin\nsize\n",
+        "expected_output": "1\n1\n0\nEMPTY\n2\n1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Heap draining and reinsertion"
+      }
+    ]
+  },
+  {
+    "id": 131,
+    "title": "Heap Sort from Scratch",
+    "slug": "heap-sort-from-scratch",
+    "difficulty": "hard",
+    "description": "Implement the complete in-place **Heap Sort** algorithm from scratch in C without relying on any external library or helper functions.\n\nHeap sort organizes an array into a binary max-heap, then repeatedly removes the maximum element:\n1. **Build Heap**: Convert the arbitrary input array of $N$ integers into a max-heap in $O(N)$ time by applying `heapify` bottom-up starting at index $\\lfloor N/2 \\rfloor - 1$ down to index $0$. Print this intermediate array representation of the max-heap.\n2. **Sort**: Loop $i$ from $N - 1$ down to $1$. Swap the root $\\text{arr}[0]$ (the maximum of the remaining heap) with $\\text{arr}[i]$, decrement the active heap size to $i$, and call `heapify` on index $0$ to sift down the swapped element.\n\nPrint the array immediately after `buildHeap`, followed by the final array sorted in non-decreasing order.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers.",
+    "output_format": "Line 1: `Heap: <N space-separated integers>`\nLine 2: `Sorted: <N space-separated integers>`",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "6\n4 10 3 5 1 2\n",
+        "output": "Heap: 10 5 3 4 1 2\nSorted: 1 2 3 4 5 10\n",
+        "explanation": "Max-heap puts 10 at root. After successive extractions, sorted array is produced."
+      },
+      {
+        "input": "5\n9 4 7 1 2\n",
+        "output": "Heap: 9 4 7 1 2\nSorted: 1 2 4 7 9\n",
+        "explanation": "Array is already a max-heap; heap sort sorts it into ascending order."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement bottom-up buildHeap and heapSort from scratch\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid swap(int *a, int *b) {\n    int t = *a;\n    *a = *b;\n    *b = t;\n}\n\nvoid heapify(int *arr, int n, int i) {\n    int largest = i;\n    int left = 2 * i + 1;\n    int right = 2 * i + 2;\n    \n    if (left < n && arr[left] > arr[largest]) largest = left;\n    if (right < n && arr[right] > arr[largest]) largest = right;\n    \n    if (largest != i) {\n        swap(&arr[i], &arr[largest]);\n        heapify(arr, n, largest);\n    }\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    \n    for (int i = n / 2 - 1; i >= 0; i--) {\n        heapify(arr, n, i);\n    }\n    \n    printf(\"Heap: \");\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    \n    for (int i = n - 1; i > 0; i--) {\n        swap(&arr[0], &arr[i]);\n        heapify(arr, i, 0);\n    }\n    \n    printf(\"Sorted: \");\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    \n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Bottom-up heap construction starts at n / 2 - 1 down to 0.",
+      "heapify checks left (2*i + 1) and right (2*i + 2) children and swaps with the largest child.",
+      "During the extraction loop, swap arr[0] with arr[i] and pass i as the new heap size to heapify.",
+      "Handle N = 1 gracefully without executing the extraction loop."
+    ],
+    "explanation": "Heap sort is an elegant in-place comparison sort. Bottom-up heapify runs in linear time O(N) because the sum of depths across nodes is bounded by a convergent geometric series. In the extraction phase, N - 1 root deletions each take O(log N) time, guaranteeing overall O(N log N) runtime and O(1) auxiliary space.",
+    "time_complexity": "O(n log n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Passing N instead of i to heapify during extraction, corrupting already sorted elements.",
+      "Starting heapify from N - 1 (leaf nodes have no children to sift down).",
+      "Using min-heap for ascending sort, which requires O(N) extra space."
+    ],
+    "related_problems": [
+      "min-heap-implementation",
+      "top-k-frequent-elements"
+    ],
+    "topic_slug": "heaps-hashing-tries",
+    "company_slugs": [
+      "apple",
+      "microsoft",
+      "amazon"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6\n4 10 3 5 1 2\n",
+        "expected_output": "Heap: 10 5 3 4 1 2\nSorted: 1 2 3 4 5 10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 6-element heap sort"
+      },
+      {
+        "input": "5\n9 4 7 1 2\n",
+        "expected_output": "Heap: 9 4 7 1 2\nSorted: 1 2 4 7 9\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Already max-heap sorted"
+      },
+      {
+        "input": "1\n42\n",
+        "expected_output": "Heap: 42\nSorted: 42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "expected_output": "Heap: 5 4 3 1 2\nSorted: 1 2 3 4 5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Ascending sorted input into heap sort"
+      },
+      {
+        "input": "6\n-10 20 -30 40 -50 60\n",
+        "expected_output": "Heap: 60 40 20 -10 -50 -30\nSorted: -50 -30 -10 20 40 60\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Array containing negative integers"
+      }
+    ]
+  },
+  {
+    "id": 132,
+    "title": "Top K Frequent Elements",
+    "slug": "top-k-frequent-elements",
+    "difficulty": "very_hard",
+    "description": "Given an integer array of $N$ elements and an integer $K$, return the **$K$ most frequent elements** in the array.\n\n1. Count the frequency of each unique number using a hash table.\n2. Maintain a Min-Heap of size $K$ whose elements are pairs `(frequency, val)`. When the heap exceeds size $K$, pop the element with the lowest frequency. Alternatively, sort the unique frequency pairs.\n3. Output the $K$ elements in **descending order of frequency**. If two elements have the same frequency, break ties by placing the **smaller element value first**.\n\nYour solution must run in better than $O(N \\log N)$ time, ideally $O(N + U \\log K)$ where $U$ is the number of unique elements.",
+    "input_format": "Line 1: Two space-separated integers $N$ and $K$.\nLine 2: $N$ space-separated integers.",
+    "output_format": "Print the $K$ space-separated integers in descending order of frequency (tie-breaking with smaller values first).",
+    "constraints": "1 <= K <= number of unique elements <= N <= 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "6 2\n1 1 1 2 2 3\n",
+        "output": "1 2\n",
+        "explanation": "1 appears 3 times, 2 appears 2 times, 3 appears 1 time. The 2 most frequent are 1 and 2."
+      },
+      {
+        "input": "1 1\n1\n",
+        "output": "1\n",
+        "explanation": "1 is the only element."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Find Top K Frequent Elements\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct {\n    int val;\n    int count;\n} Pair;\n\ntypedef struct HashNode {\n    int val;\n    int count;\n    struct HashNode *next;\n} HashNode;\n\n#define HASH_SIZE 65536\nHashNode *table[HASH_SIZE];\n\nunsigned int hash_fn(int x) {\n    return ((unsigned int)x * 2654435761u) % HASH_SIZE;\n}\n\nvoid insert_hash(int val) {\n    unsigned int idx = hash_fn(val);\n    HashNode *curr = table[idx];\n    while (curr) {\n        if (curr->val == val) {\n            curr->count++;\n            return;\n        }\n        curr = curr->next;\n    }\n    HashNode *node = (HashNode *)malloc(sizeof(HashNode));\n    node->val = val;\n    node->count = 1;\n    node->next = table[idx];\n    table[idx] = node;\n}\n\nint compare_pairs(const void *a, const void *b) {\n    Pair *p1 = (Pair *)a;\n    Pair *p2 = (Pair *)b;\n    if (p1->count != p2->count) {\n        return p2->count - p1->count; // Descending by frequency\n    }\n    return p1->val - p2->val; // Ascending by val\n}\n\nint main(void) {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    \n    for (int i = 0; i < HASH_SIZE; i++) table[i] = NULL;\n    \n    for (int i = 0; i < n; i++) {\n        int x;\n        scanf(\"%d\", &x);\n        insert_hash(x);\n    }\n    \n    Pair *pairs = (Pair *)malloc(sizeof(Pair) * n);\n    int u_count = 0;\n    for (int i = 0; i < HASH_SIZE; i++) {\n        HashNode *curr = table[i];\n        while (curr) {\n            pairs[u_count].val = curr->val;\n            pairs[u_count].count = curr->count;\n            u_count++;\n            HashNode *prev = curr;\n            curr = curr->next;\n            free(prev);\n        }\n    }\n    \n    qsort(pairs, u_count, sizeof(Pair), compare_pairs);\n    \n    for (int i = 0; i < k; i++) {\n        printf(\"%d%c\", pairs[i].val, (i == k - 1) ? '\\n' : ' ');\n    }\n    \n    free(pairs);\n    return 0;\n}\n",
+    "hints": [
+      "Use a hash map to aggregate frequencies of each unique number in O(N).",
+      "Extract all (value, frequency) pairs from the hash map.",
+      "Sort or use a min-heap of size K with a custom comparator: higher frequency first; for equal frequencies, smaller value first.",
+      "Print the first K elements."
+    ],
+    "explanation": "Counting frequencies using a hash table takes O(N) expected time. Once aggregated into unique (element, frequency) pairs, sorting or using a min-heap orders elements by frequency descending. When two frequencies match, the tie-breaking condition selects the smaller element value. Total runtime is O(N + U log U) where U is the number of distinct elements, which is bounded by O(N log K) when using a heap.",
+    "time_complexity": "O(n + u log u)",
+    "space_complexity": "O(u)",
+    "common_mistakes": [
+      "Sorting the entire N-length array directly rather than the distinct element frequency pairs.",
+      "Inadequate hash table size leading to massive collisions and slow hashing.",
+      "Not handling negative integer keys in the hash function (causing negative array indexing)."
+    ],
+    "related_problems": [
+      "min-heap-implementation",
+      "frequency-map-counter"
+    ],
+    "topic_slug": "heaps-hashing-tries",
+    "company_slugs": [
+      "amazon",
+      "facebook",
+      "bloomberg",
+      "google"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6 2\n1 1 1 2 2 3\n",
+        "expected_output": "1 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard top 2 frequent"
+      },
+      {
+        "input": "1 1\n1\n",
+        "expected_output": "1\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "6 2\n1 2 3 4 5 6\n",
+        "expected_output": "1 2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All frequencies equal to 1 (tie broken by value ascending)"
+      },
+      {
+        "input": "7 3\n10 10 20 20 30 30 40\n",
+        "expected_output": "10 20 30\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple ties broken by smaller value"
+      },
+      {
+        "input": "5 1\n-5 -5 -5 10 10\n",
+        "expected_output": "-5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Negative numbers frequent element"
+      }
+    ]
+  },
+  {
+    "id": 133,
+    "title": "Hash Table with Chaining",
+    "slug": "hash-table-with-chaining",
+    "difficulty": "hard",
+    "description": "Implement a **Hash Table with Separate Chaining** in C to store integer `(key, value)` pairs.\n\nCollision resolution via separate chaining maintains a singly-linked list of key-value nodes at each bucket index $0 \\dots M - 1$. The hash index is determined by:\n$$\\text{index} = (\\text{abs}(key)) \\pmod M$$\n\nSupport three operations:\n1. `insert key val`: If `key` already exists in the bucket list, update its value to `val`. Otherwise, prepend a new node containing `(key, val)` to the head of the list at `table[index]`.\n2. `get key`: Search the bucket list for `key`. If found, print its value; otherwise, print `NOT_FOUND`.\n3. `delete key`: If `key` is present in the bucket list, remove its node from the linked list, free its memory, and print `DELETED`. If `key` is absent, print `NOT_FOUND`.",
+    "input_format": "The first line contains two integers $M$ (table size) and $Q$ (number of operations).\nThe next $Q$ lines each contain an operation command: `insert key val`, `get key`, or `delete key`.",
+    "output_format": "Print the result of each `get` and `delete` operation on a new line.",
+    "constraints": "1 <= M <= 10^4\n1 <= Q <= 10^5\n-10^9 <= key, val <= 10^9",
+    "examples": [
+      {
+        "input": "5 6\ninsert 1 100\ninsert 6 200\nget 1\nget 6\ndelete 1\nget 1\n",
+        "output": "100\n200\nDELETED\nNOT_FOUND\n",
+        "explanation": "Keys 1 and 6 both hash to bucket 1 (1 % 5 = 1, 6 % 5 = 1). Chaining resolves the collision. Deleting 1 leaves 6 intact."
+      },
+      {
+        "input": "3 3\nget 10\ndelete 10\nget 10\n",
+        "output": "NOT_FOUND\nNOT_FOUND\nNOT_FOUND\n",
+        "explanation": "Operations on missing key produce NOT_FOUND."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Node {\n    int key;\n    int val;\n    struct Node *next;\n} Node;\n\n// TODO: Implement Hash Table with Separate Chaining\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Node {\n    int key;\n    int val;\n    struct Node *next;\n} Node;\n\nint get_hash(int key, int m) {\n    long long k = key;\n    if (k < 0) k = -k;\n    return (int)(k % m);\n}\n\nint main(void) {\n    int m, q;\n    if (scanf(\"%d %d\", &m, &q) != 2) return 0;\n    \n    Node **table = (Node **)calloc(m, sizeof(Node *));\n    \n    char cmd[16];\n    while (q--) {\n        scanf(\"%s\", cmd);\n        if (strcmp(cmd, \"insert\") == 0) {\n            int k, v;\n            scanf(\"%d %d\", &k, &v);\n            int idx = get_hash(k, m);\n            Node *curr = table[idx];\n            int found = 0;\n            while (curr) {\n                if (curr->key == k) {\n                    curr->val = v;\n                    found = 1;\n                    break;\n                }\n                curr = curr->next;\n            }\n            if (!found) {\n                Node *new_node = (Node *)malloc(sizeof(Node));\n                new_node->key = k;\n                new_node->val = v;\n                new_node->next = table[idx];\n                table[idx] = new_node;\n            }\n        } else if (strcmp(cmd, \"get\") == 0) {\n            int k;\n            scanf(\"%d\", &k);\n            int idx = get_hash(k, m);\n            Node *curr = table[idx];\n            int found = 0;\n            while (curr) {\n                if (curr->key == k) {\n                    printf(\"%d\\n\", curr->val);\n                    found = 1;\n                    break;\n                }\n                curr = curr->next;\n            }\n            if (!found) {\n                printf(\"NOT_FOUND\\n\");\n            }\n        } else if (strcmp(cmd, \"delete\") == 0) {\n            int k;\n            scanf(\"%d\", &k);\n            int idx = get_hash(k, m);\n            Node *curr = table[idx];\n            Node *prev = NULL;\n            int deleted = 0;\n            while (curr) {\n                if (curr->key == k) {\n                    if (prev) {\n                        prev->next = curr->next;\n                    } else {\n                        table[idx] = curr->next;\n                    }\n                    free(curr);\n                    printf(\"DELETED\\n\");\n                    deleted = 1;\n                    break;\n                }\n                prev = curr;\n                curr = curr->next;\n            }\n            if (!deleted) {\n                printf(\"NOT_FOUND\\n\");\n            }\n        }\n    }\n    \n    for (int i = 0; i < m; i++) {\n        Node *curr = table[i];\n        while (curr) {\n            Node *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    free(table);\n    return 0;\n}\n",
+    "hints": [
+      "Use abs(key) % m or (key % m + m) % m to ensure non-negative bucket indices.",
+      "On insert, traverse the bucket list to see if the key already exists; update val if so, otherwise prepend to head.",
+      "On delete, maintain a prev pointer to splice out the matching node.",
+      "Remember to free() deallocated nodes."
+    ],
+    "explanation": "Separate chaining stores collisions in linked lists associated with each bucket. Average time complexity for insert, search, and delete is O(1 + alpha), where alpha = N / M is the load factor. Because each bucket is independent, chaining gracefully accommodates high load factors without abrupt performance collapse, though memory locality is inferior to open addressing.",
+    "time_complexity": "O(1) average",
+    "space_complexity": "O(n + m)",
+    "common_mistakes": [
+      "Failing to handle negative keys in C modulo: -7 % 5 returns -2 in C99, crashing array access.",
+      "Inserting duplicate key nodes instead of updating the existing key's value.",
+      "Corrupting the head pointer when deleting the very first node in a bucket list."
+    ],
+    "related_problems": [
+      "hash-table-open-addressing",
+      "frequency-map-counter"
+    ],
+    "topic_slug": "heaps-hashing-tries",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "microsoft"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5 6\ninsert 1 100\ninsert 6 200\nget 1\nget 6\ndelete 1\nget 1\n",
+        "expected_output": "100\n200\nDELETED\nNOT_FOUND\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Collision resolution via chaining and deletion"
+      },
+      {
+        "input": "3 3\nget 10\ndelete 10\nget 10\n",
+        "expected_output": "NOT_FOUND\nNOT_FOUND\nNOT_FOUND\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on non-existent keys"
+      },
+      {
+        "input": "4 4\ninsert 5 50\ninsert 5 100\nget 5\ndelete 5\n",
+        "expected_output": "100\nDELETED\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Update existing key value"
+      },
+      {
+        "input": "5 4\ninsert -5 99\nget -5\ndelete -5\nget -5\n",
+        "expected_output": "99\nDELETED\nNOT_FOUND\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Negative key handling"
+      },
+      {
+        "input": "2 6\ninsert 2 20\ninsert 4 40\ndelete 2\nget 4\ndelete 4\nget 2\n",
+        "expected_output": "DELETED\n40\nDELETED\nNOT_FOUND\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple keys in single bucket deleted in order"
+      }
+    ]
+  },
+  {
+    "id": 134,
+    "title": "Hash Table Open Addressing",
+    "slug": "hash-table-open-addressing",
+    "difficulty": "very_hard",
+    "description": "Implement a dynamically-sized **Hash Table using Open Addressing with Linear Probing** and **Lazy Deletion** in C.\n\nOpen addressing stores all entries directly inside an array of slots. Each slot is in one of three states:\n- `EMPTY`: Unoccupied, terminates probe sequences.\n- `OCCUPIED`: Contains an active `(key, val)` pair.\n- `TOMBSTONE`: Previously occupied but deleted. Searches continue probing past tombstones, but insertions may reuse tombstone slots.\n\n**Linear Probing**: The $i$-th probe slot for key $K$ is:\n$$\\text{slot}(K, i) = ((\\text{abs}(K)) + i) \\pmod{\\text{capacity}}$$\n\n**Rehashing**: When the load ratio $\\frac{\\text{occupied} + \\text{tombstones}}{\\text{capacity}} \\ge 0.7$, double the capacity (new capacity = $2 \\times$ old capacity), create a new table, rehash all active `OCCUPIED` entries, and discard all tombstones.\n\nSupport:\n- `insert key val`: Insert or update `val` for `key`.\n- `get key`: Print `val` or `NOT_FOUND`.\n- `delete key`: Mark as `TOMBSTONE`. Print `DELETED` or `NOT_FOUND`.",
+    "input_format": "The first line contains two integers: initial capacity $C$ and number of operations $Q$.\nThe next $Q$ lines each contain an operation command: `insert key val`, `get key`, or `delete key`.",
+    "output_format": "Print the result of each `get` and `delete` operation on a new line.",
+    "constraints": "2 <= C <= 1000\n1 <= Q <= 10^5\n-10^9 <= key, val <= 10^9",
+    "examples": [
+      {
+        "input": "4 6\ninsert 1 10\ninsert 5 50\nget 1\nget 5\ndelete 1\nget 5\n",
+        "output": "10\n50\nDELETED\n50\n",
+        "explanation": "Keys 1 and 5 collide at index 1. Linear probing places 5 at index 2. When 1 is deleted, it becomes a tombstone so get(5) continues probing to index 2."
+      },
+      {
+        "input": "2 3\nget 9\ndelete 9\nget 9\n",
+        "output": "NOT_FOUND\nNOT_FOUND\nNOT_FOUND\n",
+        "explanation": "Probing on empty slots yields NOT_FOUND."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n// TODO: Implement Open Addressing with Linear Probing and Rehashing\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef enum { EMPTY, OCCUPIED, TOMBSTONE } State;\n\ntypedef struct {\n    int key;\n    int val;\n    State state;\n} Slot;\n\ntypedef struct {\n    Slot *slots;\n    int capacity;\n    int occupied_count;\n    int tombstone_count;\n} HashTable;\n\nunsigned int hash_code(int key, int cap) {\n    long long k = key;\n    if (k < 0) k = -k;\n    return (unsigned int)(k % cap);\n}\n\nHashTable* create_table(int cap) {\n    HashTable *ht = (HashTable *)malloc(sizeof(HashTable));\n    ht->capacity = cap;\n    ht->occupied_count = 0;\n    ht->tombstone_count = 0;\n    ht->slots = (Slot *)calloc(cap, sizeof(Slot));\n    return ht;\n}\n\nvoid rehash(HashTable *ht) {\n    int old_cap = ht->capacity;\n    Slot *old_slots = ht->slots;\n    \n    ht->capacity = old_cap * 2;\n    ht->slots = (Slot *)calloc(ht->capacity, sizeof(Slot));\n    ht->occupied_count = 0;\n    ht->tombstone_count = 0;\n    \n    for (int i = 0; i < old_cap; i++) {\n        if (old_slots[i].state == OCCUPIED) {\n            int k = old_slots[i].key;\n            int v = old_slots[i].val;\n            unsigned int base = hash_code(k, ht->capacity);\n            for (int step = 0; step < ht->capacity; step++) {\n                int idx = (base + step) % ht->capacity;\n                if (ht->slots[idx].state == EMPTY) {\n                    ht->slots[idx].key = k;\n                    ht->slots[idx].val = v;\n                    ht->slots[idx].state = OCCUPIED;\n                    ht->occupied_count++;\n                    break;\n                }\n            }\n        }\n    }\n    free(old_slots);\n}\n\nvoid insert(HashTable *ht, int key, int val) {\n    // Check if key already exists\n    unsigned int base = hash_code(key, ht->capacity);\n    for (int step = 0; step < ht->capacity; step++) {\n        int idx = (base + step) % ht->capacity;\n        if (ht->slots[idx].state == OCCUPIED && ht->slots[idx].key == key) {\n            ht->slots[idx].val = val;\n            return;\n        }\n        if (ht->slots[idx].state == EMPTY) break;\n    }\n    \n    // Check load factor threshold: (occupied + tombstones + 1) / capacity >= 0.7\n    if ((double)(ht->occupied_count + ht->tombstone_count + 1) / ht->capacity >= 0.7) {\n        rehash(ht);\n        base = hash_code(key, ht->capacity);\n    }\n    \n    int first_tombstone = -1;\n    for (int step = 0; step < ht->capacity; step++) {\n        int idx = (base + step) % ht->capacity;\n        if (ht->slots[idx].state == TOMBSTONE && first_tombstone == -1) {\n            first_tombstone = idx;\n        }\n        if (ht->slots[idx].state == EMPTY) {\n            int target_idx = (first_tombstone != -1) ? first_tombstone : idx;\n            if (target_idx == first_tombstone) ht->tombstone_count--;\n            ht->slots[target_idx].key = key;\n            ht->slots[target_idx].val = val;\n            ht->slots[target_idx].state = OCCUPIED;\n            ht->occupied_count++;\n            return;\n        }\n    }\n    if (first_tombstone != -1) {\n        ht->slots[first_tombstone].key = key;\n        ht->slots[first_tombstone].val = val;\n        ht->slots[first_tombstone].state = OCCUPIED;\n        ht->tombstone_count--;\n        ht->occupied_count++;\n    }\n}\n\nvoid get(HashTable *ht, int key) {\n    unsigned int base = hash_code(key, ht->capacity);\n    for (int step = 0; step < ht->capacity; step++) {\n        int idx = (base + step) % ht->capacity;\n        if (ht->slots[idx].state == OCCUPIED && ht->slots[idx].key == key) {\n            printf(\"%d\\n\", ht->slots[idx].val);\n            return;\n        }\n        if (ht->slots[idx].state == EMPTY) {\n            printf(\"NOT_FOUND\\n\");\n            return;\n        }\n    }\n    printf(\"NOT_FOUND\\n\");\n}\n\nvoid delete_key(HashTable *ht, int key) {\n    unsigned int base = hash_code(key, ht->capacity);\n    for (int step = 0; step < ht->capacity; step++) {\n        int idx = (base + step) % ht->capacity;\n        if (ht->slots[idx].state == OCCUPIED && ht->slots[idx].key == key) {\n            ht->slots[idx].state = TOMBSTONE;\n            ht->occupied_count--;\n            ht->tombstone_count++;\n            printf(\"DELETED\\n\");\n            return;\n        }\n        if (ht->slots[idx].state == EMPTY) {\n            printf(\"NOT_FOUND\\n\");\n            return;\n        }\n    }\n    printf(\"NOT_FOUND\\n\");\n}\n\nint main(void) {\n    int cap, q;\n    if (scanf(\"%d %d\", &cap, &q) != 2) return 0;\n    HashTable *ht = create_table(cap);\n    \n    char cmd[16];\n    while (q--) {\n        scanf(\"%s\", cmd);\n        if (strcmp(cmd, \"insert\") == 0) {\n            int k, v;\n            scanf(\"%d %d\", &k, &v);\n            insert(ht, k, v);\n        } else if (strcmp(cmd, \"get\") == 0) {\n            int k;\n            scanf(\"%d\", &k);\n            get(ht, k);\n        } else if (strcmp(cmd, \"delete\") == 0) {\n            int k;\n            scanf(\"%d\", &k);\n            delete_key(ht, k);\n        }\n    }\n    \n    free(ht->slots);\n    free(ht);\n    return 0;\n}\n",
+    "hints": [
+      "Use three states: EMPTY, OCCUPIED, TOMBSTONE.",
+      "During get and delete, continue linear probing across TOMBSTONE slots; stop only at EMPTY.",
+      "During insert, record the first TOMBSTONE encountered to recycle the slot if key is not found.",
+      "Trigger rehash when (occupied + tombstones) / capacity >= 0.7."
+    ],
+    "explanation": "Open addressing eliminates pointer overhead and maximizes CPU cache efficiency. However, deleting an item cannot simply clear the slot to EMPTY, as doing so would prematurely terminate probe chains for subsequent keys that suffered collisions. Using tombstones preserves probe connectivity. When tombstones accumulate, rehashing to double capacity purges dead slots, resetting probe efficiency.",
+    "time_complexity": "O(1) amortized",
+    "space_complexity": "O(capacity)",
+    "common_mistakes": [
+      "Stopping search upon reaching a TOMBSTONE, causing lookups for collided elements to fail.",
+      "Not accounting for tombstones in the load factor, leading to infinite loops when all slots are tombstones.",
+      "Failing to update the value when re-inserting an existing key."
+    ],
+    "related_problems": [
+      "hash-table-with-chaining",
+      "frequency-map-counter"
+    ],
+    "topic_slug": "heaps-hashing-tries",
+    "company_slugs": [
+      "google",
+      "uber",
+      "bloomberg"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "4 6\ninsert 1 10\ninsert 5 50\nget 1\nget 5\ndelete 1\nget 5\n",
+        "expected_output": "10\n50\nDELETED\n50\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Linear probe collision and tombstone traversal"
+      },
+      {
+        "input": "2 3\nget 9\ndelete 9\nget 9\n",
+        "expected_output": "NOT_FOUND\nNOT_FOUND\nNOT_FOUND\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty table queries"
+      },
+      {
+        "input": "2 6\ninsert 1 10\ninsert 2 20\ninsert 3 30\nget 1\nget 2\nget 3\n",
+        "expected_output": "10\n20\n30\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Rehashing triggered by small initial capacity"
+      },
+      {
+        "input": "4 4\ninsert 10 100\ninsert 10 200\nget 10\ndelete 10\n",
+        "expected_output": "200\nDELETED\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Key update in open addressing"
+      },
+      {
+        "input": "4 6\ninsert 1 1\ndelete 1\ninsert 1 2\nget 1\ndelete 1\nget 1\n",
+        "expected_output": "DELETED\n2\nDELETED\nNOT_FOUND\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Reusing tombstone slot for identical key"
+      }
+    ]
+  },
+  {
+    "id": 135,
+    "title": "Frequency Map Counter",
+    "slug": "frequency-map-counter",
+    "difficulty": "medium",
+    "description": "Given a sequence of $N$ words (lowercase alphabetic strings of length up to 50), count the exact frequency of each unique word using a custom hash map in C.\n\nOutput each unique word followed by its total count in the exact order of their **first appearance** in the input:\n`<word>: <frequency>`\n\nTo achieve this:\n1. Implement a string hash function (such as the polynomial rolling hash `hash = (hash * 31 + c) % M`).\n2. Maintain an insertion-order list or record first-appearance index for each unique word.\n3. Upon encountering each word, search the hash table: if present, increment its frequency count; if absent, record the word, initialize its count to 1, and preserve its insertion order.",
+    "input_format": "The first line contains an integer $N$.\nThe next $N$ lines each contain a single lowercase word.",
+    "output_format": "For each unique word in order of first appearance, print `<word>: <count>` on a new line.",
+    "constraints": "1 <= N <= 20000\n1 <= length of word <= 50",
+    "examples": [
+      {
+        "input": "6\napple\nbanana\napple\norange\nbanana\napple\n",
+        "output": "apple: 3\nbanana: 2\norange: 1\n",
+        "explanation": "apple first appeared on line 1 (count 3). banana first appeared on line 2 (count 2). orange appeared on line 4 (count 1)."
+      },
+      {
+        "input": "3\ncat\ndog\nbird\n",
+        "output": "cat: 1\ndog: 1\nbird: 1\n",
+        "explanation": "All unique words with count 1 in order of first appearance."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n// TODO: Implement frequency map preserving insertion order\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define HASH_SIZE 32768\n\ntypedef struct Node {\n    char word[64];\n    int order_idx;\n    struct Node *next;\n} Node;\n\ntypedef struct {\n    char word[64];\n    int count;\n} Entry;\n\nNode *table[HASH_SIZE];\nEntry entries[20005];\nint unique_count = 0;\n\nunsigned int hash_str(const char *s) {\n    unsigned int h = 0;\n    while (*s) {\n        h = (h * 31) + (unsigned char)(*s);\n        s++;\n    }\n    return h % HASH_SIZE;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    for (int i = 0; i < HASH_SIZE; i++) table[i] = NULL;\n    \n    char word[64];\n    for (int i = 0; i < n; i++) {\n        scanf(\"%s\", word);\n        unsigned int idx = hash_str(word);\n        Node *curr = table[idx];\n        int found_idx = -1;\n        \n        while (curr) {\n            if (strcmp(curr->word, word) == 0) {\n                found_idx = curr->order_idx;\n                break;\n            }\n            curr = curr->next;\n        }\n        \n        if (found_idx != -1) {\n            entries[found_idx].count++;\n        } else {\n            int new_idx = unique_count++;\n            strcpy(entries[new_idx].word, word);\n            entries[new_idx].count = 1;\n            \n            Node *new_node = (Node *)malloc(sizeof(Node));\n            strcpy(new_node->word, word);\n            new_node->order_idx = new_idx;\n            new_node->next = table[idx];\n            table[idx] = new_node;\n        }\n    }\n    \n    for (int i = 0; i < unique_count; i++) {\n        printf(\"%s: %d\\n\", entries[i].word, entries[i].count);\n    }\n    \n    for (int i = 0; i < HASH_SIZE; i++) {\n        Node *curr = table[i];\n        while (curr) {\n            Node *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Use polynomial rolling hash: (h * 31 + c) % HASH_SIZE.",
+      "Separate chaining handles collisions between different strings.",
+      "Store newly seen words in an auxiliary array to preserve insertion order.",
+      "Store order_idx inside the hash table node to access its entry in O(1)."
+    ],
+    "explanation": "A standard hash map unordered structure loses insertion order. By maintaining an array of unique entries in the order they are first discovered, and storing the array index inside each hash table node, we achieve O(1) average lookup and insertion while preserving the exact original sequence of distinct words.",
+    "time_complexity": "O(n * l)",
+    "space_complexity": "O(u * l)",
+    "common_mistakes": [
+      "Iterating through the hash buckets to print results, which scrambles the insertion order.",
+      "Buffer overflow by allocating string buffers smaller than 51 bytes (including null terminator).",
+      "Using == to compare strings instead of strcmp()."
+    ],
+    "related_problems": [
+      "hash-table-with-chaining",
+      "top-k-frequent-elements"
+    ],
+    "topic_slug": "heaps-hashing-tries",
+    "company_slugs": [
+      "adobe",
+      "amazon",
+      "cisco"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "6\napple\nbanana\napple\norange\nbanana\napple\n",
+        "expected_output": "apple: 3\nbanana: 2\norange: 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard word frequency counting"
+      },
+      {
+        "input": "3\ncat\ndog\nbird\n",
+        "expected_output": "cat: 1\ndog: 1\nbird: 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "All unique words"
+      },
+      {
+        "input": "1\nhello\n",
+        "expected_output": "hello: 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single word input"
+      },
+      {
+        "input": "5\ntest\ntest\ntest\ntest\ntest\n",
+        "expected_output": "test: 5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All words identical"
+      },
+      {
+        "input": "4\na\nb\na\nc\n",
+        "expected_output": "a: 2\nb: 1\nc: 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Short single-letter strings"
+      }
+    ]
+  },
+  {
+    "id": 136,
+    "title": "Trie Insert and Search",
+    "slug": "trie-insert-and-search",
+    "difficulty": "hard",
+    "description": "Implement a **Trie (Prefix Tree)** data structure in C for efficient string retrieval of lowercase English words (`'a'` to `'z'`).\n\nA Trie node contains:\n- An array of 26 child pointers `children[26]`, initialized to `NULL`.\n- A boolean flag `is_end_of_word` indicating whether a complete word terminates at the current node.\n\nSupport three operations:\n1. `insert word`: Insert `word` into the Trie. For each character `c` in `word`, follow or create the child pointer at index `c - 'a'`. Mark `is_end_of_word = true` at the terminal character node.\n2. `search word`: Return `TRUE` if `word` exists in the Trie (i.e. every character matches and the final node has `is_end_of_word == true`), otherwise `FALSE`.\n3. `startsWith prefix`: Return `TRUE` if there is any previously inserted word that has `prefix` as a prefix (i.e. every character in `prefix` exists in the Trie, regardless of `is_end_of_word`), otherwise `FALSE`.",
+    "input_format": "The first line contains an integer $Q$ (number of operations).\nThe next $Q$ lines each contain an operation: `insert word`, `search word`, or `startsWith prefix`.",
+    "output_format": "For each `search` and `startsWith` query, print `TRUE` or `FALSE` on a new line.",
+    "constraints": "1 <= Q <= 10^5\n1 <= length of word, prefix <= 50\nAll strings consist only of lowercase English letters.",
+    "examples": [
+      {
+        "input": "5\ninsert apple\nsearch apple\nsearch app\nstartsWith app\ninsert app\n",
+        "output": "TRUE\nFALSE\nTRUE\n",
+        "explanation": "apple was inserted. search(app) returns FALSE because app is not marked as end of word. startsWith(app) returns TRUE."
+      },
+      {
+        "input": "3\nsearch code\nstartsWith co\nsearch c\n",
+        "output": "FALSE\nFALSE\nFALSE\n",
+        "explanation": "Queries on empty trie return FALSE."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n\ntypedef struct TrieNode {\n    struct TrieNode *children[26];\n    bool is_end_of_word;\n} TrieNode;\n\n// TODO: Implement insert, search, and startsWith\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n\ntypedef struct TrieNode {\n    struct TrieNode *children[26];\n    bool is_end_of_word;\n} TrieNode;\n\nTrieNode* create_node(void) {\n    TrieNode *node = (TrieNode *)malloc(sizeof(TrieNode));\n    node->is_end_of_word = false;\n    for (int i = 0; i < 26; i++) {\n        node->children[i] = NULL;\n    }\n    return node;\n}\n\nvoid insert(TrieNode *root, const char *word) {\n    TrieNode *curr = root;\n    while (*word) {\n        int idx = *word - 'a';\n        if (!curr->children[idx]) {\n            curr->children[idx] = create_node();\n        }\n        curr = curr->children[idx];\n        word++;\n    }\n    curr->is_end_of_word = true;\n}\n\nbool search(TrieNode *root, const char *word) {\n    TrieNode *curr = root;\n    while (*word) {\n        int idx = *word - 'a';\n        if (!curr->children[idx]) return false;\n        curr = curr->children[idx];\n        word++;\n    }\n    return curr != NULL && curr->is_end_of_word;\n}\n\nbool starts_with(TrieNode *root, const char *prefix) {\n    TrieNode *curr = root;\n    while (*prefix) {\n        int idx = *prefix - 'a';\n        if (!curr->children[idx]) return false;\n        curr = curr->children[idx];\n        prefix++;\n    }\n    return curr != NULL;\n}\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    TrieNode *root = create_node();\n    \n    char cmd[16], str[64];\n    while (q--) {\n        scanf(\"%s\", cmd);\n        if (strcmp(cmd, \"insert\") == 0) {\n            scanf(\"%s\", str);\n            insert(root, str);\n        } else if (strcmp(cmd, \"search\") == 0) {\n            scanf(\"%s\", str);\n            printf(\"%s\\n\", search(root, str) ? \"TRUE\" : \"FALSE\");\n        } else if (strcmp(cmd, \"startsWith\") == 0) {\n            scanf(\"%s\", str);\n            printf(\"%s\\n\", starts_with(root, str) ? \"TRUE\" : \"FALSE\");\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Map each lowercase character c to index c - 'a' (from 0 to 25).",
+      "In insert, create a new TrieNode if children[idx] is NULL.",
+      "search requires curr->is_end_of_word to be true at the final node.",
+      "startsWith only requires the entire prefix path to exist, regardless of is_end_of_word."
+    ],
+    "explanation": "A Trie provides O(L) lookup and insertion time, where L is the length of the string, completely independent of the total number of words in the dictionary. Common prefixes share nodes, saving space and enabling lightning-fast prefix validation.",
+    "time_complexity": "O(l)",
+    "space_complexity": "O(sigma * l * n)",
+    "common_mistakes": [
+      "Returning true in search when the prefix exists but is_end_of_word is false.",
+      "Not allocating child nodes with calloc or failing to initialize all 26 pointers to NULL.",
+      "Indexing array with negative values if uppercase or non-alphabetic characters appear."
+    ],
+    "related_problems": [
+      "trie-prefix-search",
+      "frequency-map-counter"
+    ],
+    "topic_slug": "heaps-hashing-tries",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "microsoft",
+      "twitter"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\ninsert apple\nsearch apple\nsearch app\nstartsWith app\ninsert app\n",
+        "expected_output": "TRUE\nFALSE\nTRUE\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Prefix vs full word search"
+      },
+      {
+        "input": "3\nsearch code\nstartsWith co\nsearch c\n",
+        "expected_output": "FALSE\nFALSE\nFALSE\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty trie queries"
+      },
+      {
+        "input": "6\ninsert a\nsearch a\nstartsWith a\nsearch b\ninsert ab\nsearch ab\n",
+        "expected_output": "TRUE\nTRUE\nFALSE\nTRUE\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single character words"
+      },
+      {
+        "input": "6\ninsert programming\nstartsWith prog\nstartsWith pro\nstartsWith gram\nsearch prog\nsearch programming\n",
+        "expected_output": "TRUE\nTRUE\nFALSE\nFALSE\nTRUE\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Long prefix checks"
+      },
+      {
+        "input": "4\ninsert tree\ninsert trie\nstartsWith tr\nsearch try\n",
+        "expected_output": "TRUE\nFALSE\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Diverging prefixes"
+      }
+    ]
+  },
+  {
+    "id": 137,
+    "title": "Trie Prefix Search",
+    "slug": "trie-prefix-search",
+    "difficulty": "very_hard",
+    "description": "Implement an auto-complete / prefix search engine using a **Trie** in C.\n\nGiven a dictionary of $N$ lowercase words and a query prefix string $P$:\n1. Insert all $N$ words into a Trie.\n2. Traverse the Trie to the end of prefix $P$. If the prefix path does not exist, print `NONE`.\n3. From the prefix node, perform a Depth-First Search (DFS) visiting child branches in alphabetical order (`'a'` through `'z'`) to collect all completed words that have $P$ as their prefix.\n4. Print each matching word on its own line in **lexicographical order**. If no words in the dictionary begin with $P$, print `NONE`.",
+    "input_format": "The first line contains an integer $N$.\nThe next $N$ lines each contain a single lowercase dictionary word.\nThe final line contains the query prefix $P$.",
+    "output_format": "Print all matching dictionary words in lexicographical order, one per line. If no word matches, print `NONE`.",
+    "constraints": "1 <= N <= 20000\n1 <= length of word, prefix <= 50\nAll strings consist only of lowercase English letters.",
+    "examples": [
+      {
+        "input": "5\ncat\ncater\ncar\ncart\ndog\nca\n",
+        "output": "car\ncart\ncat\ncater\n",
+        "explanation": "Words starting with 'ca' in alphabetical order: car, cart, cat, cater."
+      },
+      {
+        "input": "3\napple\napricot\navocado\nba\n",
+        "output": "NONE\n",
+        "explanation": "No words start with 'ba'."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n\ntypedef struct TrieNode {\n    struct TrieNode *children[26];\n    bool is_end_of_word;\n} TrieNode;\n\n// TODO: Build Trie and find all words matching prefix in alphabetical order\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n\ntypedef struct TrieNode {\n    struct TrieNode *children[26];\n    bool is_end_of_word;\n} TrieNode;\n\nTrieNode* create_node(void) {\n    TrieNode *node = (TrieNode *)malloc(sizeof(TrieNode));\n    node->is_end_of_word = false;\n    for (int i = 0; i < 26; i++) node->children[i] = NULL;\n    return node;\n}\n\nvoid insert(TrieNode *root, const char *word) {\n    TrieNode *curr = root;\n    while (*word) {\n        int idx = *word - 'a';\n        if (!curr->children[idx]) {\n            curr->children[idx] = create_node();\n        }\n        curr = curr->children[idx];\n        word++;\n    }\n    curr->is_end_of_word = true;\n}\n\nint match_count = 0;\nchar buffer[128];\n\nvoid dfs(TrieNode *node, int depth) {\n    if (!node) return;\n    if (node->is_end_of_word) {\n        buffer[depth] = '\\0';\n        printf(\"%s\\n\", buffer);\n        match_count++;\n    }\n    for (int i = 0; i < 26; i++) {\n        if (node->children[i]) {\n            buffer[depth] = 'a' + i;\n            dfs(node->children[i], depth + 1);\n        }\n    }\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    TrieNode *root = create_node();\n    \n    char word[64];\n    for (int i = 0; i < n; i++) {\n        scanf(\"%s\", word);\n        insert(root, word);\n    }\n    \n    char prefix[64];\n    scanf(\"%s\", prefix);\n    \n    TrieNode *curr = root;\n    int prefix_len = strlen(prefix);\n    strcpy(buffer, prefix);\n    \n    bool valid = true;\n    for (int i = 0; i < prefix_len; i++) {\n        int idx = prefix[i] - 'a';\n        if (!curr->children[idx]) {\n            valid = false;\n            break;\n        }\n        curr = curr->children[idx];\n    }\n    \n    if (!valid || !curr) {\n        printf(\"NONE\\n\");\n        return 0;\n    }\n    \n    dfs(curr, prefix_len);\n    if (match_count == 0) {\n        printf(\"NONE\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Walk down the Trie along the prefix characters.",
+      "If any character node is NULL along the prefix, print NONE immediately.",
+      "From the prefix end node, run DFS exploring children 0 through 25 to ensure alphabetical ordering.",
+      "Maintain a character buffer during DFS to reconstruct the matched words."
+    ],
+    "explanation": "Finding words with a given prefix using a Trie isolates the subtree containing only candidate matches in O(P) time. A subsequent DFS across alphabetical child branches visits every match in sorted order. Total time complexity is O(P + M), where P is the prefix length and M is the total characters across all matching words, far outperforming linear scans through the dictionary.",
+    "time_complexity": "O(p + m)",
+    "space_complexity": "O(sigma * l * n)",
+    "common_mistakes": [
+      "Iterating children in unordered or reverse order, violating the lexicographical requirement.",
+      "Forgetting to check if the prefix itself is a valid word (is_end_of_word == true at the prefix node).",
+      "Not handling the case where prefix path exists but has no completed words beneath it."
+    ],
+    "related_problems": [
+      "trie-insert-and-search",
+      "frequency-map-counter"
+    ],
+    "topic_slug": "heaps-hashing-tries",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "amazon"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\ncat\ncater\ncar\ncart\ndog\nca\n",
+        "expected_output": "car\ncart\ncat\ncater\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Prefix matching multiple words in alphabetical order"
+      },
+      {
+        "input": "3\napple\napricot\navocado\nba\n",
+        "expected_output": "NONE\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "No words matching prefix"
+      },
+      {
+        "input": "2\napp\napple\napp\n",
+        "expected_output": "app\napple\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Prefix is itself a dictionary word"
+      },
+      {
+        "input": "1\nhello\nhello\n",
+        "expected_output": "hello\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Exact match single word"
+      },
+      {
+        "input": "4\nzone\nzoo\nzebra\nzen\nz\n",
+        "expected_output": "zebra\nzen\nzone\nzoo\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Single-letter prefix matching all words in alphabetical order"
+      }
+    ]
+  }
+]

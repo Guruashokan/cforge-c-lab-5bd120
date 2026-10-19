@@ -1,0 +1,1128 @@
+[
+  {
+    "id": 148,
+    "title": "Fibonacci with Memoization",
+    "slug": "fibonacci-with-memoization",
+    "difficulty": "medium",
+    "description": "The Fibonacci sequence is defined by the linear recurrence relation $F(0) = 0$, $F(1) = 1$, and $F(n) = F(n-1) + F(n-2)$ for $n \\ge 2$. A naive recursive implementation exhibits exponential time complexity $O(2^n)$ because overlapping subproblems are recalculated an exponential number of times. For example, computing $F(5)$ repeatedly re-evaluates $F(3)$, $F(2)$, and $F(1)$.\n\nTo solve this efficiently, implement top-down dynamic programming with memoization. In this approach, a memoization array stores previously computed values so that every Fibonacci subproblem is computed at most once. When $F(n)$ is queried, the function first checks if the value is already present in the lookup table. If present, it returns immediately in $O(1)$ time; otherwise, it computes the sum of the two preceding terms recursively, caches the result, and returns it.\n\nGiven an integer $N$ ($0 \\le N \\le 90$), compute and output $F(N)$. Because the values grow rapidly and exceed the 32-bit signed integer limit around $N = 47$, you must use 64-bit unsigned integers (`unsigned long long` in C) to prevent arithmetic overflow.",
+    "input_format": "A single line containing an integer N (0 <= N <= 90).",
+    "output_format": "Print the N-th Fibonacci number as an unsigned 64-bit integer, followed by a newline.",
+    "constraints": "0 <= N <= 90",
+    "examples": [
+      {
+        "input": "10\n",
+        "output": "55\n",
+        "explanation": "The 10th Fibonacci number is 55 (sequence: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55)."
+      },
+      {
+        "input": "0\n",
+        "output": "0\n",
+        "explanation": "F(0) is by definition 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\n// TODO: Define memoization table and top-down fib function\n// Use unsigned long long to avoid overflow for N up to 90\n\nunsigned long long fib(int n, unsigned long long memo[]) {\n    // Write your code here\n    return 0;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Initialize memoization table and call fib\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic unsigned long long memo[95];\nstatic int computed[95];\n\nunsigned long long fib(int n) {\n    if (n <= 0) return 0ULL;\n    if (n == 1) return 1ULL;\n    if (computed[n]) return memo[n];\n    \n    memo[n] = fib(n - 1) + fib(n - 2);\n    computed[n] = 1;\n    return memo[n];\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    printf(\"%llu\\n\", fib(n));\n    return 0;\n}\n",
+    "hints": [
+      "Use an array or lookup table initialized to record whether each state F(k) has already been computed.",
+      "Base cases are n = 0 returning 0 and n = 1 returning 1.",
+      "Standard 32-bit signed integers overflow at F(47). Use 'unsigned long long' and '%llu' format specifier."
+    ],
+    "explanation": "Naive recursive calculation has an execution tree of size O(2^n). By saving the result of each subproblem in a memoization array of size N+1, each distinct state from 0 to N is evaluated only once, transforming the time complexity into O(N). Space complexity is O(N) for the memoization table and the recursion stack.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Using 32-bit signed 'int' which overflows at F(47), yielding incorrect or negative results.",
+      "Forgetting to mark base cases or omitting the check against already computed memo entries, causing exponential recursion."
+    ],
+    "related_problems": [
+      "climbing-stairs",
+      "coin-change-problem"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "microsoft",
+      "meta"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "10\n",
+        "expected_output": "55\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard small Fibonacci number"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Lower bound base case N=0"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Base case N=1"
+      },
+      {
+        "input": "2\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Small Fibonacci number N=2"
+      },
+      {
+        "input": "45\n",
+        "expected_output": "1134903170\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Moderate Fibonacci number requiring 32-bit unsigned range"
+      },
+      {
+        "input": "90\n",
+        "expected_output": "2880067194370816120\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Upper bound N=90 requiring 64-bit unsigned integer"
+      }
+    ]
+  },
+  {
+    "id": 149,
+    "title": "Climbing Stairs",
+    "slug": "climbing-stairs",
+    "difficulty": "medium",
+    "description": "You are climbing a staircase that has $N$ steps to reach the top. Each time you take a step, you can choose to climb either $1$ step or $2$ steps. In how many distinct ways can you climb to the top of the staircase?\n\nNotice the optimal substructure of the problem: to reach step $i$, you must have come from either step $i - 1$ (by taking a 1-step leap) or from step $i - 2$ (by taking a 2-step leap). Therefore, the number of distinct ways to reach step $i$ satisfies the linear recurrence relation $Ways(i) = Ways(i - 1) + Ways(i - 2)$ with base cases $Ways(1) = 1$ and $Ways(2) = 2$.\n\nGiven $N$, compute the total number of distinct ways to reach the top. Since $N$ can be up to $100,000$, the answer can become exceedingly large. You must compute the result modulo $1,000,000,007$ ($10^9 + 7$). Implement your solution using dynamic programming with $O(1)$ auxiliary space.",
+    "input_format": "A single line containing an integer N (1 <= N <= 100000).",
+    "output_format": "Print a single integer representing the number of distinct ways to climb N stairs modulo 1000000007.",
+    "constraints": "1 <= N <= 100000",
+    "examples": [
+      {
+        "input": "2\n",
+        "output": "2\n",
+        "explanation": "There are 2 ways: (1 step + 1 step) or (2 steps)."
+      },
+      {
+        "input": "3\n",
+        "output": "3\n",
+        "explanation": "There are 3 ways: (1 + 1 + 1), (1 + 2), or (2 + 1)."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\n#define MOD 1000000007\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Write your dynamic programming solution here\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\n#define MOD 1000000007\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    if (n <= 1) {\n        printf(\"1\\n\");\n        return 0;\n    }\n    \n    long long prev2 = 1; // ways(0)\n    long long prev1 = 1; // ways(1)\n    long long current = 1;\n    \n    for (int i = 2; i <= n; i++) {\n        current = (prev1 + prev2) % MOD;\n        prev2 = prev1;\n        prev1 = current;\n    }\n    \n    printf(\"%lld\\n\", current);\n    return 0;\n}\n",
+    "hints": [
+      "Think about the last step taken: if you took 1 step, you arrived from n-1; if you took 2 steps, you arrived from n-2.",
+      "This mirrors the Fibonacci sequence with shifted base cases: ways(1) = 1, ways(2) = 2, ways(3) = 3.",
+      "Keep track of only the previous two states to achieve O(1) space, and apply the modulo operation at every addition."
+    ],
+    "explanation": "Let DP[i] be the number of ways to reach step i. The recurrence relation is DP[i] = (DP[i-1] + DP[i-2]) % MOD. Because each state DP[i] only depends on the previous two states, we do not need to store an entire array of size 100,000; two variables suffice, reducing memory to O(1) space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Allocating a large array without freeing or exceeding stack limits when N is 100,000.",
+      "Failing to apply modulo 10^9+7 at each addition, resulting in signed integer overflow.",
+      "Incorrect handling of base case N=1."
+    ],
+    "related_problems": [
+      "fibonacci-with-memoization",
+      "coin-change-problem"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "amazon",
+      "apple",
+      "adobe",
+      "google"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "2\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small test case N=2"
+      },
+      {
+        "input": "3\n",
+        "expected_output": "3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small test case N=3"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Minimum boundary N=1"
+      },
+      {
+        "input": "4\n",
+        "expected_output": "5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Small test case N=4"
+      },
+      {
+        "input": "10\n",
+        "expected_output": "89\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Moderate test case N=10"
+      },
+      {
+        "input": "100000\n",
+        "expected_output": "782204094\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Maximum constraint N=100000 with modulo arithmetic"
+      }
+    ]
+  },
+  {
+    "id": 150,
+    "title": "Coin Change Problem",
+    "slug": "coin-change-problem",
+    "difficulty": "hard",
+    "description": "You are given an array of $N$ coin denominations and an integer $amount$ representing a total amount of currency. You need to determine the minimum number of coins required to make up that exact amount. If that amount cannot be formed by any combination of the given coins, return $-1$.\n\nYou may assume that you have an infinite quantity of each coin denomination available. This is the classical Unbounded Knapsack problem variation. A greedy approach (always choosing the largest denomination available) fails for arbitrary coin systems (for example, with coins $\\{1, 3, 4\\}$ and amount $6$, greedy picks $4 + 1 + 1 = 3$ coins, whereas the optimal combination is $3 + 3 = 2$ coins).\n\nTo find the globally optimal solution, formulate a dynamic programming table `dp` where `dp[i]` represents the minimum number of coins needed to make up amount $i$. Initialize `dp[0] = 0` and all other entries to infinity. For each coin $c$ and each amount $j$ from $c$ up to $amount$, update `dp[j] = min(dp[j], dp[j - c] + 1)`. Output the result stored in `dp[amount]`.",
+    "input_format": "The first line contains two integers: N (the number of coin denominations) and amount (0 <= amount <= 10000). The second line contains N space-separated positive integers representing the coin denominations (1 <= coins[i] <= 10000).",
+    "output_format": "Print a single integer representing the minimum coins needed to make up the amount, or -1 if impossible.",
+    "constraints": "1 <= N <= 100, 0 <= amount <= 10000, 1 <= coins[i] <= 10000",
+    "examples": [
+      {
+        "input": "3 11\n1 2 5\n",
+        "output": "3\n",
+        "explanation": "11 can be made using 5 + 5 + 1 (3 coins)."
+      },
+      {
+        "input": "1 3\n2\n",
+        "output": "-1\n",
+        "explanation": "It is impossible to make amount 3 using only denomination 2."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n#define INF 1000000000\n\nint main(void) {\n    int n, amount;\n    if (scanf(\"%d %d\", &n, &amount) != 2) return 0;\n    \n    // Write your dynamic programming solution here\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\n#define INF 1000000000\n\nint main(void) {\n    int n, amount;\n    if (scanf(\"%d %d\", &n, &amount) != 2) return 0;\n    \n    int *coins = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &coins[i]);\n    }\n    \n    int *dp = (int *)malloc((amount + 1) * sizeof(int));\n    for (int i = 0; i <= amount; i++) {\n        dp[i] = INF;\n    }\n    dp[0] = 0;\n    \n    for (int i = 0; i < n; i++) {\n        int c = coins[i];\n        for (int j = c; j <= amount; j++) {\n            if (dp[j - c] != INF && dp[j - c] + 1 < dp[j]) {\n                dp[j] = dp[j - c] + 1;\n            }\n        }\n    }\n    \n    if (dp[amount] >= INF) {\n        printf(\"-1\\n\");\n    } else {\n        printf(\"%d\\n\", dp[amount]);\n    }\n    \n    free(coins);\n    free(dp);\n    return 0;\n}\n",
+    "hints": [
+      "Greedy fails on canonical counterexamples; use bottom-up dynamic programming.",
+      "Initialize dp[0] = 0 and all other amounts from 1 to amount with infinity (e.g. 1e9).",
+      "For each coin denomination, loop forwards from coin value to amount to allow reusing coins infinitely."
+    ],
+    "explanation": "We use a 1D DP table where dp[j] holds the minimum coins for amount j. We initialize dp[0] = 0 and all other entries to INF. For each coin, iterating from coin value up to amount ensures unbounded reuse. If dp[amount] remains INF, no combination was possible, so we return -1.",
+    "time_complexity": "O(N * amount)",
+    "space_complexity": "O(amount)",
+    "common_mistakes": [
+      "Attempting a greedy choice by sorting coins descending, which fails on non-canonical currency systems.",
+      "Failing to handle amount = 0 correctly, which requires 0 coins.",
+      "Using INT_MAX as infinity and causing integer overflow upon adding 1."
+    ],
+    "related_problems": [
+      "zero-one-knapsack",
+      "partition-equal-subset-sum"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "uber",
+      "bloomberg"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "3 11\n1 2 5\n",
+        "expected_output": "3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard coin change case"
+      },
+      {
+        "input": "1 3\n2\n",
+        "expected_output": "-1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Impossible amount with given coins"
+      },
+      {
+        "input": "1 0\n1\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Zero amount base case"
+      },
+      {
+        "input": "4 63\n1 5 10 25\n",
+        "expected_output": "6\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "US coin denominations for 63 cents"
+      },
+      {
+        "input": "3 7\n2 4 6\n",
+        "expected_output": "-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Odd amount with strictly even coins"
+      },
+      {
+        "input": "5 1000\n1 5 10 20 50\n",
+        "expected_output": "20\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Large amount requiring multiple large denominations"
+      }
+    ]
+  },
+  {
+    "id": 151,
+    "title": "0/1 Knapsack",
+    "slug": "zero-one-knapsack",
+    "difficulty": "hard",
+    "description": "You are given $N$ items, each having an integer weight and an associated value. You are also given a knapsack with a maximum carrying weight capacity of $W$. You cannot break an item into fractional parts; each item must either be placed into the knapsack in its entirety or left behind (the 0/1 decision property).\n\nDetermine the maximum total value of items that you can pack into the knapsack without exceeding its weight capacity $W$.\n\nBecause a greedy selection based on value or value-to-weight ratio does not yield an optimal solution when fractions are prohibited, dynamic programming is required. In the 2D formulation, $DP[i][w]$ represents the maximum value achievable considering the first $i$ items with capacity $w$. However, by traversing the capacity backwards from $W$ down to the current item's weight, we can compress the space complexity into a single 1D array of size $W + 1$. Each state transition either leaves out the item ($DP[w]$ remains unchanged) or includes the item ($DP[w - weight] + value$), taking the maximum of both.",
+    "input_format": "The first line contains two integers: N (the number of items, 1 <= N <= 1000) and W (the knapsack capacity, 1 <= W <= 1000). The next N lines each contain two integers: weight and value of the i-th item (1 <= weight <= 1000, 1 <= value <= 10000).",
+    "output_format": "Print a single integer representing the maximum total value that can be achieved without exceeding capacity W.",
+    "constraints": "1 <= N <= 1000, 1 <= W <= 1000, 1 <= weight <= 1000, 1 <= value <= 10000",
+    "examples": [
+      {
+        "input": "3 4\n1 1500\n3 2000\n4 3000\n",
+        "output": "3500\n",
+        "explanation": "Select items 1 and 2 with weights 1 and 3 (total weight 4) for value 1500 + 2000 = 3500."
+      },
+      {
+        "input": "4 5\n2 3\n3 4\n4 5\n5 6\n",
+        "output": "7\n",
+        "explanation": "Select items 1 and 2 with weights 2 and 3 (total weight 5) for value 3 + 4 = 7."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n, w;\n    if (scanf(\"%d %d\", &n, &w) != 2) return 0;\n    \n    // Implement 0/1 knapsack dynamic programming\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n, w;\n    if (scanf(\"%d %d\", &n, &w) != 2) return 0;\n    \n    int *dp = (int *)calloc(w + 1, sizeof(int));\n    if (!dp) return 1;\n    \n    for (int i = 0; i < n; i++) {\n        int wt, val;\n        scanf(\"%d %d\", &wt, &val);\n        for (int j = w; j >= wt; j--) {\n            if (dp[j - wt] + val > dp[j]) {\n                dp[j] = dp[j - wt] + val;\n            }\n        }\n    }\n    \n    printf(\"%d\\n\", dp[w]);\n    free(dp);\n    return 0;\n}\n",
+    "hints": [
+      "In 0/1 Knapsack each item can be selected at most once.",
+      "When using a 1D array DP[j], loop j backwards from W down to the item's weight to ensure an item is not counted multiple times.",
+      "The recurrence is DP[j] = max(DP[j], DP[j - weight] + value)."
+    ],
+    "explanation": "We use a 1D array dp of size W + 1 initialized to 0. For each item with weight wt and value val, we iterate j from W down to wt. Traversing backwards ensures that dp[j - wt] comes from the previous item iteration, preventing an item from being used more than once.",
+    "time_complexity": "O(N * W)",
+    "space_complexity": "O(W)",
+    "common_mistakes": [
+      "Iterating j forwards from wt to W, which turns the problem into Unbounded Knapsack where items can be picked infinitely.",
+      "Allocating a large 2D matrix on the call stack exceeding stack limits (prefer 1D space optimization or heap allocation)."
+    ],
+    "related_problems": [
+      "partition-equal-subset-sum",
+      "coin-change-problem"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "facebook",
+      "google",
+      "amazon",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3 4\n1 1500\n3 2000\n4 3000\n",
+        "expected_output": "3500\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 3 items example"
+      },
+      {
+        "input": "4 5\n2 3\n3 4\n4 5\n5 6\n",
+        "expected_output": "7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Four items with capacity 5"
+      },
+      {
+        "input": "1 10\n15 100\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single item with weight exceeding capacity"
+      },
+      {
+        "input": "1 10\n10 100\n",
+        "expected_output": "100\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single item weight exactly matching capacity"
+      },
+      {
+        "input": "5 10\n2 6\n2 10\n3 12\n4 15\n5 20\n",
+        "expected_output": "47\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple items with varying density"
+      },
+      {
+        "input": "6 20\n5 10\n4 40\n6 30\n3 50\n2 20\n7 60\n",
+        "expected_output": "180\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Complex knapsack instance"
+      }
+    ]
+  },
+  {
+    "id": 152,
+    "title": "Longest Common Subsequence",
+    "slug": "longest-common-subsequence",
+    "difficulty": "hard",
+    "description": "Given two strings $text1$ and $text2$, find the length of their longest common subsequence (LCS). A subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters. For example, `\"ace\"` is a subsequence of `\"abcde\"` while `\"aec\"` is not.\n\nA common subsequence of two strings is a subsequence that appears in both strings. If there is no common subsequence, return $0$.\n\nThe classical dynamic programming formulation defines a 2D matrix $DP[i][j]$ as the length of the LCS between the prefix $text1[0..i-1]$ and $text2[0..j-1]$.\n- If $text1[i - 1] == text2[j - 1]$, then $DP[i][j] = 1 + DP[i - 1][j - 1]$ because the matching character extends the longest subsequence found so far.\n- If they do not match, the character at index $i-1$ of $text1$ and the character at index $j-1$ of $text2$ cannot both be part of the optimal match simultaneously, so $DP[i][j] = \\max(DP[i - 1][j], DP[i][j - 1])$.\n\nRead two strings from input (each up to 1000 characters in length) and print the length of their LCS.",
+    "input_format": "Two lines, each containing a single non-empty string consisting only of lowercase English letters (1 <= length <= 1000).",
+    "output_format": "Print a single integer representing the length of the longest common subsequence.",
+    "constraints": "1 <= length(text1), length(text2) <= 1000",
+    "examples": [
+      {
+        "input": "abcde\nace\n",
+        "output": "3\n",
+        "explanation": "The longest common subsequence is 'ace' and its length is 3."
+      },
+      {
+        "input": "abc\nabc\n",
+        "output": "3\n",
+        "explanation": "The strings are identical, so the LCS is 'abc' with length 3."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n#define MAXL 1005\n\nint main(void) {\n    char text1[MAXL], text2[MAXL];\n    if (scanf(\"%1004s\", text1) != 1) return 0;\n    if (scanf(\"%1004s\", text2) != 1) return 0;\n    \n    // Implement LCS dynamic programming\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\n#define MAXL 1005\n\nstatic int dp[MAXL][MAXL];\n\nint main(void) {\n    char s1[MAXL], s2[MAXL];\n    if (scanf(\"%1004s\", s1) != 1) return 0;\n    if (scanf(\"%1004s\", s2) != 1) return 0;\n    \n    int len1 = (int)strlen(s1);\n    int len2 = (int)strlen(s2);\n    \n    for (int i = 1; i <= len1; i++) {\n        for (int j = 1; j <= len2; j++) {\n            if (s1[i - 1] == s2[j - 1]) {\n                dp[i][j] = dp[i - 1][j - 1] + 1;\n            } else {\n                int up = dp[i - 1][j];\n                int left = dp[i][j - 1];\n                dp[i][j] = (up > left) ? up : left;\n            }\n        }\n    }\n    \n    printf(\"%d\\n\", dp[len1][len2]);\n    return 0;\n}\n",
+    "hints": [
+      "Construct a 2D table dp[i][j] where i represents the length of prefix of s1 and j represents the prefix of s2.",
+      "When characters match (s1[i-1] == s2[j-1]), take 1 + dp[i-1][j-1].",
+      "When characters differ, take the maximum of skipping a character from s1 (dp[i-1][j]) or s2 (dp[i][j-1])."
+    ],
+    "explanation": "We construct a 2D DP table of dimensions (len1 + 1) x (len2 + 1). If s1[i-1] == s2[j-1], dp[i][j] = 1 + dp[i-1][j-1]. Otherwise, dp[i][j] = max(dp[i-1][j], dp[i][j-1]). The bottom-right cell dp[len1][len2] gives the final answer.",
+    "time_complexity": "O(len1 * len2)",
+    "space_complexity": "O(len1 * len2)",
+    "common_mistakes": [
+      "Confusing subsequence with substring (substring requires characters to be contiguous).",
+      "Index mismatch when accessing 0-indexed string characters inside a 1-indexed DP table.",
+      "Off-by-one errors in table bounds."
+    ],
+    "related_problems": [
+      "edit-distance",
+      "longest-increasing-subsequence"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "amazon",
+      "apple"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "abcde\nace\n",
+        "expected_output": "3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard LCS case"
+      },
+      {
+        "input": "abc\nabc\n",
+        "expected_output": "3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Identical strings"
+      },
+      {
+        "input": "abc\ndef\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Completely disjoint strings"
+      },
+      {
+        "input": "a\na\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single character identical strings"
+      },
+      {
+        "input": "aggtab\ngxtxayb\n",
+        "expected_output": "4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Classic textbook test case (gtab)"
+      },
+      {
+        "input": "dynamicprogramming\nalgorithmandprogramming\n",
+        "expected_output": "14\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Longer string test case"
+      }
+    ]
+  },
+  {
+    "id": 153,
+    "title": "Longest Increasing Subsequence",
+    "slug": "longest-increasing-subsequence",
+    "difficulty": "hard",
+    "description": "Given an integer array $nums$, find the length of the longest strictly increasing subsequence. A subsequence is derived from an array by deleting some or no elements without changing the order of the remaining elements.\n\nWhile an intuitive dynamic programming approach checks all previous elements in $O(N^2)$ time, this quadratic complexity times out when $N = 100,000$. You must implement the optimal $O(N \\log N)$ patience sorting algorithm with binary search.\n\nMaintain an auxiliary array `tails` where `tails[i]` stores the smallest tail of all increasing subsequences of length $i + 1$ discovered so far. For each number $x$ in the input array:\n1. Use binary search (`lower_bound`) to locate the first element in `tails` that is greater than or equal to $x$.\n2. If such an element is found at index $idx$, update `tails[idx] = x`, which reduces the tail value for an increasing subsequence of length $idx + 1$, making it easier for future elements to extend it.\n3. If no such element exists, $x$ extends the longest subsequence found so far, so append $x$ to `tails`.\n\nThe length of the `tails` array at the end of the scan is the length of the longest strictly increasing subsequence.",
+    "input_format": "The first line contains an integer N (1 <= N <= 100000). The second line contains N space-separated integers (-10^9 <= nums[i] <= 10^9).",
+    "output_format": "Print a single integer representing the length of the longest strictly increasing subsequence.",
+    "constraints": "1 <= N <= 100000, -10^9 <= nums[i] <= 10^9",
+    "examples": [
+      {
+        "input": "8\n10 9 2 5 3 7 101 18\n",
+        "output": "4\n",
+        "explanation": "The longest increasing subsequence is [2, 3, 7, 101] or [2, 5, 7, 18], with length 4."
+      },
+      {
+        "input": "6\n0 1 0 3 2 3\n",
+        "output": "4\n",
+        "explanation": "The longest increasing subsequence is [0, 1, 2, 3], with length 4."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// Binary search helper: lower_bound\nint lower_bound(int arr[], int len, int val) {\n    // Write binary search here\n    return 0;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Implement O(N log N) patience sorting algorithm\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint lower_bound(int arr[], int len, int val) {\n    int low = 0, high = len;\n    while (low < high) {\n        int mid = low + (high - low) / 2;\n        if (arr[mid] >= val) {\n            high = mid;\n        } else {\n            low = mid + 1;\n        }\n    }\n    return low;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int *tails = (int *)malloc(n * sizeof(int));\n    if (!tails) return 1;\n    \n    int len = 0;\n    for (int i = 0; i < n; i++) {\n        int x;\n        scanf(\"%d\", &x);\n        int idx = lower_bound(tails, len, x);\n        tails[idx] = x;\n        if (idx == len) {\n            len++;\n        }\n    }\n    \n    printf(\"%d\\n\", len);\n    free(tails);\n    return 0;\n}\n",
+    "hints": [
+      "An O(N^2) solution will get Time Limit Exceeded. You must achieve O(N log N).",
+      "Maintain an array `tails` where `tails[i]` stores the smallest ending element among all increasing subsequences of length i+1.",
+      "Use binary search (`lower_bound`) because the `tails` array is strictly sorted at all times."
+    ],
+    "explanation": "Patience sorting builds subsequences greedily. The tails array is always strictly sorted. For each number x, finding the first element >= x via binary search takes O(log N). Updating or appending takes O(1). Across N elements, overall time is O(N log N) and space is O(N).",
+    "time_complexity": "O(n log n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Implementing O(N^2) DP which times out for N = 100,000.",
+      "Using upper_bound instead of lower_bound; upper_bound allows non-decreasing subsequences rather than strictly increasing.",
+      "Assuming the tails array itself represents the actual LIS sequence (it only stores minimal tails, but its length is exact)."
+    ],
+    "related_problems": [
+      "longest-common-subsequence",
+      "edit-distance"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "amazon",
+      "facebook"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "8\n10 9 2 5 3 7 101 18\n",
+        "expected_output": "4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard example with mixed numbers"
+      },
+      {
+        "input": "6\n0 1 0 3 2 3\n",
+        "expected_output": "4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Example with duplicates and resets"
+      },
+      {
+        "input": "7\n7 7 7 7 7 7 7\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All identical elements (strictly increasing means length 1)"
+      },
+      {
+        "input": "5\n5 4 3 2 1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Strictly decreasing array"
+      },
+      {
+        "input": "6\n1 3 6 7 9 41\n",
+        "expected_output": "6\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Already strictly increasing array"
+      },
+      {
+        "input": "10\n10 22 9 33 21 50 41 60 80 1\n",
+        "expected_output": "6\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Ten elements with peaks and valleys"
+      }
+    ]
+  },
+  {
+    "id": 154,
+    "title": "Edit Distance",
+    "slug": "edit-distance",
+    "difficulty": "very_hard",
+    "description": "Given two strings $word1$ and $word2$, calculate the minimum number of operations required to convert $word1$ to $word2$. You have three permitted operations on a word:\n1. **Insert** a character\n2. **Delete** a character\n3. **Replace** a character\n\nThis classic dynamic programming problem, also known as the Levenshtein distance, is widely used in computational biology for DNA alignment, spell checking, and NLP.\n\nLet $DP[i][j]$ denote the minimum edit distance between the prefix $word1[0..i-1]$ and $word2[0..j-1]$.\n- Base cases: converting an empty string to a string of length $j$ requires $j$ insertions ($DP[0][j] = j$). Converting a string of length $i$ to an empty string requires $i$ deletions ($DP[i][0] = i$).\n- If $word1[i-1] == word2[j-1]$, no operation is needed for the current position, so $DP[i][j] = DP[i-1][j-1]$.\n- Otherwise, we take the minimum of the three operations plus 1:\n  - Deletion: $DP[i-1][j] + 1$\n  - Insertion: $DP[i][j-1] + 1$\n  - Replacement: $DP[i-1][j-1] + 1$\n\nRead two strings from input (each up to 1000 characters) and output the minimum edit distance.",
+    "input_format": "Two lines. The first line contains word1, and the second line contains word2 (0 <= length <= 1000). Either string may be empty.",
+    "output_format": "Print a single integer representing the minimum edit distance.",
+    "constraints": "0 <= length(word1), length(word2) <= 1000",
+    "examples": [
+      {
+        "input": "horse\nros\n",
+        "output": "3\n",
+        "explanation": "horse -> rorse (replace 'h' with 'r') -> rose (remove 'r') -> ros (remove 'e')."
+      },
+      {
+        "input": "intention\nexecution\n",
+        "output": "5\n",
+        "explanation": "intention -> inention (remove 't') -> enention (replace 'i' with 'e') -> exention (replace 'n' with 'x') -> exection (replace 'n' with 'c') -> execution (insert 'u')."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n#define MAXL 1005\n\nint main(void) {\n    char s1[MAXL] = \"\";\n    char s2[MAXL] = \"\";\n    // Note: Strings may be empty or contain letters\n    \n    // Implement Levenshtein edit distance DP\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\n#define MAXL 1005\n\nstatic int dp[MAXL][MAXL];\n\nstatic inline int min3(int a, int b, int c) {\n    int m = a;\n    if (b < m) m = b;\n    if (c < m) m = c;\n    return m;\n}\n\nstatic void trim_newline(char *s) {\n    size_t len = strlen(s);\n    while (len > 0 && (s[len - 1] == '\\n' || s[len - 1] == '\\r')) {\n        s[len - 1] = '\\0';\n        len--;\n    }\n}\n\nint main(void) {\n    char s1[MAXL] = \"\";\n    char s2[MAXL] = \"\";\n    \n    if (fgets(s1, sizeof(s1), stdin)) trim_newline(s1);\n    if (fgets(s2, sizeof(s2), stdin)) trim_newline(s2);\n    \n    int len1 = (int)strlen(s1);\n    int len2 = (int)strlen(s2);\n    \n    for (int i = 0; i <= len1; i++) dp[i][0] = i;\n    for (int j = 0; j <= len2; j++) dp[0][j] = j;\n    \n    for (int i = 1; i <= len1; i++) {\n        for (int j = 1; j <= len2; j++) {\n            if (s1[i - 1] == s2[j - 1]) {\n                dp[i][j] = dp[i - 1][j - 1];\n            } else {\n                dp[i][j] = 1 + min3(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);\n            }\n        }\n    }\n    \n    printf(\"%d\\n\", dp[len1][len2]);\n    return 0;\n}\n",
+    "hints": [
+      "Use dynamic programming where dp[i][j] is the distance between word1[0..i-1] and word2[0..j-1].",
+      "Be sure to initialize base cases: dp[i][0] = i and dp[0][j] = j.",
+      "If characters match, dp[i][j] = dp[i-1][j-1]; otherwise take 1 + min(insert, delete, replace)."
+    ],
+    "explanation": "A 2D DP array dp[i][j] stores the edit distance between word1 of length i and word2 of length j. If s1[i-1] == s2[j-1], no edit is needed, so dp[i][j] = dp[i-1][j-1]. Otherwise, we take the minimum of dp[i-1][j] (deletion), dp[i][j-1] (insertion), and dp[i-1][j-1] (replacement) plus 1.",
+    "time_complexity": "O(len1 * len2)",
+    "space_complexity": "O(len1 * len2)",
+    "common_mistakes": [
+      "Forgetting to trim newline characters when using fgets, causing phantom mismatches.",
+      "Failing to initialize the base cases dp[i][0] = i and dp[0][j] = j.",
+      "Off-by-one errors in array indexing."
+    ],
+    "related_problems": [
+      "longest-common-subsequence",
+      "matrix-chain-multiplication"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "amazon",
+      "uber"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "horse\nros\n",
+        "expected_output": "3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Classic horse to ros test case"
+      },
+      {
+        "input": "intention\nexecution\n",
+        "expected_output": "5\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Multi-operation conversion"
+      },
+      {
+        "input": "\na\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty string to single character"
+      },
+      {
+        "input": "abc\nabc\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Identical strings requiring 0 operations"
+      },
+      {
+        "input": "kitten\nsitting\n",
+        "expected_output": "3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Kitten to sitting standard case"
+      },
+      {
+        "input": "sunday\nsaturday\n",
+        "expected_output": "3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Sunday to saturday standard case"
+      }
+    ]
+  },
+  {
+    "id": 155,
+    "title": "Matrix Chain Multiplication",
+    "slug": "matrix-chain-multiplication",
+    "difficulty": "very_hard",
+    "description": "Given a sequence of $N$ matrices $A_1, A_2, \\dots, A_N$, find the most efficient order to parenthesize and multiply them together. The objective is not to actually compute the matrix product, but to determine the parenthesization that minimizes the total count of scalar multiplications.\n\nMultiplying two matrices of dimensions $p \\times q$ and $q \\times r$ requires $p \\times q \\times r$ scalar multiplications. Because matrix multiplication is associative, $(A_1 A_2) A_3$ and $A_1 (A_2 A_3)$ yield the identical result, but their computational cost may differ dramatically. For example, if dimensions are $10 \\times 100$, $100 \\times 5$, and $5 \\times 50$:\n- $((A_1 A_2) A_3)$ takes $(10 \\times 100 \\times 5) + (10 \\times 5 \\times 50) = 5000 + 2500 = 7500$ multiplications.\n- $(A_1 (A_2 A_3))$ takes $(100 \\times 5 \\times 50) + (10 \\times 100 \\times 50) = 25000 + 50000 = 75000$ multiplications (10x slower!).\n\nGiven the dimension array $p$ where matrix $A_i$ has dimension $p[i-1] \\times p[i]$ for $1 \\le i \\le N$, use interval dynamic programming to find the minimum scalar multiplications. Let $M[i][j]$ be the minimum cost to multiply matrices from $i$ to $j$. For each chain length $L$ from 2 to $N$, compute $M[i][j] = \\min_{i \\le k < j} (M[i][k] + M[k+1][j] + p[i-1] \\cdot p[k] \\cdot p[j])$. Output the result as a 64-bit integer (`unsigned long long`).",
+    "input_format": "The first line contains an integer N (1 <= N <= 100). The second line contains N + 1 space-separated positive integers representing array p (1 <= p[i] <= 1000).",
+    "output_format": "Print a single 64-bit integer representing the minimum number of scalar multiplications.",
+    "constraints": "1 <= N <= 100, 1 <= p[i] <= 1000",
+    "examples": [
+      {
+        "input": "3\n10 20 30 40\n",
+        "output": "18000\n",
+        "explanation": "Matrix dimensions are 10x20, 20x30, 30x40. Optimal parenthesization ((A1 A2) A3) costs (10*20*30) + (10*30*40) = 6000 + 12000 = 18000."
+      },
+      {
+        "input": "4\n40 20 30 10 30\n",
+        "output": "26000\n",
+        "explanation": "Optimal parenthesization costs 26000 scalar multiplications."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <limits.h>\n\n#define MAXN 105\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Implement interval dynamic programming for MCM\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <limits.h>\n\n#define MAXN 105\n\nstatic unsigned long long dp[MAXN][MAXN];\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int p[MAXN];\n    for (int i = 0; i <= n; i++) {\n        scanf(\"%d\", &p[i]);\n    }\n    \n    for (int i = 1; i <= n; i++) {\n        dp[i][i] = 0;\n    }\n    \n    for (int len = 2; len <= n; len++) {\n        for (int i = 1; i <= n - len + 1; i++) {\n            int j = i + len - 1;\n            dp[i][j] = ULLONG_MAX;\n            for (int k = i; k < j; k++) {\n                unsigned long long cost = dp[i][k] + dp[k + 1][j] + (unsigned long long)p[i - 1] * p[k] * p[j];\n                if (cost < dp[i][j]) {\n                    dp[i][j] = cost;\n                }\n            }\n        }\n    }\n    \n    printf(\"%llu\\n\", dp[1][n]);\n    return 0;\n}\n",
+    "hints": [
+      "Use interval DP: iterate over chain length L from 2 to N, then start index i.",
+      "For each interval [i, j], try every split point k from i to j - 1.",
+      "Cost of split at k is dp[i][k] + dp[k+1][j] + p[i-1] * p[k] * p[j]."
+    ],
+    "explanation": "We use interval dynamic programming where states represent subchains of matrices. We solve smaller chains first (length 2, 3, ..., N). For any chain from i to j, we test every possible split point k from i to j - 1. Computing the subproblems bottom-up guarantees subchain costs are available in O(1) time.",
+    "time_complexity": "O(N^3)",
+    "space_complexity": "O(N^2)",
+    "common_mistakes": [
+      "Iterating indices in arbitrary order instead of strictly by chain length, which references uncalculated subproblems.",
+      "32-bit integer overflow when multiplying dimensions and accumulating costs for chains of 100 matrices.",
+      "Incorrect indexing between matrix number (1 to N) and dimension array p (0 to N)."
+    ],
+    "related_problems": [
+      "edit-distance",
+      "longest-common-subsequence"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "adobe",
+      "cisco"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3\n10 20 30 40\n",
+        "expected_output": "18000\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 3 matrices test"
+      },
+      {
+        "input": "4\n40 20 30 10 30\n",
+        "expected_output": "26000\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 4 matrices test"
+      },
+      {
+        "input": "1\n10 20\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single matrix (0 multiplications needed)"
+      },
+      {
+        "input": "2\n10 50 20\n",
+        "expected_output": "10000\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Two matrices product"
+      },
+      {
+        "input": "4\n10 100 5 50 1\n",
+        "expected_output": "1650\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Heavily skewed matrix dimensions"
+      },
+      {
+        "input": "5\n5 10 3 12 5 50\n",
+        "expected_output": "4050\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Five matrices chain"
+      }
+    ]
+  },
+  {
+    "id": 156,
+    "title": "Activity Selection",
+    "slug": "activity-selection",
+    "difficulty": "medium",
+    "description": "You are given $N$ activities with their respective start times and finish times. A single resource (e.g. a conference room or a single person) can only perform one activity at a time. Two activities $i$ and $j$ are compatible if they do not overlap, meaning the start time of one is greater than or equal to the finish time of the other ($start_j \\ge finish_i$).\n\nFind the maximum number of mutually compatible activities that can be selected.\n\nThe Activity Selection Problem is a classic problem demonstrating the greedy choice property. The optimal greedy strategy is:\n1. Sort all activities in non-decreasing order of their finish times.\n2. Select the first activity (which finishes earliest, leaving the maximum amount of remaining time for future activities).\n3. For each subsequent activity in sorted order, if its start time is greater than or equal to the finish time of the previously chosen activity, select it and update the last finish time.\n\nBecause greedy choice always leaves the maximal remaining time window open, it provably yields an optimal subset of non-overlapping intervals in $O(N \\log N)$ sorting time.",
+    "input_format": "The first line contains an integer N (1 <= N <= 100000). The next N lines each contain two space-separated integers: start and finish (0 <= start < finish <= 10^9).",
+    "output_format": "Print a single integer representing the maximum number of mutually compatible activities.",
+    "constraints": "1 <= N <= 100000, 0 <= start < finish <= 10^9",
+    "examples": [
+      {
+        "input": "6\n1 2\n3 4\n0 6\n5 7\n8 9\n5 9\n",
+        "output": "4\n",
+        "explanation": "A person can perform 4 activities: (1, 2), (3, 4), (5, 7), (8, 9)."
+      },
+      {
+        "input": "3\n10 20\n12 25\n20 30\n",
+        "output": "2\n",
+        "explanation": "Activities (10, 20) and (20, 30) can be performed since finish time equals start time."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct {\n    int start;\n    int finish;\n} Activity;\n\n// Compare function for qsort\nint compare(const void *a, const void *b) {\n    // Write comparator here\n    return 0;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Implement greedy activity selection\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct {\n    int start;\n    int finish;\n} Activity;\n\nstatic int compare(const void *a, const void *b) {\n    const Activity *actA = (const Activity *)a;\n    const Activity *actB = (const Activity *)b;\n    if (actA->finish != actB->finish) {\n        return (actA->finish < actB->finish) ? -1 : 1;\n    }\n    return (actA->start < actB->start) ? -1 : 1;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    Activity *arr = (Activity *)malloc(n * sizeof(Activity));\n    if (!arr) return 1;\n    \n    for (int i = 0; i < n; i++) {\n        scanf(\"%d %d\", &arr[i].start, &arr[i].finish);\n    }\n    \n    qsort(arr, n, sizeof(Activity), compare);\n    \n    int count = 0;\n    int last_finish = -1;\n    for (int i = 0; i < n; i++) {\n        if (arr[i].start >= last_finish) {\n            count++;\n            last_finish = arr[i].finish;\n        }\n    }\n    \n    printf(\"%d\\n\", count);\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Sort activities by their finish times in ascending order.",
+      "Always pick the activity that finishes earliest among all remaining compatible activities.",
+      "An activity is compatible if its start time >= finish time of the last chosen activity."
+    ],
+    "explanation": "Sorting activities by finish time takes O(N log N). A single linear pass through the sorted array selects the activity whenever its start time >= last_finish, updating last_finish. This greedy choice guarantees the maximum number of activities.",
+    "time_complexity": "O(n log n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Sorting by start time or duration instead of finish time, which does not guarantee the optimal greedy choice.",
+      "Subtle overflow bugs when writing comparator as (actA->finish - actB->finish) with values up to 10^9.",
+      "Strict inequality check (> instead of >=) when start time equals finish time."
+    ],
+    "related_problems": [
+      "interval-scheduling-weighted",
+      "climbing-stairs"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "facebook",
+      "google",
+      "microsoft",
+      "amazon"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6\n1 2\n3 4\n0 6\n5 7\n8 9\n5 9\n",
+        "expected_output": "4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard textbook activity selection test"
+      },
+      {
+        "input": "3\n10 20\n12 25\n20 30\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Boundary touch where finish == start"
+      },
+      {
+        "input": "1\n1 5\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single activity"
+      },
+      {
+        "input": "4\n1 10\n2 3\n4 5\n6 7\n",
+        "expected_output": "3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "One long activity containing three smaller ones"
+      },
+      {
+        "input": "5\n1 3\n2 5\n4 7\n6 9\n8 10\n",
+        "expected_output": "3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Alternating overlapping intervals"
+      },
+      {
+        "input": "5\n0 10\n1 9\n2 8\n3 7\n4 6\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All activities mutually overlap (concentric intervals)"
+      }
+    ]
+  },
+  {
+    "id": 157,
+    "title": "Interval Scheduling",
+    "slug": "interval-scheduling-weighted",
+    "difficulty": "hard",
+    "description": "You are given $N$ jobs, where each job is represented by a start time, a finish time, and a profit: $(start_i, finish_i, profit_i)$. No two scheduled jobs may overlap in time (a job may start at the exact moment another ends, i.e., $start_j \\ge finish_i$). Find the maximum total profit you can achieve.\n\nUnlike the unweighted activity selection problem which can be solved with a simple greedy rule, weighted interval scheduling requires dynamic programming combined with binary search.\n1. Sort all jobs by their finish times in non-decreasing order.\n2. For each job $i$, find the latest job $j < i$ that does not conflict with job $i$ ($finish_j \\le start_i$). Using binary search, this lookup takes $O(\\log N)$ time.\n3. Define the recurrence relation: $DP[i] = \\max(DP[i - 1], profit_i + DP[j])$, where $DP[i-1]$ represents omitting job $i$, and $profit_i + DP[j]$ represents scheduling job $i$ alongside the optimal subset of compatible preceding jobs.\n\nGiven up to $50,000$ jobs, output the maximum achievable profit as a 64-bit integer (`long long`).",
+    "input_format": "The first line contains an integer N (1 <= N <= 50000). The next N lines each contain three space-separated integers: start, finish, and profit (0 <= start < finish <= 10^9, 1 <= profit <= 10^9).",
+    "output_format": "Print a single 64-bit integer representing the maximum total profit.",
+    "constraints": "1 <= N <= 50000, 0 <= start < finish <= 10^9, 1 <= profit <= 10^9",
+    "examples": [
+      {
+        "input": "4\n1 2 50\n3 5 20\n6 19 100\n2 100 200\n",
+        "output": "250\n",
+        "explanation": "Jobs 1 and 4 can be chosen for profit 50 + 200 = 250."
+      },
+      {
+        "input": "3\n1 3 50\n2 4 10\n3 5 40\n",
+        "output": "90\n",
+        "explanation": "Jobs 1 and 3 can be scheduled with no overlap for profit 50 + 40 = 90."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct {\n    long long start;\n    long long finish;\n    long long profit;\n} Job;\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Implement weighted interval scheduling with DP + binary search\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct {\n    long long start;\n    long long finish;\n    long long profit;\n} Job;\n\nstatic int compare(const void *a, const void *b) {\n    const Job *j1 = (const Job *)a;\n    const Job *j2 = (const Job *)b;\n    if (j1->finish != j2->finish) {\n        return (j1->finish < j2->finish) ? -1 : 1;\n    }\n    return (j1->start < j2->start) ? -1 : 1;\n}\n\nstatic int find_last_compatible(Job jobs[], int i) {\n    int low = 0, high = i - 1;\n    int res = -1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (jobs[mid].finish <= jobs[i].start) {\n            res = mid;\n            low = mid + 1;\n        } else {\n            high = mid - 1;\n        }\n    }\n    return res;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    Job *jobs = (Job *)malloc(n * sizeof(Job));\n    if (!jobs) return 1;\n    \n    for (int i = 0; i < n; i++) {\n        scanf(\"%lld %lld %lld\", &jobs[i].start, &jobs[i].finish, &jobs[i].profit);\n    }\n    \n    qsort(jobs, n, sizeof(Job), compare);\n    \n    long long *dp = (long long *)malloc(n * sizeof(long long));\n    if (!dp) return 1;\n    \n    dp[0] = jobs[0].profit;\n    for (int i = 1; i < n; i++) {\n        long long incl = jobs[i].profit;\n        int l = find_last_compatible(jobs, i);\n        if (l != -1) {\n            incl += dp[l];\n        }\n        dp[i] = (incl > dp[i - 1]) ? incl : dp[i - 1];\n    }\n    \n    printf(\"%lld\\n\", dp[n - 1]);\n    \n    free(jobs);\n    free(dp);\n    return 0;\n}\n",
+    "hints": [
+      "Sort jobs by finish time in ascending order.",
+      "For each job i, use binary search to find the latest non-conflicting job with finish <= job[i].start.",
+      "Recurrence is dp[i] = max(dp[i-1], job[i].profit + dp[compatible_idx]). Use 64-bit integers for profit."
+    ],
+    "explanation": "Sorting jobs takes O(N log N). For each job i, binary search on the sorted finish times identifies the last non-overlapping job in O(log N). Storing max profit up to i in DP gives an overall runtime of O(N log N). Profits can reach 50,000 * 10^9, so 64-bit integers are required.",
+    "time_complexity": "O(n log n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Using 32-bit int which overflows when summing large profits.",
+      "Linear search for the non-conflicting job, resulting in O(N^2) time and timeout.",
+      "Incorrect binary search condition: non-overlapping allows finish <= start."
+    ],
+    "related_problems": [
+      "activity-selection",
+      "zero-one-knapsack"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "google",
+      "bloomberg",
+      "amazon",
+      "facebook"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "4\n1 2 50\n3 5 20\n6 19 100\n2 100 200\n",
+        "expected_output": "250\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 4 jobs example"
+      },
+      {
+        "input": "3\n1 3 50\n2 4 10\n3 5 40\n",
+        "expected_output": "90\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Boundary touch where finish == start"
+      },
+      {
+        "input": "1\n1 5 100\n",
+        "expected_output": "100\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single job"
+      },
+      {
+        "input": "3\n1 10 50\n2 3 20\n4 5 20\n",
+        "expected_output": "50\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Single high-value job spanning smaller ones"
+      },
+      {
+        "input": "4\n1 4 30\n3 6 50\n5 9 60\n7 10 40\n",
+        "expected_output": "90\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple overlapping chain intervals"
+      },
+      {
+        "input": "5\n1 2 5\n2 3 6\n3 4 5\n4 5 4\n1 5 25\n",
+        "expected_output": "25\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Long spanning job with profit higher than combined individual jobs"
+      }
+    ]
+  },
+  {
+    "id": 158,
+    "title": "Minimum Path Sum in Grid",
+    "slug": "minimum-path-sum-in-grid",
+    "difficulty": "hard",
+    "description": "Given an $M \\times N$ grid filled with non-negative integers, find a path from the top-left cell $(0, 0)$ to the bottom-right cell $(M-1, N-1)$ that minimizes the sum of all numbers along its path.\n\nYou may only move either down or right at any point in time. Because each step must either move right or down, the total length of any valid path is fixed at $(M - 1) + (N - 1)$ steps.\n\nTo find the minimum sum path efficiently:\n1. Let $DP[i][j]$ represent the minimum cost to reach cell $(i, j)$ from $(0, 0)$.\n2. The starting cell cost is simply $DP[0][0] = grid[0][0]$.\n3. For the first row, cells can only be reached from the left: $DP[0][j] = DP[0][j - 1] + grid[0][j]$.\n4. For the first column, cells can only be reached from above: $DP[i][0] = DP[i - 1][0] + grid[i][0]$.\n5. For all other cells $(i, j)$, $DP[i][j] = grid[i][j] + \\min(DP[i - 1][j], DP[i][j - 1])$.\n\nOptimize the space complexity to $O(N)$ by using a 1D DP row, updating values in-place as each row of the grid is processed. Output the minimum path sum as a 64-bit integer.",
+    "input_format": "The first line contains two integers: M (rows) and N (columns), where 1 <= M, N <= 500. The next M lines each contain N space-separated non-negative integers representing the grid cells (0 <= grid[i][j] <= 1000).",
+    "output_format": "Print a single 64-bit integer representing the minimum path sum from (0,0) to (M-1,N-1).",
+    "constraints": "1 <= M, N <= 500, 0 <= grid[i][j] <= 1000",
+    "examples": [
+      {
+        "input": "3 3\n1 3 1\n1 5 1\n4 2 1\n",
+        "output": "7\n",
+        "explanation": "Path 1 -> 3 -> 1 -> 1 -> 1 minimizes the sum to 7."
+      },
+      {
+        "input": "2 3\n1 2 3\n4 5 6\n",
+        "output": "12\n",
+        "explanation": "Path 1 -> 2 -> 3 -> 6 gives the minimum sum of 12."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int m, n;\n    if (scanf(\"%d %d\", &m, &n) != 2) return 0;\n    \n    // Implement grid dynamic programming for minimum path sum\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int m, n;\n    if (scanf(\"%d %d\", &m, &n) != 2) return 0;\n    \n    long long *dp = (long long *)malloc(n * sizeof(long long));\n    if (!dp) return 1;\n    \n    for (int i = 0; i < m; i++) {\n        for (int j = 0; j < n; j++) {\n            long long val;\n            scanf(\"%lld\", &val);\n            if (i == 0 && j == 0) {\n                dp[j] = val;\n            } else if (i == 0) {\n                dp[j] = dp[j - 1] + val;\n            } else if (j == 0) {\n                dp[j] = dp[j] + val;\n            } else {\n                long long from_above = dp[j];\n                long long from_left = dp[j - 1];\n                dp[j] = ((from_above < from_left) ? from_above : from_left) + val;\n            }\n        }\n    }\n    \n    printf(\"%lld\\n\", dp[n - 1]);\n    free(dp);\n    return 0;\n}\n",
+    "hints": [
+      "You can only arrive at cell (i, j) from above (i-1, j) or from left (i, j-1).",
+      "Base cases are the first row (only moves from left) and first column (only moves from above).",
+      "Compress DP state to a single row array of size N to achieve O(N) space."
+    ],
+    "explanation": "We can compress the M x N table into a 1D array of size N. As we iterate through row i, dp[j] represents the cost from above before being updated, and dp[j-1] represents the cost from the left. Taking the minimum of the two and adding the current cell cost computes the optimal path.",
+    "time_complexity": "O(M * N)",
+    "space_complexity": "O(N)",
+    "common_mistakes": [
+      "Allocating a large 500x500 2D array on the stack which may risk stack overflow in limited environments.",
+      "Forgetting to handle the first row and first column where moves are restricted to one direction only.",
+      "Using 32-bit int instead of long long when grid cells accumulate."
+    ],
+    "related_problems": [
+      "climbing-stairs",
+      "edit-distance"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "apple",
+      "bloomberg"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "3 3\n1 3 1\n1 5 1\n4 2 1\n",
+        "expected_output": "7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 3x3 grid"
+      },
+      {
+        "input": "2 3\n1 2 3\n4 5 6\n",
+        "expected_output": "12\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 2x3 grid"
+      },
+      {
+        "input": "1 1\n42\n",
+        "expected_output": "42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "1x1 grid"
+      },
+      {
+        "input": "1 4\n1 2 3 4\n",
+        "expected_output": "10\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single row grid"
+      },
+      {
+        "input": "4 1\n5\n10\n15\n20\n",
+        "expected_output": "50\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single column grid"
+      },
+      {
+        "input": "3 3\n1 9 9\n1 9 9\n1 1 1\n",
+        "expected_output": "5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Path along the outer edge (down then right)"
+      }
+    ]
+  },
+  {
+    "id": 159,
+    "title": "Partition Equal Subset Sum",
+    "slug": "partition-equal-subset-sum",
+    "difficulty": "very_hard",
+    "description": "Given an array of $N$ positive integers $nums$, determine whether the array can be partitioned into two disjoint subsets such that the sum of elements in both subsets is strictly equal.\n\nThis is a decision variant of the Subset Sum Problem, which is known to be NP-complete. However, it can be solved in pseudo-polynomial time using dynamic programming:\n1. Compute the total sum $S$ of all elements in the array.\n2. If $S$ is odd, it is mathematically impossible to divide an odd total into two integers with equal sums, so output `NO`.\n3. If $S$ is even, the target sum for each subset is $target = S / 2$. The question now reduces to: does there exist a subset of $nums$ whose sum equals $target$?\n4. Let $DP[j]$ be a boolean array of size $target + 1$, where $DP[j] = 1$ if a subset with sum $j$ can be formed, and $0$ otherwise. Initialize $DP[0] = 1$.\n5. For each number $x$ in $nums$, update $DP[j]$ backwards from $target$ down to $x$: $DP[j] = DP[j] \\lor DP[j - x]$.\n6. If $DP[target] == 1$, output `YES`; otherwise, output `NO`.",
+    "input_format": "The first line contains an integer N (1 <= N <= 200). The second line contains N space-separated positive integers (1 <= nums[i] <= 100).",
+    "output_format": "Print YES if the array can be partitioned into two equal-sum subsets, otherwise print NO.",
+    "constraints": "1 <= N <= 200, 1 <= nums[i] <= 100, sum(nums) <= 20000",
+    "examples": [
+      {
+        "input": "4\n1 5 11 5\n",
+        "output": "YES\n",
+        "explanation": "The array can be partitioned as [1, 5, 5] and [11], each having sum 11."
+      },
+      {
+        "input": "4\n1 2 3 5\n",
+        "output": "NO\n",
+        "explanation": "Total sum is 11 which is odd, so it cannot be partitioned into two equal subsets."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Implement subset sum dynamic programming\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int nums[205];\n    int total_sum = 0;\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &nums[i]);\n        total_sum += nums[i];\n    }\n    \n    if (n < 2 || total_sum % 2 != 0) {\n        printf(\"NO\\n\");\n        return 0;\n    }\n    \n    int target = total_sum / 2;\n    int *dp = (int *)calloc(target + 1, sizeof(int));\n    if (!dp) return 1;\n    \n    dp[0] = 1;\n    for (int i = 0; i < n; i++) {\n        int x = nums[i];\n        for (int j = target; j >= x; j--) {\n            if (dp[j - x]) {\n                dp[j] = 1;\n            }\n        }\n    }\n    \n    if (dp[target]) {\n        printf(\"YES\\n\");\n    } else {\n        printf(\"NO\\n\");\n    }\n    \n    free(dp);\n    return 0;\n}\n",
+    "hints": [
+      "If the total sum is odd, return NO immediately.",
+      "Set target = sum / 2 and solve the 0/1 Knapsack subset sum problem.",
+      "Use a 1D boolean array dp where dp[j] indicates whether sum j is possible, traversing backwards from target down to num."
+    ],
+    "explanation": "If total sum S is odd, partitioning into equal subsets is impossible. If even, the problem becomes checking whether a subset with sum target = S / 2 exists. Using a 1D boolean DP array of size target + 1 and looping backwards prevents an element from being used more than once.",
+    "time_complexity": "O(N * target)",
+    "space_complexity": "O(target)",
+    "common_mistakes": [
+      "Forgetting to check if the total sum is odd before dividing.",
+      "Iterating forwards instead of backwards in the 1D DP table, accidentally allowing an element to be picked multiple times.",
+      "Handling N < 2: a single element cannot be partitioned into two non-empty subsets."
+    ],
+    "related_problems": [
+      "zero-one-knapsack",
+      "coin-change-problem"
+    ],
+    "topic_slug": "dp-and-greedy",
+    "company_slugs": [
+      "facebook",
+      "amazon",
+      "microsoft",
+      "google"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "4\n1 5 11 5\n",
+        "expected_output": "YES\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Partitionable array"
+      },
+      {
+        "input": "4\n1 2 3 5\n",
+        "expected_output": "NO\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Odd sum array"
+      },
+      {
+        "input": "1\n2\n",
+        "expected_output": "NO\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element cannot be partitioned"
+      },
+      {
+        "input": "2\n4 4\n",
+        "expected_output": "YES\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Two equal elements"
+      },
+      {
+        "input": "6\n2 2 3 4 5 6\n",
+        "expected_output": "YES\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Sum=22, target=11, [2, 4, 5] and [2, 3, 6]"
+      },
+      {
+        "input": "4\n1 2 5 10\n",
+        "expected_output": "NO\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Even sum=18, target=9, cannot form 9"
+      }
+    ]
+  }
+]

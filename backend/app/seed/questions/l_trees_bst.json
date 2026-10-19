@@ -1,0 +1,1048 @@
+[
+  {
+    "id": 118,
+    "title": "Binary Tree Inorder Traversal",
+    "slug": "binary-tree-inorder-traversal",
+    "difficulty": "medium",
+    "description": "Implement an **iterative Inorder Traversal** (Left -> Root -> Right) of a binary tree using an explicit stack in C without recursion.\n\nWhile recursive traversal is straightforward, recursion relies on the call stack which can result in stack overflow for deeply nested or skewed trees. In an iterative traversal:\n1. Initialize an empty stack of node pointers and set the current pointer `curr = root`.\n2. Push `curr` onto the stack and move to its left child: `curr = curr->left` repeatedly until `curr` becomes `NULL`.\n3. If `curr` is `NULL` and the stack is not empty, pop the top node from the stack, print its value, and set `curr = popped->right`.\n4. Repeat steps 2 and 3 until both `curr` is `NULL` and the stack is empty.\n\nThe tree is given as a level-order array of $N$ elements where `-1` represents a `NULL` node. If the tree is empty ($N = 0$ or root is `-1`), print `EMPTY`.",
+    "input_format": "The first line contains an integer $N$ (number of tokens in level-order array).\nThe second line contains $N$ space-separated integers, where -1 denotes a NULL pointer.",
+    "output_format": "Print the space-separated inorder traversal of the tree on a single line, or `EMPTY` if the tree has no nodes.",
+    "constraints": "0 <= N <= 10^4\n-10^5 <= node values <= 10^5 (values are >= 0; -1 indicates NULL)",
+    "examples": [
+      {
+        "input": "7\n1 -1 2 3 -1 -1 -1\n",
+        "output": "1 3 2\n",
+        "explanation": "Root 1 has right child 2, which has left child 3. Inorder traversal visits 1, 3, 2."
+      },
+      {
+        "input": "7\n4 2 6 1 3 5 7\n",
+        "output": "1 2 3 4 5 6 7\n",
+        "explanation": "A complete binary search tree visited in inorder yields sorted sequence."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\n// TODO: Implement iterative inorder traversal using stack\nvoid inorder_iterative(TreeNode *root) {\n}\n\nint main(void) {\n    // Read input and build tree\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\nTreeNode* create_node(int val) {\n    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nTreeNode* build_tree() {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n <= 0) return NULL;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    if (arr[0] == -1) {\n        free(arr);\n        return NULL;\n    }\n    \n    TreeNode *root = create_node(arr[0]);\n    TreeNode **queue = (TreeNode **)malloc(sizeof(TreeNode *) * (n + 10));\n    int head = 0, tail = 0;\n    queue[tail++] = root;\n    int idx = 1;\n    \n    while (head < tail && idx < n) {\n        TreeNode *curr = queue[head++];\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->left = create_node(arr[idx]);\n                queue[tail++] = curr->left;\n            }\n            idx++;\n        }\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->right = create_node(arr[idx]);\n                queue[tail++] = curr->right;\n            }\n            idx++;\n        }\n    }\n    \n    free(queue);\n    free(arr);\n    return root;\n}\n\nvoid inorder_iterative(TreeNode *root) {\n    if (!root) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    \n    TreeNode **stack = (TreeNode **)malloc(sizeof(TreeNode *) * 10005);\n    int top = -1;\n    TreeNode *curr = root;\n    int first = 1;\n    \n    while (curr != NULL || top != -1) {\n        while (curr != NULL) {\n            stack[++top] = curr;\n            curr = curr->left;\n        }\n        curr = stack[top--];\n        if (!first) printf(\" \");\n        printf(\"%d\", curr->val);\n        first = 0;\n        curr = curr->right;\n    }\n    printf(\"\\n\");\n    free(stack);\n}\n\nint main(void) {\n    TreeNode *root = build_tree();\n    inorder_iterative(root);\n    return 0;\n}\n",
+    "hints": [
+      "Use an explicit stack allocated on the heap to store TreeNode pointers.",
+      "Traverse as far left as possible, pushing each visited node onto the stack.",
+      "When reaching NULL, pop the top node, process its value, and set current pointer to its right child.",
+      "Continue while current pointer is not NULL OR stack is not empty."
+    ],
+    "explanation": "Iterative inorder traversal simulates the compiler's call stack. By diving left and pushing nodes onto the stack, we ensure left children are processed first. When a left subtree is exhausted, the root is popped and processed, and the algorithm moves to the right subtree. Each node is pushed and popped exactly once, yielding an optimal O(N) runtime and O(H) auxiliary space, where H is the height of the tree.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(h)",
+    "common_mistakes": [
+      "Terminating the outer loop when curr is NULL while the stack still contains unprocessed ancestors.",
+      "Not allocating sufficient stack capacity for skewed trees of depth up to N.",
+      "Printing an extra trailing space or failing to handle empty trees."
+    ],
+    "related_problems": [
+      "level-order-traversal",
+      "validate-bst"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "facebook"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "7\n1 -1 2 3 -1 -1 -1\n",
+        "expected_output": "1 3 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Tree with only right children"
+      },
+      {
+        "input": "7\n4 2 6 1 3 5 7\n",
+        "expected_output": "1 2 3 4 5 6 7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Full balanced binary tree"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty tree"
+      },
+      {
+        "input": "1\n50\n",
+        "expected_output": "50\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single root node"
+      },
+      {
+        "input": "5\n3 2 -1 1 -1\n",
+        "expected_output": "1 2 3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Left-skewed tree"
+      }
+    ]
+  },
+  {
+    "id": 119,
+    "title": "Level Order Traversal",
+    "slug": "level-order-traversal",
+    "difficulty": "hard",
+    "description": "Implement Breadth-First Search (**Level Order Traversal**) for a binary tree in C using a queue. Print the values of the nodes **level by level**, with each level printed on its own line and nodes on the same level separated by spaces.\n\nLevel order traversal visits nodes horizontally, starting at the root (level 0), followed by all nodes at level 1 from left to right, then level 2, and so on. In each iteration of the level processing loop:\n1. Determine the number of nodes currently in the queue, say `level_size`.\n2. Dequeue exactly `level_size` nodes, print their values space-separated, and enqueue any non-NULL left and right children.\n3. Print a newline after completing the current level.\n\nIf the tree has no nodes, output `EMPTY`.",
+    "input_format": "The first line contains an integer $N$ (number of level-order tokens).\nThe second line contains $N$ space-separated integers, where -1 denotes NULL.",
+    "output_format": "Print each level of the tree on a new line. Print `EMPTY` if tree has no nodes.",
+    "constraints": "0 <= N <= 10^4\n-10^5 <= node values <= 10^5 (values are >= 0; -1 indicates NULL)",
+    "examples": [
+      {
+        "input": "7\n3 9 20 -1 -1 15 7\n",
+        "output": "3\n9 20\n15 7\n",
+        "explanation": "Level 0 has node 3. Level 1 has nodes 9 and 20. Level 2 has nodes 15 and 7."
+      },
+      {
+        "input": "1\n1\n",
+        "output": "1\n",
+        "explanation": "Only level 0 exists with node 1."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\n// TODO: Implement BFS level-order traversal printing level by level\nvoid level_order(TreeNode *root) {\n}\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\nTreeNode* create_node(int val) {\n    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nTreeNode* build_tree() {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n <= 0) return NULL;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    if (arr[0] == -1) {\n        free(arr);\n        return NULL;\n    }\n    \n    TreeNode *root = create_node(arr[0]);\n    TreeNode **queue = (TreeNode **)malloc(sizeof(TreeNode *) * (n + 10));\n    int head = 0, tail = 0;\n    queue[tail++] = root;\n    int idx = 1;\n    \n    while (head < tail && idx < n) {\n        TreeNode *curr = queue[head++];\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->left = create_node(arr[idx]);\n                queue[tail++] = curr->left;\n            }\n            idx++;\n        }\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->right = create_node(arr[idx]);\n                queue[tail++] = curr->right;\n            }\n            idx++;\n        }\n    }\n    \n    free(queue);\n    free(arr);\n    return root;\n}\n\nvoid level_order(TreeNode *root) {\n    if (!root) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    \n    TreeNode **queue = (TreeNode **)malloc(sizeof(TreeNode *) * 10005);\n    int head = 0, tail = 0;\n    queue[tail++] = root;\n    \n    while (head < tail) {\n        int level_size = tail - head;\n        for (int i = 0; i < level_size; i++) {\n            TreeNode *curr = queue[head++];\n            if (i > 0) printf(\" \");\n            printf(\"%d\", curr->val);\n            if (curr->left) queue[tail++] = curr->left;\n            if (curr->right) queue[tail++] = curr->right;\n        }\n        printf(\"\\n\");\n    }\n    \n    free(queue);\n}\n\nint main(void) {\n    TreeNode *root = build_tree();\n    level_order(root);\n    return 0;\n}\n",
+    "hints": [
+      "Use a FIFO queue implemented with an array and head/tail indices.",
+      "Record level_size = tail - head at the beginning of each level.",
+      "Dequeue exactly level_size nodes inside an inner loop, printing them on the current line.",
+      "Enqueue non-null left and right children for the next level."
+    ],
+    "explanation": "BFS uses a FIFO queue to discover nodes in order of increasing distance from the root. Counting the queue size prior to processing each tier delineates the boundary between adjacent levels. Every node enters and exits the queue exactly once, resulting in O(N) time complexity and O(W) space complexity, where W is the maximum width of the tree (at most N/2 in a balanced tree).",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(w)",
+    "common_mistakes": [
+      "Not recording level_size beforehand, causing nodes enqueued for the next level to be processed in the current level's loop.",
+      "Printing extra blank lines or trailing spaces at the end of levels.",
+      "Forgetting to check if root is NULL before attempting to enqueue."
+    ],
+    "related_problems": [
+      "binary-tree-inorder-traversal",
+      "tree-height-and-diameter"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "bloomberg"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "7\n3 9 20 -1 -1 15 7\n",
+        "expected_output": "3\n9 20\n15 7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 3-level binary tree"
+      },
+      {
+        "input": "1\n1\n",
+        "expected_output": "1\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single root node"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty tree"
+      },
+      {
+        "input": "5\n1 2 -1 3 -1\n",
+        "expected_output": "1\n2\n3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Left skewed tree with 1 node per level"
+      },
+      {
+        "input": "7\n1 2 3 4 5 6 7\n",
+        "expected_output": "1\n2 3\n4 5 6 7\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Full binary tree with 3 levels"
+      }
+    ]
+  },
+  {
+    "id": 120,
+    "title": "Tree Height and Diameter",
+    "slug": "tree-height-and-diameter",
+    "difficulty": "hard",
+    "description": "Compute both the **Height** and the **Diameter** of a binary tree in a single bottom-up $O(N)$ pass in C.\n\n- The **Height** of a binary tree is defined as the maximum number of nodes along the longest path from the root down to the farthest leaf node (an empty tree has height $0$, a single-node tree has height $1$).\n- The **Diameter** of a binary tree is the length (number of edges) of the longest path between any two nodes in a tree. This path may or may not pass through the root.\n\nA naive approach computes height at every node, taking $O(N^2)$ time. Instead, a post-order traversal function can return the height of the current subtree while updating a global or referenced maximum diameter: $\\text{diameter} = \\max(\\text{diameter}, \\text{left\\_height} + \\text{right\\_height})$, where left and right heights are measured in edges.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers representing the level-order traversal (-1 denotes NULL).",
+    "output_format": "Line 1: `Height: H`\nLine 2: `Diameter: D`",
+    "constraints": "0 <= N <= 10^4\n-10^5 <= node values <= 10^5 (values >= 0; -1 denotes NULL)",
+    "examples": [
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "output": "Height: 3\nDiameter: 3\n",
+        "explanation": "Longest root-to-leaf path has 3 nodes. The longest path between any two nodes is 4 -> 2 -> 1 -> 3 (3 edges)."
+      },
+      {
+        "input": "1\n10\n",
+        "output": "Height: 1\nDiameter: 0\n",
+        "explanation": "Single node has height 1 and diameter 0 edges."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\n// TODO: Compute height and diameter in O(N)\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\nTreeNode* create_node(int val) {\n    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nTreeNode* build_tree() {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n <= 0) return NULL;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    if (arr[0] == -1) {\n        free(arr);\n        return NULL;\n    }\n    \n    TreeNode *root = create_node(arr[0]);\n    TreeNode **queue = (TreeNode **)malloc(sizeof(TreeNode *) * (n + 10));\n    int head = 0, tail = 0;\n    queue[tail++] = root;\n    int idx = 1;\n    \n    while (head < tail && idx < n) {\n        TreeNode *curr = queue[head++];\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->left = create_node(arr[idx]);\n                queue[tail++] = curr->left;\n            }\n            idx++;\n        }\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->right = create_node(arr[idx]);\n                queue[tail++] = curr->right;\n            }\n            idx++;\n        }\n    }\n    \n    free(queue);\n    free(arr);\n    return root;\n}\n\nint max_val(int a, int b) {\n    return (a > b) ? a : b;\n}\n\nint compute_height_and_diameter(TreeNode *root, int *max_diameter) {\n    if (!root) return 0;\n    int lh = compute_height_and_diameter(root->left, max_diameter);\n    int rh = compute_height_and_diameter(root->right, max_diameter);\n    \n    if (lh + rh > *max_diameter) {\n        *max_diameter = lh + rh;\n    }\n    return 1 + max_val(lh, rh);\n}\n\nint main(void) {\n    TreeNode *root = build_tree();\n    int max_diameter = 0;\n    int height = compute_height_and_diameter(root, &max_diameter);\n    printf(\"Height: %d\\n\", height);\n    printf(\"Diameter: %d\\n\", max_diameter);\n    return 0;\n}\n",
+    "hints": [
+      "Height is the maximum depth in nodes: 1 + max(left_height, right_height). Base case NULL is 0.",
+      "Diameter passing through node curr equals left_height + right_height (in edges).",
+      "Update a referenced max_diameter during the post-order step at each node.",
+      "Return height from the recursive helper to achieve O(N) runtime."
+    ],
+    "explanation": "A post-order traversal processes both left and right subtrees before visiting the parent. By receiving subtree heights directly from recursive calls, the path length passing through the current node (lh + rh edges) is evaluated in O(1) time without separate height recomputations. Every node is visited once, yielding an optimal O(N) time and O(H) recursion stack space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(h)",
+    "common_mistakes": [
+      "Computing diameter by calling a separate height function at every node, blowing up runtime to O(N^2).",
+      "Confusing diameter in terms of nodes (edges + 1) with edges.",
+      "Assuming the diameter path must always pass through the root node."
+    ],
+    "related_problems": [
+      "check-balanced-tree",
+      "level-order-traversal"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "facebook",
+      "amazon",
+      "google"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "expected_output": "Height: 3\nDiameter: 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Balanced 5-node binary tree"
+      },
+      {
+        "input": "1\n10\n",
+        "expected_output": "Height: 1\nDiameter: 0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single root node"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "Height: 0\nDiameter: 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty tree"
+      },
+      {
+        "input": "7\n1 2 -1 3 -1 4 -1\n",
+        "expected_output": "Height: 4\nDiameter: 3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Linear degenerate left chain"
+      },
+      {
+        "input": "7\n1 2 3 4 5 6 7\n",
+        "expected_output": "Height: 3\nDiameter: 4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Complete binary tree with diameter 4"
+      }
+    ]
+  },
+  {
+    "id": 121,
+    "title": "Validate BST",
+    "slug": "validate-bst",
+    "difficulty": "hard",
+    "description": "Given the root of a binary tree, determine if it is a **valid Binary Search Tree (BST)**.\n\nA valid BST is defined as follows:\n- The left subtree of a node contains only nodes with keys **strictly less** than the node's key.\n- The right subtree of a node contains only nodes with keys **strictly greater** than the node's key.\n- Both the left and right subtrees must also be binary search trees.\n\nA common mistake is to only verify that a node is greater than its direct left child and less than its direct right child. This local check fails for trees like `[10, 5, 15, -1, -1, 6, 20]` where 6 is on the right of 10 but is smaller than 10. To correctly validate, each recursive call must carry valid allowable range boundaries `(min_val, max_val)` using 64-bit integers (`long long`) to prevent overflow when node values reach standard 32-bit limits.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers representing the level-order traversal (-1 denotes NULL).",
+    "output_format": "Print `VALID` if the tree is a valid BST, or `INVALID` otherwise.",
+    "constraints": "0 <= N <= 10^4\n-10^9 <= node values <= 10^9 (values >= 0 in test input; -1 denotes NULL)",
+    "examples": [
+      {
+        "input": "3\n2 1 3\n",
+        "output": "VALID\n",
+        "explanation": "Root 2 has left child 1 (< 2) and right child 3 (> 2). Valid BST."
+      },
+      {
+        "input": "7\n5 1 4 -1 -1 3 6\n",
+        "output": "INVALID\n",
+        "explanation": "Right child 4 has left child 3, which is less than root 5. Invalid BST."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\n// TODO: Check if binary tree is valid BST\nbool is_valid_bst(TreeNode *root) {\n    return true;\n}\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\nTreeNode* create_node(int val) {\n    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nTreeNode* build_tree() {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n <= 0) return NULL;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    if (arr[0] == -1) {\n        free(arr);\n        return NULL;\n    }\n    \n    TreeNode *root = create_node(arr[0]);\n    TreeNode **queue = (TreeNode **)malloc(sizeof(TreeNode *) * (n + 10));\n    int head = 0, tail = 0;\n    queue[tail++] = root;\n    int idx = 1;\n    \n    while (head < tail && idx < n) {\n        TreeNode *curr = queue[head++];\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->left = create_node(arr[idx]);\n                queue[tail++] = curr->left;\n            }\n            idx++;\n        }\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->right = create_node(arr[idx]);\n                queue[tail++] = curr->right;\n            }\n            idx++;\n        }\n    }\n    \n    free(queue);\n    free(arr);\n    return root;\n}\n\nbool validate_helper(TreeNode *node, long long min_val, long long max_val) {\n    if (!node) return true;\n    if (node->val <= min_val || node->val >= max_val) return false;\n    return validate_helper(node->left, min_val, node->val) &&\n           validate_helper(node->right, node->val, max_val);\n}\n\nint main(void) {\n    TreeNode *root = build_tree();\n    if (validate_helper(root, -1e18, 1e18)) {\n        printf(\"VALID\\n\");\n    } else {\n        printf(\"INVALID\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "A node must be strictly greater than ALL nodes in its left subtree, not just its direct child.",
+      "Pass an allowed range (min_val, max_val) down to each child node.",
+      "When recursing left: the upper bound becomes node->val.",
+      "When recursing right: the lower bound becomes node->val."
+    ],
+    "explanation": "Validating a BST requires enforcing global ordering constraints. Starting with the entire range (-infinity, +infinity), traversing left tightens the upper bound to node->val, while traversing right tightens the lower bound to node->val. Any node whose value falls outside (min_val, max_val) violates the BST property. Each node is evaluated in O(1) time, yielding O(N) total time complexity and O(H) recursion stack space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(h)",
+    "common_mistakes": [
+      "Only comparing node with node->left and node->right, missing violations in deeper descendants.",
+      "Using INT_MIN and INT_MAX as initial bounds without long long, causing overflow when node->val == INT_MIN or INT_MAX.",
+      "Allowing duplicate keys (<= or >=) when BST definition specifies strictly less and strictly greater."
+    ],
+    "related_problems": [
+      "bst-insert-and-search",
+      "lowest-common-ancestor"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "amazon",
+      "bloomberg",
+      "microsoft",
+      "facebook"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "3\n2 1 3\n",
+        "expected_output": "VALID\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Simple valid 3-node BST"
+      },
+      {
+        "input": "7\n5 1 4 -1 -1 3 6\n",
+        "expected_output": "INVALID\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Subtree violation (node 3 under right child 4 is smaller than root 5)"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "VALID\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty tree is trivially valid BST"
+      },
+      {
+        "input": "1\n50\n",
+        "expected_output": "VALID\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single root node is valid BST"
+      },
+      {
+        "input": "3\n2 2 2\n",
+        "expected_output": "INVALID\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Tree with duplicate values violates strict inequality"
+      }
+    ]
+  },
+  {
+    "id": 122,
+    "title": "BST Insert and Search",
+    "slug": "bst-insert-and-search",
+    "difficulty": "medium",
+    "description": "Implement a **Binary Search Tree (BST)** from scratch in C supporting two primary operations:\n1. **Insert**: Insert a series of $N$ keys into an initially empty BST. If a key is smaller than the current node's value, it is placed in the left subtree; if greater, it is placed in the right subtree. Assume all $N$ insertion keys are distinct.\n2. **Search**: For $Q$ independent query values, search the BST. If a query value is found in the tree, output `Found`; otherwise, output `Not_Found`.\n\nSearching a balanced BST takes $O(\\log N)$ time, comparing the target against each node and branching left or right accordingly.",
+    "input_format": "Line 1: An integer $N$ (number of keys to insert).\nLine 2: $N$ space-separated integers.\nLine 3: An integer $Q$ (number of search queries).\nLine 4: $Q$ space-separated integers to search.",
+    "output_format": "Print the $Q$ space-separated search results (`Found` or `Not_Found`) on a single line.",
+    "constraints": "1 <= N <= 10^4\n1 <= Q <= 10^4\n-10^9 <= keys, queries <= 10^9",
+    "examples": [
+      {
+        "input": "5\n50 30 70 20 40\n3\n30 25 70\n",
+        "output": "Found Not_Found Found\n",
+        "explanation": "30 and 70 are in the BST; 25 was never inserted."
+      },
+      {
+        "input": "3\n10 5 15\n2\n10 20\n",
+        "output": "Found Not_Found\n",
+        "explanation": "10 is the root node; 20 does not exist."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct BSTNode {\n    int val;\n    struct BSTNode *left;\n    struct BSTNode *right;\n} BSTNode;\n\n// TODO: Implement insert and search for BST\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct BSTNode {\n    int val;\n    struct BSTNode *left;\n    struct BSTNode *right;\n} BSTNode;\n\nBSTNode* create_node(int val) {\n    BSTNode *node = (BSTNode *)malloc(sizeof(BSTNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nBSTNode* insert(BSTNode *root, int val) {\n    if (!root) return create_node(val);\n    if (val < root->val) {\n        root->left = insert(root->left, val);\n    } else if (val > root->val) {\n        root->right = insert(root->right, val);\n    }\n    return root;\n}\n\nbool search(BSTNode *root, int val) {\n    while (root) {\n        if (root->val == val) return true;\n        if (val < root->val) root = root->left;\n        else root = root->right;\n    }\n    return false;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    BSTNode *root = NULL;\n    for (int i = 0; i < n; i++) {\n        int val;\n        scanf(\"%d\", &val);\n        root = insert(root, val);\n    }\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    for (int i = 0; i < q; i++) {\n        int target;\n        scanf(\"%d\", &target);\n        if (search(root, target)) {\n            printf(\"Found%c\", (i == q - 1) ? '\\n' : ' ');\n        } else {\n            printf(\"Not_Found%c\", (i == q - 1) ? '\\n' : ' ');\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "If the tree is empty (root is NULL), create and return a new node.",
+      "Compare the inserted value with root->val to decide whether to recurse left or right.",
+      "Search can be implemented iteratively with a simple while(root) loop to save stack space.",
+      "Advance root = root->left if target < root->val, else root = root->right."
+    ],
+    "explanation": "A Binary Search Tree maintains the invariant that left < root < right. Insertion traverses down from the root to locate the appropriate NULL pointer where the new leaf is attached. Search mirrors this traversal, checking root->val at each step and halving the search path in balanced trees. On average, insert and search run in O(log N) time per operation, with O(H) auxiliary space.",
+    "time_complexity": "O(h)",
+    "space_complexity": "O(h)",
+    "common_mistakes": [
+      "Not updating root when inserting into an initially NULL tree: root = insert(root, val).",
+      "Memory leak by not allocating memory properly with malloc for new nodes.",
+      "Outputting newline between answers instead of single space-separated output."
+    ],
+    "related_problems": [
+      "validate-bst",
+      "bst-delete-node"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "oracle",
+      "microsoft",
+      "cisco"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\n50 30 70 20 40\n3\n30 25 70\n",
+        "expected_output": "Found Not_Found Found\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard BST insert and search"
+      },
+      {
+        "input": "3\n10 5 15\n2\n10 20\n",
+        "expected_output": "Found Not_Found\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Root query and missing element"
+      },
+      {
+        "input": "1\n42\n2\n42 0\n",
+        "expected_output": "Found Not_Found\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element BST"
+      },
+      {
+        "input": "4\n1 2 3 4\n4\n1 2 3 4\n",
+        "expected_output": "Found Found Found Found\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Right-skewed BST with all elements queried"
+      },
+      {
+        "input": "5\n50 20 80 10 30\n3\n10 90 50\n",
+        "expected_output": "Found Not_Found Found\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Leaf query and root query"
+      }
+    ]
+  },
+  {
+    "id": 123,
+    "title": "BST Delete Node",
+    "slug": "bst-delete-node",
+    "difficulty": "very_hard",
+    "description": "Implement node deletion in a **Binary Search Tree** in C, correctly handling all three canonical cases:\n1. **Node is a leaf** (no children): Deallocate the node and return `NULL` to its parent.\n2. **Node has one child**: Bypass the node by returning its single child (left or right) to its parent, then deallocate the node.\n3. **Node has two children**: Find the node's **inorder successor** (the smallest value in its right subtree). Replace the node's key with the successor's key, and recursively delete the successor from the right subtree.\n\nConstruct the initial BST by inserting $N$ distinct keys. Then delete a given key $K$. Finally, print the **inorder traversal** of the modified BST (which must remain sorted). If the tree becomes empty after deletion, print `EMPTY`.",
+    "input_format": "Line 1: An integer $N$.\nLine 2: $N$ space-separated integers to insert into the BST.\nLine 3: An integer $K$ (the key to delete).",
+    "output_format": "Print the space-separated inorder traversal of the BST after deletion, or `EMPTY` if tree is empty.",
+    "constraints": "1 <= N <= 10^4\n-10^9 <= keys, K <= 10^9",
+    "examples": [
+      {
+        "input": "5\n5 3 6 2 4\n3\n",
+        "output": "2 4 5 6\n",
+        "explanation": "Node 3 has two children (2 and 4). Its inorder successor is 4. After replacing 3 with 4 and deleting 4, inorder traversal is 2 4 5 6."
+      },
+      {
+        "input": "1\n10\n10\n",
+        "output": "EMPTY\n",
+        "explanation": "Deleting the only node leaves an empty tree."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct BSTNode {\n    int val;\n    struct BSTNode *left;\n    struct BSTNode *right;\n} BSTNode;\n\n// TODO: Implement BST delete handling all 3 cases\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct BSTNode {\n    int val;\n    struct BSTNode *left;\n    struct BSTNode *right;\n} BSTNode;\n\nBSTNode* create_node(int val) {\n    BSTNode *node = (BSTNode *)malloc(sizeof(BSTNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nBSTNode* insert(BSTNode *root, int val) {\n    if (!root) return create_node(val);\n    if (val < root->val) root->left = insert(root->left, val);\n    else if (val > root->val) root->right = insert(root->right, val);\n    return root;\n}\n\nBSTNode* find_min(BSTNode *node) {\n    while (node && node->left) node = node->left;\n    return node;\n}\n\nBSTNode* delete_node(BSTNode *root, int key) {\n    if (!root) return NULL;\n    \n    if (key < root->val) {\n        root->left = delete_node(root->left, key);\n    } else if (key > root->val) {\n        root->right = delete_node(root->right, key);\n    } else {\n        // Case 1 & 2: No child or one child\n        if (!root->left) {\n            BSTNode *temp = root->right;\n            free(root);\n            return temp;\n        } else if (!root->right) {\n            BSTNode *temp = root->left;\n            free(root);\n            return temp;\n        }\n        \n        // Case 3: Two children\n        BSTNode *temp = find_min(root->right);\n        root->val = temp->val;\n        root->right = delete_node(root->right, temp->val);\n    }\n    return root;\n}\n\nint printed_count = 0;\nvoid print_inorder(BSTNode *root) {\n    if (!root) return;\n    print_inorder(root->left);\n    if (printed_count > 0) printf(\" \");\n    printf(\"%d\", root->val);\n    printed_count++;\n    print_inorder(root->right);\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    BSTNode *root = NULL;\n    for (int i = 0; i < n; i++) {\n        int v;\n        scanf(\"%d\", &v);\n        root = insert(root, v);\n    }\n    int key;\n    scanf(\"%d\", &key);\n    \n    root = delete_node(root, key);\n    if (!root) {\n        printf(\"EMPTY\\n\");\n    } else {\n        print_inorder(root);\n        printf(\"\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Traverse left if key < root->val, or right if key > root->val.",
+      "When node matches key, inspect root->left and root->right.",
+      "If one or zero children: save the non-null child, free(root), and return the child.",
+      "If two children: find min in right subtree (inorder successor), copy its val into root->val, then delete the successor from root->right."
+    ],
+    "explanation": "Deleting from a BST requires restructuring while preserving the binary search property. Replacing a two-child node with its inorder successor guarantees the replaced node is strictly larger than all left descendants and smaller than all remaining right descendants. Because the successor is the leftmost node in the right subtree, it has at most one child, making its subsequent deletion trivial. Time complexity is O(H) where H is tree height.",
+    "time_complexity": "O(h)",
+    "space_complexity": "O(h)",
+    "common_mistakes": [
+      "Failing to update parent pointers when returning the new subtree root.",
+      "Memory leak from forgetting to call free() on the deleted node in C.",
+      "Deleting the successor before copying its value, corrupting tree references."
+    ],
+    "related_problems": [
+      "bst-insert-and-search",
+      "validate-bst"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "uber"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\n5 3 6 2 4\n3\n",
+        "expected_output": "2 4 5 6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Delete node with two children"
+      },
+      {
+        "input": "1\n10\n10\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Delete the only node (root)"
+      },
+      {
+        "input": "4\n10 5 15 2\n2\n",
+        "expected_output": "5 10 15\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Delete a leaf node"
+      },
+      {
+        "input": "4\n10 5 15 2\n5\n",
+        "expected_output": "2 10 15\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Delete a node with one child"
+      },
+      {
+        "input": "5\n20 10 30 25 35\n20\n",
+        "expected_output": "10 25 30 35\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Delete the root node with two children"
+      }
+    ]
+  },
+  {
+    "id": 124,
+    "title": "Lowest Common Ancestor",
+    "slug": "lowest-common-ancestor",
+    "difficulty": "hard",
+    "description": "Given a Binary Search Tree (BST) of $N$ distinct integers, find the **Lowest Common Ancestor (LCA)** of two specified node values $p$ and $q$.\n\nThe Lowest Common Ancestor between two nodes $p$ and $q$ is defined as the lowest node $T$ in the tree that has both $p$ and $q$ as descendants (where a node is permitted to be a descendant of itself).\n\nExploiting the BST ordering property ($left < root < right$):\n- If both $p$ and $q$ are strictly smaller than the current node's value, the LCA must reside in the left subtree.\n- If both $p$ and $q$ are strictly greater than the current node's value, the LCA must reside in the right subtree.\n- If $p$ and $q$ split on either side of the current node (or one of them equals the current node's value), the current node is the Lowest Common Ancestor.\n\nThis yields an optimal $O(H)$ iterative or recursive solution with $O(1)$ auxiliary space.",
+    "input_format": "Line 1: An integer $N$.\nLine 2: $N$ space-separated integers to insert into the BST.\nLine 3: Two space-separated integers $p$ and $q$.",
+    "output_format": "Print the integer value of the Lowest Common Ancestor.",
+    "constraints": "2 <= N <= 10^4\n-10^9 <= keys, p, q <= 10^9\np and q are distinct and guaranteed to exist in the BST.",
+    "examples": [
+      {
+        "input": "6\n6 2 8 0 4 7\n2 8\n",
+        "output": "6\n",
+        "explanation": "Node 2 is in the left subtree and node 8 is in the right subtree of root 6, so 6 is their LCA."
+      },
+      {
+        "input": "6\n6 2 8 0 4 7\n2 4\n",
+        "output": "2\n",
+        "explanation": "Node 4 is in the right subtree of 2. Since a node can be a descendant of itself, LCA(2, 4) is 2."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct BSTNode {\n    int val;\n    struct BSTNode *left;\n    struct BSTNode *right;\n} BSTNode;\n\n// TODO: Find LCA of p and q in BST\nint find_lca(BSTNode *root, int p, int q) {\n    return 0;\n}\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct BSTNode {\n    int val;\n    struct BSTNode *left;\n    struct BSTNode *right;\n} BSTNode;\n\nBSTNode* create_node(int val) {\n    BSTNode *node = (BSTNode *)malloc(sizeof(BSTNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nBSTNode* insert(BSTNode *root, int val) {\n    if (!root) return create_node(val);\n    if (val < root->val) root->left = insert(root->left, val);\n    else if (val > root->val) root->right = insert(root->right, val);\n    return root;\n}\n\nint find_lca(BSTNode *root, int p, int q) {\n    while (root) {\n        if (p < root->val && q < root->val) {\n            root = root->left;\n        } else if (p > root->val && q > root->val) {\n            root = root->right;\n        } else {\n            return root->val;\n        }\n    }\n    return -1;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    BSTNode *root = NULL;\n    for (int i = 0; i < n; i++) {\n        int val;\n        scanf(\"%d\", &val);\n        root = insert(root, val);\n    }\n    int p, q;\n    scanf(\"%d %d\", &p, &q);\n    printf(\"%d\\n\", find_lca(root, p, q));\n    return 0;\n}\n",
+    "hints": [
+      "Start traversing from the root node.",
+      "If both p and q are less than root->val, move left.",
+      "If both p and q are greater than root->val, move right.",
+      "As soon as p and q split (or one matches root->val), root is the LCA."
+    ],
+    "explanation": "Because a BST is ordered, the LCA is the unique node where the paths from the root to p and q diverge. As long as both keys are smaller than current node, both must lie in the left subtree. As long as both are larger, both must lie in the right subtree. The moment they branch off in opposite directions (or one is equal to the current node), the current node must be the lowest common ancestor. Time complexity is O(H) and space is O(1).",
+    "time_complexity": "O(h)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using general binary tree LCA which visits both subtrees and takes O(N), ignoring the BST ordering property.",
+      "Not handling the case where p or q is itself the LCA.",
+      "Assuming p is always strictly less than q in the input."
+    ],
+    "related_problems": [
+      "bst-insert-and-search",
+      "validate-bst"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "amazon",
+      "facebook",
+      "microsoft",
+      "apple"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6\n6 2 8 0 4 7\n2 8\n",
+        "expected_output": "6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "LCA is the root node"
+      },
+      {
+        "input": "6\n6 2 8 0 4 7\n2 4\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "One node is ancestor of the other"
+      },
+      {
+        "input": "2\n5 2\n5 2\n",
+        "expected_output": "5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Two node BST"
+      },
+      {
+        "input": "6\n6 2 8 0 4 7\n0 4\n",
+        "expected_output": "2\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "LCA in left subtree"
+      },
+      {
+        "input": "6\n6 2 8 0 4 7\n7 8\n",
+        "expected_output": "8\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "LCA in right subtree with parent as ancestor"
+      }
+    ]
+  },
+  {
+    "id": 125,
+    "title": "Check Balanced Tree",
+    "slug": "check-balanced-tree",
+    "difficulty": "hard",
+    "description": "Determine whether a given binary tree is **height-balanced** in $O(N)$ time.\n\nA height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of **every node** never differs by more than $1$.\n\nA naive top-down recursion computes the height of left and right subtrees at each node, which leads to $O(N^2)$ time in skewed trees. Instead, a bottom-up post-order approach computes the height of each subtree while checking balance simultaneously:\n- If either the left or right subtree is already unbalanced, propagate a sentinel value (e.g., `-1`) up immediately.\n- If $|\\text{left\\_height} - \\text{right\\_height}| > 1$, return `-1`.\n- Otherwise, return the true height: $1 + \\max(\\text{left\\_height}, \\text{right\\_height})$.\n\nPrint `BALANCED` if the tree satisfies the height-balance property, or `NOT BALANCED` otherwise.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers representing the level-order traversal (-1 denotes NULL).",
+    "output_format": "Print `BALANCED` or `NOT BALANCED`.",
+    "constraints": "0 <= N <= 10^4\n-10^5 <= node values <= 10^5 (values >= 0; -1 denotes NULL)",
+    "examples": [
+      {
+        "input": "5\n3 9 20 -1 -1 15 7\n",
+        "output": "BALANCED\n",
+        "explanation": "Subtree heights at root 3 are 1 and 2, difference is 1 <= 1. Tree is balanced."
+      },
+      {
+        "input": "7\n1 2 2 3 3 -1 -1\n",
+        "output": "NOT BALANCED\n",
+        "explanation": "Height of left subtree is 2, height of right subtree is 1, but left child's subtrees differ."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\n// TODO: Check if binary tree is height-balanced in O(N)\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\nTreeNode* create_node(int val) {\n    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nTreeNode* build_tree() {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n <= 0) return NULL;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    if (arr[0] == -1) {\n        free(arr);\n        return NULL;\n    }\n    \n    TreeNode *root = create_node(arr[0]);\n    TreeNode **queue = (TreeNode **)malloc(sizeof(TreeNode *) * (n + 10));\n    int head = 0, tail = 0;\n    queue[tail++] = root;\n    int idx = 1;\n    \n    while (head < tail && idx < n) {\n        TreeNode *curr = queue[head++];\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->left = create_node(arr[idx]);\n                queue[tail++] = curr->left;\n            }\n            idx++;\n        }\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->right = create_node(arr[idx]);\n                queue[tail++] = curr->right;\n            }\n            idx++;\n        }\n    }\n    \n    free(queue);\n    free(arr);\n    return root;\n}\n\nint check_height(TreeNode *root) {\n    if (!root) return 0;\n    \n    int lh = check_height(root->left);\n    if (lh == -1) return -1;\n    \n    int rh = check_height(root->right);\n    if (rh == -1) return -1;\n    \n    if (abs(lh - rh) > 1) return -1;\n    return 1 + ((lh > rh) ? lh : rh);\n}\n\nint main(void) {\n    TreeNode *root = build_tree();\n    if (check_height(root) != -1) {\n        printf(\"BALANCED\\n\");\n    } else {\n        printf(\"NOT BALANCED\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Use bottom-up recursion: return the height if subtree is balanced, or -1 if unbalanced.",
+      "If left subtree returns -1, return -1 immediately without checking right subtree.",
+      "If abs(left_height - right_height) > 1, return -1.",
+      "If balanced, return 1 + max(left_height, right_height)."
+    ],
+    "explanation": "Bottom-up recursion short-circuits as soon as any unbalanced subtree is discovered. By returning height from subtrees, the parent node computes balance in O(1) time. Each node is visited once, achieving O(N) time complexity and O(H) recursion stack space, avoiding the redundant re-traversals of top-down approaches.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(h)",
+    "common_mistakes": [
+      "Calling a separate height function at every node, degrading complexity to O(N^2).",
+      "Checking balance only at the root node rather than ensuring every node satisfies the condition.",
+      "Failing to handle an empty tree, which is height-balanced by definition."
+    ],
+    "related_problems": [
+      "tree-height-and-diameter",
+      "validate-bst"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "amazon",
+      "bloomberg",
+      "microsoft"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\n3 9 20 -1 -1 15 7\n",
+        "expected_output": "BALANCED\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard balanced tree"
+      },
+      {
+        "input": "7\n1 2 2 3 3 -1 -1\n",
+        "expected_output": "NOT BALANCED\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Unbalanced tree"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "BALANCED\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty tree is balanced"
+      },
+      {
+        "input": "1\n100\n",
+        "expected_output": "BALANCED\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single root node is balanced"
+      },
+      {
+        "input": "5\n1 2 -1 3 -1\n",
+        "expected_output": "NOT BALANCED\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Linear left chain is unbalanced"
+      }
+    ]
+  },
+  {
+    "id": 126,
+    "title": "Serialize and Deserialize BST",
+    "slug": "serialize-and-deserialize-bst",
+    "difficulty": "very_hard",
+    "description": "Design an algorithm to **serialize** a Binary Search Tree (BST) into a string and **deserialize** the string back into the exact same tree structure.\n\nBecause a BST possesses the property that all values in the left subtree are smaller than the root and all values in the right subtree are larger, a BST can be uniquely reconstructed from its **Preorder Traversal alone** (without storing NULL pointers or using an auxiliary inorder traversal).\n\n1. **Serialize**: Traverse the BST in preorder (Root -> Left -> Right) and serialize node values into space-separated integers.\n2. **Deserialize**: Parse the preorder sequence. Using upper/lower bounds (or a range `[min_val, max_val]`), reconstruct the BST nodes recursively in $O(N)$ time.\n\nTo verify correctness, output the **Postorder Traversal** (Left -> Right -> Root) of the deserialized tree.",
+    "input_format": "Line 1: An integer $N$ (number of keys in the BST).\nLine 2: $N$ space-separated integers inserted in order into an initially empty BST.",
+    "output_format": "Print the space-separated postorder traversal of the reconstructed BST, or `EMPTY` if N = 0.",
+    "constraints": "0 <= N <= 10^4\n-10^9 <= keys <= 10^9",
+    "examples": [
+      {
+        "input": "5\n4 2 5 1 3\n",
+        "output": "1 3 2 5 4\n",
+        "explanation": "Preorder is 4 2 1 3 5. Reconstructing and printing postorder yields 1 3 2 5 4."
+      },
+      {
+        "input": "3\n2 1 3\n",
+        "output": "1 3 2\n",
+        "explanation": "Preorder 2 1 3 reconstructed into BST yields postorder 1 3 2."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct BSTNode {\n    int val;\n    struct BSTNode *left;\n    struct BSTNode *right;\n} BSTNode;\n\n// TODO: Serialize to preorder, deserialize back, print postorder\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct BSTNode {\n    int val;\n    struct BSTNode *left;\n    struct BSTNode *right;\n} BSTNode;\n\nBSTNode* create_node(int val) {\n    BSTNode *node = (BSTNode *)malloc(sizeof(BSTNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nBSTNode* insert(BSTNode *root, int val) {\n    if (!root) return create_node(val);\n    if (val < root->val) root->left = insert(root->left, val);\n    else if (val > root->val) root->right = insert(root->right, val);\n    return root;\n}\n\nvoid serialize_preorder(BSTNode *root, int *arr, int *count) {\n    if (!root) return;\n    arr[(*count)++] = root->val;\n    serialize_preorder(root->left, arr, count);\n    serialize_preorder(root->right, arr, count);\n}\n\nBSTNode* deserialize_helper(int *arr, int n, int *idx, long long min_val, long long max_val) {\n    if (*idx >= n) return NULL;\n    int val = arr[*idx];\n    if (val <= min_val || val >= max_val) return NULL;\n    \n    (*idx)++;\n    BSTNode *node = create_node(val);\n    node->left = deserialize_helper(arr, n, idx, min_val, val);\n    node->right = deserialize_helper(arr, n, idx, val, max_val);\n    return node;\n}\n\nint postorder_count = 0;\nvoid print_postorder(BSTNode *root) {\n    if (!root) return;\n    print_postorder(root->left);\n    print_postorder(root->right);\n    if (postorder_count > 0) printf(\" \");\n    printf(\"%d\", root->val);\n    postorder_count++;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n <= 0) {\n        printf(\"EMPTY\\n\");\n        return 0;\n    }\n    \n    BSTNode *root = NULL;\n    for (int i = 0; i < n; i++) {\n        int v;\n        scanf(\"%d\", &v);\n        root = insert(root, v);\n    }\n    \n    int *preorder = (int *)malloc(sizeof(int) * n);\n    int count = 0;\n    serialize_preorder(root, preorder, &count);\n    \n    int idx = 0;\n    BSTNode *reconstructed = deserialize_helper(preorder, n, &idx, -1e18, 1e18);\n    \n    print_postorder(reconstructed);\n    printf(\"\\n\");\n    \n    free(preorder);\n    return 0;\n}\n",
+    "hints": [
+      "In a BST, preorder traversal uniquely identifies the tree because root value splits left (< root) and right (> root) subtrees.",
+      "During deserialization, pass an allowed upper bound / lower bound for each recursive call.",
+      "If arr[idx] fits in (min_val, max_val), consume it by incrementing idx and recurse left then right.",
+      "Print the postorder traversal of the deserialized tree."
+    ],
+    "explanation": "Unlike general binary trees that require either NULL markers or two traversals (preorder + inorder), a BST encodes its left/right structure implicitly through key comparisons. Preorder visits the root first; subsequently, all values smaller than root belong to its left subtree, and values greater belong to its right subtree. Deserializing with boundary limits reconstructs the tree in linear O(N) time without searching for the partition point.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Using an O(N^2) approach to search for the first element greater than root at every recursive step.",
+      "Forgetting to increment the shared index pointer when a node is constructed.",
+      "Not handling N = 0 edge case."
+    ],
+    "related_problems": [
+      "build-tree-from-inorder-preorder",
+      "bst-insert-and-search"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "uber"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\n4 2 5 1 3\n",
+        "expected_output": "1 3 2 5 4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "5-node BST serialization"
+      },
+      {
+        "input": "3\n2 1 3\n",
+        "expected_output": "1 3 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "3-node balanced BST"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty tree"
+      },
+      {
+        "input": "1\n99\n",
+        "expected_output": "99\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element BST"
+      },
+      {
+        "input": "4\n1 2 3 4\n",
+        "expected_output": "4 3 2 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Right-skewed BST"
+      }
+    ]
+  },
+  {
+    "id": 127,
+    "title": "Build Tree from Inorder+Preorder",
+    "slug": "build-tree-from-inorder-preorder",
+    "difficulty": "very_hard",
+    "description": "Given two integer arrays `preorder` and `inorder` representing the preorder and inorder traversals of a binary tree with $N$ **distinct** values, reconstruct the unique binary tree.\n\n- The first element of `preorder` is always the root of the current subtree.\n- Locating this root value in `inorder` partitions the tree into its left subtree (elements to the left of root in `inorder`) and right subtree (elements to the right of root in `inorder`).\n- The sizes of these left and right subtrees directly determine the slices of the `preorder` array corresponding to the left and right children.\n\nReconstruct the binary tree, and print its **Postorder Traversal** (Left -> Right -> Root) separated by spaces.",
+    "input_format": "Line 1: An integer $N$.\nLine 2: $N$ space-separated integers representing preorder traversal.\nLine 3: $N$ space-separated integers representing inorder traversal.",
+    "output_format": "Print the $N$ space-separated integers of the postorder traversal on a single line.",
+    "constraints": "1 <= N <= 5000\n-10^5 <= values <= 10^5\nAll elements are distinct.",
+    "examples": [
+      {
+        "input": "5\n3 9 20 15 7\n9 3 15 20 7\n",
+        "output": "9 15 7 20 3\n",
+        "explanation": "Root is 3. Left child is 9. Right subtree has root 20 with children 15 and 7. Postorder is 9 15 7 20 3."
+      },
+      {
+        "input": "1\n-1\n-1\n",
+        "output": "-1\n",
+        "explanation": "Single node tree."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\n// TODO: Reconstruct binary tree from preorder and inorder traversals\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\nTreeNode* create_node(int val) {\n    TreeNode *node = (TreeNode *)malloc(sizeof(TreeNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nTreeNode* build_tree_helper(int *preorder, int pre_start, int pre_end,\n                            int *inorder, int in_start, int in_end) {\n    if (pre_start > pre_end || in_start > in_end) return NULL;\n    \n    int root_val = preorder[pre_start];\n    TreeNode *root = create_node(root_val);\n    \n    int in_root_idx = in_start;\n    while (in_root_idx <= in_end && inorder[in_root_idx] != root_val) {\n        in_root_idx++;\n    }\n    \n    int left_size = in_root_idx - in_start;\n    \n    root->left = build_tree_helper(preorder, pre_start + 1, pre_start + left_size,\n                                   inorder, in_start, in_root_idx - 1);\n    root->right = build_tree_helper(preorder, pre_start + left_size + 1, pre_end,\n                                    inorder, in_root_idx + 1, in_end);\n    return root;\n}\n\nint post_count = 0;\nvoid print_postorder(TreeNode *root) {\n    if (!root) return;\n    print_postorder(root->left);\n    print_postorder(root->right);\n    if (post_count > 0) printf(\" \");\n    printf(\"%d\", root->val);\n    post_count++;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *preorder = (int *)malloc(sizeof(int) * n);\n    int *inorder = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &preorder[i]);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &inorder[i]);\n    \n    TreeNode *root = build_tree_helper(preorder, 0, n - 1, inorder, 0, n - 1);\n    print_postorder(root);\n    printf(\"\\n\");\n    \n    free(preorder);\n    free(inorder);\n    return 0;\n}\n",
+    "hints": [
+      "Root value is preorder[pre_start].",
+      "Search for root value in inorder[in_start..in_end] to find its position in_root_idx.",
+      "Number of nodes in left subtree is left_size = in_root_idx - in_start.",
+      "Left subtree preorder slice is [pre_start + 1, pre_start + left_size]; right subtree slice is [pre_start + left_size + 1, pre_end]."
+    ],
+    "explanation": "Preorder dictates root identity while Inorder dictates horizontal partition. By finding root_val in inorder, the count of elements left of it (left_size) precisely indexes the corresponding prefix of preorder elements belonging to the left child. Recursively constructing both subtrees reconstructs the exact original tree structure.",
+    "time_complexity": "O(n^2)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Off-by-one errors in preorder slice calculation (e.g. pre_start + left_size instead of pre_start + 1).",
+      "Assuming values are always positive (nodes can have negative values).",
+      "Not handling base cases where start index exceeds end index."
+    ],
+    "related_problems": [
+      "serialize-and-deserialize-bst",
+      "binary-tree-inorder-traversal"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "bloomberg"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\n3 9 20 15 7\n9 3 15 20 7\n",
+        "expected_output": "9 15 7 20 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 5-node tree reconstruction"
+      },
+      {
+        "input": "1\n-1\n-1\n",
+        "expected_output": "-1\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single negative node"
+      },
+      {
+        "input": "3\n1 2 3\n2 1 3\n",
+        "expected_output": "2 3 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Simple 3-node tree"
+      },
+      {
+        "input": "4\n1 2 3 4\n4 3 2 1\n",
+        "expected_output": "4 3 2 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Left-skewed tree"
+      },
+      {
+        "input": "4\n1 2 3 4\n1 2 3 4\n",
+        "expected_output": "4 3 2 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Right-skewed tree"
+      }
+    ]
+  },
+  {
+    "id": 128,
+    "title": "Boundary Traversal",
+    "slug": "boundary-traversal",
+    "difficulty": "hard",
+    "description": "Perform the **Boundary Traversal** of a binary tree in anti-clockwise direction starting from the root.\n\nThe boundary traversal consists of four segments visited in order without duplicates:\n1. **Root node**: If root is not a leaf node, add it.\n2. **Left boundary**: Traverse down the left boundary starting from `root->left` (preferring left child, but taking right child if left is absent), excluding leaf nodes.\n3. **Leaf nodes**: Collect all leaf nodes from left to right across the entire tree.\n4. **Right boundary**: Traverse down the right boundary starting from `root->right` (preferring right child, taking left if right is absent), excluding leaf nodes, and add them in **bottom-up (reverse)** order.\n\nPrint all boundary nodes space-separated. If the tree has only a single root node, print that node alone.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers representing the level-order traversal (-1 denotes NULL).",
+    "output_format": "Print the space-separated integers of the boundary traversal on a single line.",
+    "constraints": "1 <= N <= 10^4\n-10^5 <= node values <= 10^5 (values >= 0; -1 denotes NULL)",
+    "examples": [
+      {
+        "input": "7\n1 2 3 4 5 6 7\n",
+        "output": "1 2 4 5 6 7 3\n",
+        "explanation": "Root is 1. Left boundary is 2. Leaves are 4, 5, 6, 7. Right boundary in reverse is 3. Output: 1 2 4 5 6 7 3."
+      },
+      {
+        "input": "1\n50\n",
+        "output": "50\n",
+        "explanation": "Single root node is its own boundary."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\n// TODO: Implement boundary traversal in anti-clockwise order\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\nTreeNode* create_node(int val) {\n    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nTreeNode* build_tree() {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n <= 0) return NULL;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    if (arr[0] == -1) {\n        free(arr);\n        return NULL;\n    }\n    \n    TreeNode *root = create_node(arr[0]);\n    TreeNode **queue = (TreeNode **)malloc(sizeof(TreeNode *) * (n + 10));\n    int head = 0, tail = 0;\n    queue[tail++] = root;\n    int idx = 1;\n    \n    while (head < tail && idx < n) {\n        TreeNode *curr = queue[head++];\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->left = create_node(arr[idx]);\n                queue[tail++] = curr->left;\n            }\n            idx++;\n        }\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->right = create_node(arr[idx]);\n                queue[tail++] = curr->right;\n            }\n            idx++;\n        }\n    }\n    \n    free(queue);\n    free(arr);\n    return root;\n}\n\nbool is_leaf(TreeNode *node) {\n    return node && !node->left && !node->right;\n}\n\nint out_count = 0;\nvoid print_val(int val) {\n    if (out_count > 0) printf(\" \");\n    printf(\"%d\", val);\n    out_count++;\n}\n\nvoid add_left_boundary(TreeNode *root) {\n    TreeNode *curr = root->left;\n    while (curr) {\n        if (!is_leaf(curr)) print_val(curr->val);\n        if (curr->left) curr = curr->left;\n        else curr = curr->right;\n    }\n}\n\nvoid add_leaves(TreeNode *root) {\n    if (!root) return;\n    if (is_leaf(root)) {\n        print_val(root->val);\n        return;\n    }\n    add_leaves(root->left);\n    add_leaves(root->right);\n}\n\nvoid add_right_boundary(TreeNode *root) {\n    TreeNode *curr = root->right;\n    int *temp = (int *)malloc(sizeof(int) * 10005);\n    int count = 0;\n    while (curr) {\n        if (!is_leaf(curr)) temp[count++] = curr->val;\n        if (curr->right) curr = curr->right;\n        else curr = curr->left;\n    }\n    for (int i = count - 1; i >= 0; i--) {\n        print_val(temp[i]);\n    }\n    free(temp);\n}\n\nint main(void) {\n    TreeNode *root = build_tree();\n    if (!root) return 0;\n    \n    print_val(root->val);\n    if (is_leaf(root)) {\n        printf(\"\\n\");\n        return 0;\n    }\n    \n    add_left_boundary(root);\n    add_leaves(root);\n    add_right_boundary(root);\n    printf(\"\\n\");\n    return 0;\n}\n",
+    "hints": [
+      "Check if a node is a leaf (both left and right are NULL).",
+      "Left boundary goes top-down: print current node if not a leaf, then move to curr->left if present, otherwise curr->right.",
+      "Leaves are collected using standard DFS inorder/preorder.",
+      "Right boundary goes bottom-up: store non-leaf nodes in a buffer, moving to curr->right if present, otherwise curr->left, then print buffer in reverse."
+    ],
+    "explanation": "Boundary traversal breaks down cleanly into three disjoint subroutines: left boundary traversal, leaf discovery, and right boundary traversal in reverse. Ensuring leaf nodes are exclusively handled by the leaf collection phase guarantees that corner nodes (the leftmost and rightmost leaves) are never printed twice. Total time complexity is O(N) and space complexity is O(H).",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(h)",
+    "common_mistakes": [
+      "Printing leaf nodes twice (once in boundary, once in leaf traversal).",
+      "Printing right boundary top-down instead of bottom-up.",
+      "Not falling back to the opposite child when navigating a boundary where the primary branch is NULL."
+    ],
+    "related_problems": [
+      "level-order-traversal",
+      "binary-tree-inorder-traversal"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "morgan-stanley"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "7\n1 2 3 4 5 6 7\n",
+        "expected_output": "1 2 4 5 6 7 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Complete 3-level tree boundary"
+      },
+      {
+        "input": "1\n50\n",
+        "expected_output": "50\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single root node"
+      },
+      {
+        "input": "3\n1 2 -1\n",
+        "expected_output": "1 2\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Two node tree"
+      },
+      {
+        "input": "5\n1 -1 2 -1 3\n",
+        "expected_output": "1 3 2\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Right skewed tree"
+      },
+      {
+        "input": "5\n1 2 -1 3 -1\n",
+        "expected_output": "1 2 3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Left skewed tree"
+      }
+    ]
+  },
+  {
+    "id": 129,
+    "title": "Path Sum Equals Target",
+    "slug": "path-sum-equals-target",
+    "difficulty": "hard",
+    "description": "Given a binary tree and an integer `targetSum`, determine if the tree has a **root-to-leaf path** such that adding up all the values along the path equals `targetSum`.\n\nA **leaf** is defined strictly as a node with **no children** (`left == NULL` and `right == NULL`). A path must start at the root and terminate at a leaf.\n\nRecursively, for any node:\n- If the node is `NULL`, return `false`.\n- Subtract the node's value from the current target: `remaining = target - node->val`.\n- If the node is a leaf, return whether `remaining == 0`.\n- Otherwise, recurse on both subtrees: `hasPathSum(node->left, remaining) || hasPathSum(node->right, remaining)`.\n\nPrint `YES` if such a root-to-leaf path exists, or `NO` otherwise.",
+    "input_format": "The first line contains an integer targetSum.\nThe second line contains an integer $N$ followed by $N$ space-separated integers representing level-order traversal (-1 denotes NULL).",
+    "output_format": "Print `YES` if a valid path exists, or `NO` otherwise.",
+    "constraints": "-10^9 <= targetSum <= 10^9\n0 <= N <= 10^4\n-10^5 <= node values <= 10^5 (values >= 0; -1 denotes NULL)",
+    "examples": [
+      {
+        "input": "22\n11 5 4 8 11 -1 13 4 7 2 -1 1\n",
+        "output": "YES\n",
+        "explanation": "Path 5 -> 4 -> 11 -> 2 sums to 22. Valid path exists."
+      },
+      {
+        "input": "5\n3 1 2 3\n",
+        "output": "NO\n",
+        "explanation": "Paths are 1->2 (sum 3) and 1->3 (sum 4). Neither equals 5."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\n// TODO: Determine if root-to-leaf path sums to target\nbool has_path_sum(TreeNode *root, long long target) {\n    return false;\n}\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct TreeNode {\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n} TreeNode;\n\nTreeNode* create_node(int val) {\n    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));\n    node->val = val;\n    node->left = NULL;\n    node->right = NULL;\n    return node;\n}\n\nTreeNode* build_tree() {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n <= 0) return NULL;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    if (arr[0] == -1) {\n        free(arr);\n        return NULL;\n    }\n    \n    TreeNode *root = create_node(arr[0]);\n    TreeNode **queue = (TreeNode **)malloc(sizeof(TreeNode *) * (n + 10));\n    int head = 0, tail = 0;\n    queue[tail++] = root;\n    int idx = 1;\n    \n    while (head < tail && idx < n) {\n        TreeNode *curr = queue[head++];\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->left = create_node(arr[idx]);\n                queue[tail++] = curr->left;\n            }\n            idx++;\n        }\n        if (idx < n) {\n            if (arr[idx] != -1) {\n                curr->right = create_node(arr[idx]);\n                queue[tail++] = curr->right;\n            }\n            idx++;\n        }\n    }\n    \n    free(queue);\n    free(arr);\n    return root;\n}\n\nbool has_path_sum(TreeNode *root, long long target) {\n    if (!root) return false;\n    if (!root->left && !root->right) {\n        return (target == root->val);\n    }\n    return has_path_sum(root->left, target - root->val) ||\n           has_path_sum(root->right, target - root->val);\n}\n\nint main(void) {\n    long long target;\n    if (scanf(\"%lld\", &target) != 1) return 0;\n    TreeNode *root = build_tree();\n    if (has_path_sum(root, target)) {\n        printf(\"YES\\n\");\n    } else {\n        printf(\"NO\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Check if current node is a leaf: !root->left && !root->right.",
+      "For a leaf, check if target == root->val.",
+      "For an internal node, recursively test target - root->val on left and right children.",
+      "An empty tree has no paths, so return false if root is NULL."
+    ],
+    "explanation": "Path sum is a classic top-down DFS exploration. Subtracting node values along the way transforms the problem into finding a path with remaining sum in the subtrees. Checking the leaf condition explicitly ensures paths cannot terminate prematurely at internal nodes with only one child. Time complexity is O(N) visiting each node once, and space is O(H) for recursion stack.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(h)",
+    "common_mistakes": [
+      "Returning true for a non-leaf node whose sum matches target, violating the root-to-leaf requirement.",
+      "Not handling negative node values or negative target sums.",
+      "Returning true for an empty tree when targetSum == 0."
+    ],
+    "related_problems": [
+      "tree-height-and-diameter",
+      "level-order-traversal"
+    ],
+    "topic_slug": "trees-bst",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "facebook"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "22\n11 5 4 8 11 -1 13 4 7 2 -1 1\n",
+        "expected_output": "YES\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard binary tree with matching path sum 22"
+      },
+      {
+        "input": "5\n3 1 2 3\n",
+        "expected_output": "NO\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "No path matches target sum 5"
+      },
+      {
+        "input": "0\n0\n",
+        "expected_output": "NO\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Empty tree has no paths"
+      },
+      {
+        "input": "42\n1 42\n",
+        "expected_output": "YES\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single root node matching target"
+      },
+      {
+        "input": "10\n1 42\n",
+        "expected_output": "NO\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single root node not matching target"
+      }
+    ]
+  }
+]

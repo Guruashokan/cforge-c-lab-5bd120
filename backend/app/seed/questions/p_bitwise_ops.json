@@ -1,0 +1,740 @@
+[
+  {
+    "id": 160,
+    "title": "Basic Bit Operations",
+    "slug": "basic-bit-operations",
+    "difficulty": "medium",
+    "description": "Bit manipulation is a fundamental skill in low-level C programming, embedded systems, operating system kernels, and device drivers. Direct manipulation of individual bits within an integer allows for compact state representation, fast flag checking, and direct hardware register access.\n\nGiven a 32-bit unsigned integer $N$ and a series of $Q$ queries, you are required to perform the following four bitwise operations:\n1. `1 k` (**Set Bit**): Set the $k$-th bit of $N$ to 1 ($N = N \\mid (1U \\ll k)$).\n2. `2 k` (**Clear Bit**): Clear the $k$-th bit of $N$ to 0 ($N = N \\,\\&\\, \\sim(1U \\ll k)$).\n3. `3 k` (**Toggle Bit**): Invert the $k$-th bit of $N$ ($N = N \\oplus (1U \\ll k)$).\n4. `4 k` (**Check Bit**): Check whether the $k$-th bit of $N$ is set. Print `1` if the bit is set, or `0` if it is not set.\n\nBit indices are 0-indexed, ranging from $0$ (the least significant bit, LSB) to $31$ (the most significant bit, MSB). Operations 1, 2, and 3 modify the value of $N$ in-place without generating output. Operation 4 prints the bit value on a new line. After processing all $Q$ queries, print the final value of $N$ as an unsigned 32-bit decimal integer on a new line.",
+    "input_format": "The first line contains two integers: N (an unsigned 32-bit integer, 0 <= N < 2^32) and Q (the number of queries, 1 <= Q <= 1000). The next Q lines each contain two integers: op (1 to 4) and k (the bit position, 0 <= k <= 31).",
+    "output_format": "For each operation of type 4, print the bit value (0 or 1) on a new line. On the final line after all queries, print the final value of N as an unsigned 32-bit integer.",
+    "constraints": "0 <= N < 2^32, 1 <= Q <= 1000, 1 <= op <= 4, 0 <= k <= 31",
+    "examples": [
+      {
+        "input": "0 3\n1 2\n4 2\n3 2\n",
+        "output": "1\n0\n",
+        "explanation": "Initially N=0. Op 1: set bit 2 (N becomes 4). Op 2: check bit 2 (prints 1). Op 3: toggle bit 2 (N becomes 0). Final N is 0."
+      },
+      {
+        "input": "15 3\n2 1\n4 1\n4 0\n",
+        "output": "0\n1\n13\n",
+        "explanation": "Initially N=15 (binary 1111). Clear bit 1 -> N=13 (binary 1101). Check bit 1 -> prints 0. Check bit 0 -> prints 1. Final N is 13."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    unsigned int n;\n    int q;\n    if (scanf(\"%u %d\", &n, &q) != 2) return 0;\n    \n    // Process queries and print bit states\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    unsigned int n;\n    int q;\n    if (scanf(\"%u %d\", &n, &q) != 2) return 0;\n    \n    for (int i = 0; i < q; i++) {\n        int op, k;\n        if (scanf(\"%d %d\", &op, &k) != 2) break;\n        \n        switch (op) {\n            case 1:\n                n |= (1U << k);\n                break;\n            case 2:\n                n &= ~(1U << k);\n                break;\n            case 3:\n                n ^= (1U << k);\n                break;\n            case 4:\n                printf(\"%u\\n\", (n >> k) & 1U);\n                break;\n            default:\n                break;\n        }\n    }\n    \n    printf(\"%u\\n\", n);\n    return 0;\n}\n",
+    "hints": [
+      "Use the unsigned literal 1U for bit shifts to avoid undefined behavior when shifting bit 31.",
+      "Setting a bit uses bitwise OR (|), clearing uses bitwise AND with NOT (& ~), and toggling uses bitwise XOR (^).",
+      "Checking the k-th bit can be done by shifting right by k and masking with 1: (n >> k) & 1U."
+    ],
+    "explanation": "Bitwise operators in C directly translate to single CPU instructions: OR for setting, AND-NOT for clearing, and XOR for toggling. Shifting right by k brings the target bit into the least significant position where masking with 1 extracts its binary state in O(1) time.",
+    "time_complexity": "O(Q)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using signed literal 1 instead of 1U, which causes undefined behavior when shifting by 31 bits.",
+      "Confusing bitwise operators (&, |, ^) with logical operators (&&, ||).",
+      "Forgetting that bit indexing is 0-based."
+    ],
+    "related_problems": [
+      "count-set-bits",
+      "power-of-two-check"
+    ],
+    "topic_slug": "bitwise-operations",
+    "company_slugs": [
+      "intel",
+      "qualcomm",
+      "microsoft",
+      "cisco"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "0 3\n1 2\n4 2\n3 2\n",
+        "expected_output": "1\n0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard set, check, and toggle sequence"
+      },
+      {
+        "input": "15 3\n2 1\n4 1\n4 0\n",
+        "expected_output": "0\n1\n13\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Clear and check bits on non-zero initial integer"
+      },
+      {
+        "input": "0 2\n1 0\n1 31\n",
+        "expected_output": "2147483649\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Boundary bits: set LSB (bit 0) and MSB (bit 31)"
+      },
+      {
+        "input": "4294967295 2\n2 0\n4 0\n",
+        "expected_output": "0\n4294967294\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All bits set (2^32 - 1) clearing bit 0"
+      },
+      {
+        "input": "8 3\n4 3\n3 3\n4 3\n",
+        "expected_output": "1\n0\n0\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Checking, toggling, and rechecking single bit"
+      },
+      {
+        "input": "5 4\n1 1\n2 0\n3 2\n4 1\n",
+        "expected_output": "1\n3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Mixed sequence of operations"
+      }
+    ]
+  },
+  {
+    "id": 161,
+    "title": "Count Set Bits",
+    "slug": "count-set-bits",
+    "difficulty": "medium",
+    "description": "Given a 64-bit unsigned integer $N$, count the total number of set bits (bits with value 1, also known as the Hamming weight or population count) in its binary representation.\n\nA straightforward solution shifts the integer right 64 times and inspects each bit, requiring a constant 64 iterations regardless of how few bits are actually set. However, a much more efficient technique is **Brian Kernighan's Algorithm**.\n\nKernighan's algorithm exploits the key algebraic property of two's complement binary subtraction: subtracting $1$ from a number flips all bits up to and including the lowest (rightmost) set bit. Performing a bitwise AND between $N$ and $N - 1$ ($N = N \\,\\&\\, (N - 1)$) therefore clears the least significant set bit while leaving all higher bits intact.\n\nBy repeatedly applying $N = N \\,\\&\\, (N - 1)$ until $N$ becomes 0, the loop runs exactly $K$ times, where $K$ is the number of set bits. In the worst case ($2^{64}-1$), it runs 64 times; in sparse numbers, it finishes in just a few iterations. Implement this algorithm using 64-bit unsigned integers (`unsigned long long`).",
+    "input_format": "A single line containing an unsigned 64-bit integer N (0 <= N < 2^64).",
+    "output_format": "Print a single integer representing the count of set bits in the binary representation of N.",
+    "constraints": "0 <= N < 2^64",
+    "examples": [
+      {
+        "input": "5\n",
+        "output": "2\n",
+        "explanation": "The binary representation of 5 is 101, which contains 2 set bits."
+      },
+      {
+        "input": "0\n",
+        "output": "0\n",
+        "explanation": "0 has no set bits."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    unsigned long long n;\n    if (scanf(\"%llu\", &n) != 1) return 0;\n    \n    // Implement Brian Kernighan's algorithm\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    unsigned long long n;\n    if (scanf(\"%llu\", &n) != 1) return 0;\n    \n    int count = 0;\n    while (n != 0ULL) {\n        n &= (n - 1ULL);\n        count++;\n    }\n    \n    printf(\"%d\\n\", count);\n    return 0;\n}\n",
+    "hints": [
+      "Use the property that (n & (n - 1)) clears the rightmost set bit of n.",
+      "Increment a counter in each iteration of the while (n) loop.",
+      "Ensure the variable n is declared as 'unsigned long long' and read using '%llu'."
+    ],
+    "explanation": "In Brian Kernighan's algorithm, n & (n - 1) clears the lowest set bit. For example, if n = 12 (binary 1100), n - 1 = 11 (binary 1011). Computing 1100 & 1011 yields 1000 (clearing the lowest set bit). The loop terminates as soon as all set bits are cleared.",
+    "time_complexity": "O(K) where K is the number of set bits (at most 64)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using 32-bit 'int' which cannot store 64-bit values and truncates input.",
+      "Using signed integer operations where right shift can replicate the sign bit (arithmetic shift).",
+      "Failing to handle 0 correctly (the while loop should immediately terminate with count 0)."
+    ],
+    "related_problems": [
+      "basic-bit-operations",
+      "power-of-two-check"
+    ],
+    "topic_slug": "bitwise-operations",
+    "company_slugs": [
+      "microsoft",
+      "google",
+      "apple",
+      "bloomberg"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "5\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small number with 2 set bits"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Zero with 0 set bits"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single bit set"
+      },
+      {
+        "input": "15\n",
+        "expected_output": "4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Four set bits (binary 1111)"
+      },
+      {
+        "input": "18446744073709551615\n",
+        "expected_output": "64\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All 64 bits set (2^64 - 1)"
+      },
+      {
+        "input": "9223372036854775808\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Highest bit set (2^63)"
+      }
+    ]
+  },
+  {
+    "id": 162,
+    "title": "Power of Two Check",
+    "slug": "power-of-two-check",
+    "difficulty": "medium",
+    "description": "Given a 64-bit signed integer $N$, determine whether it is a power of two. An integer $N$ is defined as a power of two if there exists an integer $x \\ge 0$ such that $N = 2^x$.\n\nWhile one could test this property using repetitive division by 2 or logarithmic functions, bitwise operations provide an elegant $O(1)$ constant-time test:\n1. Every positive power of two in binary representation contains exactly one set bit (e.g. $1 = 0001_2$, $2 = 0010_2$, $4 = 0100_2$, $8 = 1000_2$).\n2. Subtracting $1$ from a power of two flips that single set bit to 0 and turns all lower bits into 1s (e.g. $4 - 1 = 3 = 0011_2$).\n3. Consequently, the bitwise AND operation between $N$ and $N - 1$ must evaluate strictly to zero: $N \\,\\&\\, (N - 1) == 0$.\n4. Be attentive to edge cases: zero ($0$) and negative numbers (including $-2^{63}$) are never powers of two. Thus, the complete condition is $N > 0 \\text{ and } (N \\,\\&\\, (N - 1)) == 0$.\n\nGiven $T$ test cases, each containing a signed 64-bit integer, output `YES` if the integer is a power of two, or `NO` otherwise.",
+    "input_format": "The first line contains an integer T (1 <= T <= 1000). The next T lines each contain a signed 64-bit integer N (-2^63 <= N <= 2^63 - 1).",
+    "output_format": "For each test case, print YES if N is a power of two, or NO otherwise, on a new line.",
+    "constraints": "1 <= T <= 1000, -2^63 <= N <= 2^63 - 1",
+    "examples": [
+      {
+        "input": "3\n1\n16\n3\n",
+        "output": "YES\nYES\nNO\n",
+        "explanation": "1 = 2^0 (YES), 16 = 2^4 (YES), 3 is not a power of 2 (NO)."
+      },
+      {
+        "input": "3\n0\n-2\n-16\n",
+        "output": "NO\nNO\nNO\n",
+        "explanation": "Zero and negative numbers cannot be positive powers of two."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    \n    // Check if each signed 64-bit integer is a power of two\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    \n    while (t--) {\n        long long n;\n        if (scanf(\"%lld\", &n) != 1) break;\n        \n        if (n > 0 && (n & (n - 1)) == 0) {\n            printf(\"YES\\n\");\n        } else {\n            printf(\"NO\\n\");\n        }\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "A positive power of two has exactly one set bit.",
+      "If n > 0, then (n & (n - 1)) == 0 is true if and only if n is a power of two.",
+      "Carefully handle n <= 0: negative numbers and zero must return NO."
+    ],
+    "explanation": "For any positive power of two, its binary representation is 1 followed by zeros. Subtracting 1 yields 0 followed by ones. Performing bitwise AND yields 0. For non-powers of two, other set bits remain. We guard against non-positive numbers with n > 0.",
+    "time_complexity": "O(1) per test case",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Forgetting to check n > 0; for n = 0, 0 & -1 evaluates to 0, which would falsely report YES.",
+      "Signed overflow with INT64_MIN: subtracting 1 from -2^63 causes signed integer underflow if not guarded by n > 0.",
+      "Using floating-point log2 functions which suffer from precision issues on large 64-bit integers."
+    ],
+    "related_problems": [
+      "count-set-bits",
+      "basic-bit-operations"
+    ],
+    "topic_slug": "bitwise-operations",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "microsoft",
+      "adobe"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "3\n1\n16\n3\n",
+        "expected_output": "YES\nYES\nNO\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard positive powers and non-powers"
+      },
+      {
+        "input": "3\n0\n-2\n-16\n",
+        "expected_output": "NO\nNO\nNO\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Zero and negative numbers"
+      },
+      {
+        "input": "2\n1024\n1023\n",
+        "expected_output": "YES\nNO\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "1024 (2^10) vs 1023"
+      },
+      {
+        "input": "1\n4611686018427387904\n",
+        "expected_output": "YES\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Large power of two 2^62"
+      },
+      {
+        "input": "2\n-9223372036854775808\n2147483648\n",
+        "expected_output": "NO\nYES\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Minimum signed 64-bit int (-2^63) and 2^31"
+      }
+    ]
+  },
+  {
+    "id": 163,
+    "title": "Single Number (XOR)",
+    "slug": "single-number-xor",
+    "difficulty": "hard",
+    "description": "You are given a non-empty array of integers $nums$ where every element appears exactly twice, except for one unique element which appears exactly once. Find and return that unique single element.\n\nYou must design and implement an algorithm that runs in $O(N)$ linear time and uses only $O(1)$ auxiliary space.\n\nWhile sorting the array takes $O(N \\log N)$ time and a hash table requires $O(N)$ auxiliary space, the bitwise exclusive OR (XOR) operator $\\oplus$ provides a mathematically optimal $O(N)$ time and $O(1)$ space solution. XOR exhibits three crucial algebraic properties:\n1. **Self-inverse**: $x \\oplus x = 0$ (any integer XORed with itself cancels out to zero).\n2. **Identity element**: $x \\oplus 0 = x$ (XORing any integer with zero leaves the integer unchanged).\n3. **Commutativity and Associativity**: $a \\oplus b \\oplus c = c \\oplus a \\oplus b$ (the order of operands does not affect the outcome).\n\nTherefore, taking the cumulative XOR sum of all elements in the array cancels out every paired duplicate $(x \\oplus x = 0)$, leaving behind only the unique single number: $0 \\oplus \\dots \\oplus 0 \\oplus unique = unique$.",
+    "input_format": "The first line contains an odd integer N (1 <= N <= 200001). The second line contains N space-separated signed integers (-2*10^9 <= nums[i] <= 2*10^9).",
+    "output_format": "Print a single integer representing the non-repeating element.",
+    "constraints": "1 <= N <= 200001, N is odd, exactly one element appears once and all others appear twice",
+    "examples": [
+      {
+        "input": "3\n2 2 1\n",
+        "output": "1\n",
+        "explanation": "2 appears twice and 1 appears once. Output is 1."
+      },
+      {
+        "input": "5\n4 1 2 1 2\n",
+        "output": "4\n",
+        "explanation": "1 and 2 appear twice, while 4 appears once."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Find unique element in O(N) time and O(1) space\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int result = 0;\n    for (int i = 0; i < n; i++) {\n        int x;\n        scanf(\"%d\", &x);\n        result ^= x;\n    }\n    \n    printf(\"%d\\n\", result);\n    return 0;\n}\n",
+    "hints": [
+      "Recall that x ^ x = 0 and x ^ 0 = x.",
+      "Since XOR is commutative and associative, duplicates will cancel out regardless of their position.",
+      "Initialize an accumulator to 0 and XOR each incoming integer directly."
+    ],
+    "explanation": "Accumulating the XOR of all array values cancels out paired duplicate numbers (since a ^ a = 0). The unique element remains because 0 ^ unique = unique. We do not even need to store the array in memory; we can XOR numbers on the fly as they are read from stdin.",
+    "time_complexity": "O(N)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Allocating a large frequency map or sorting, which violates the O(1) auxiliary space requirement.",
+      "Assuming numbers must be positive; bitwise XOR works identically on two's complement signed negative integers.",
+      "Initializing the accumulator to anything other than 0."
+    ],
+    "related_problems": [
+      "two-non-repeating-elements",
+      "basic-bit-operations"
+    ],
+    "topic_slug": "bitwise-operations",
+    "company_slugs": [
+      "amazon",
+      "google",
+      "microsoft",
+      "meta"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "3\n2 2 1\n",
+        "expected_output": "1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small 3-element test case"
+      },
+      {
+        "input": "5\n4 1 2 1 2\n",
+        "expected_output": "4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "5-element test case with unique at start"
+      },
+      {
+        "input": "1\n42\n",
+        "expected_output": "42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array N=1"
+      },
+      {
+        "input": "7\n-5 10 -5 10 99 7 7\n",
+        "expected_output": "99\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Array containing negative integers and positive duplicates"
+      },
+      {
+        "input": "5\n-1000000000 0 -1000000000 555 0\n",
+        "expected_output": "555\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Array with zero duplicates and large negative numbers"
+      },
+      {
+        "input": "9\n100 200 300 400 500 400 300 200 100\n",
+        "expected_output": "500\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Symmetric palindrome array"
+      }
+    ]
+  },
+  {
+    "id": 164,
+    "title": "Two Non-Repeating Elements",
+    "slug": "two-non-repeating-elements",
+    "difficulty": "hard",
+    "description": "You are given an array of integers $nums$ where every element appears exactly twice, except for two distinct elements $u_1$ and $u_2$ which appear exactly once. Find and return the two unique elements in ascending order.\n\nYour algorithm must achieve $O(N)$ linear time complexity and use $O(1)$ auxiliary space.\n\nIf we XOR all numbers in the array, all duplicate pairs cancel out, yielding $X = u_1 \\oplus u_2$. Because $u_1 \\ne u_2$, at least one bit must differ between them, meaning $X \\ne 0$.\n1. Find a bit position where $X$ has a set bit (value 1). An easy way to isolate the lowest set bit is $diff = X \\,\\&\\, (-X)$ (using unsigned arithmetic to avoid signed overflow).\n2. This bit position signifies that between $u_1$ and $u_2$, one number has a 1 at this position and the other has a 0.\n3. Divide all numbers in the array into two disjoint sets:\n   - Group A: numbers where the $diff$ bit is 1.\n   - Group B: numbers where the $diff$ bit is 0.\n4. Any duplicate pair has identical bits, so both copies fall into the same group and cancel out when XORed. $u_1$ and $u_2$ land in separate groups.\n5. XORing each group independently yields $u_1$ and $u_2$. Print the two numbers in ascending order separated by a space.",
+    "input_format": "The first line contains an even integer N (4 <= N <= 200002). The second line contains N space-separated signed integers (-2*10^9 <= nums[i] <= 2*10^9).",
+    "output_format": "Print the two unique numbers separated by a space in ascending order (smaller number first).",
+    "constraints": "4 <= N <= 200002, N is even, exactly two elements appear once and all others appear twice",
+    "examples": [
+      {
+        "input": "6\n1 2 1 3 2 5\n",
+        "output": "3 5\n",
+        "explanation": "Elements 1 and 2 appear twice; 3 and 5 appear once. In ascending order: 3 5."
+      },
+      {
+        "input": "4\n-1 0 -1 2\n",
+        "output": "0 2\n",
+        "explanation": "Unique elements are 0 and 2."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Find the two unique elements in O(N) time and O(1) space\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int *nums = (int *)malloc(n * sizeof(int));\n    if (!nums) return 1;\n    \n    unsigned int xor_sum = 0;\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &nums[i]);\n        xor_sum ^= (unsigned int)nums[i];\n    }\n    \n    // Isolate lowest set bit using unsigned arithmetic\n    unsigned int diff_bit = xor_sum & (-xor_sum);\n    \n    int u1 = 0, u2 = 0;\n    for (int i = 0; i < n; i++) {\n        if (((unsigned int)nums[i]) & diff_bit) {\n            u1 ^= nums[i];\n        } else {\n            u2 ^= nums[i];\n        }\n    }\n    \n    if (u1 > u2) {\n        int temp = u1;\n        u1 = u2;\n        u2 = temp;\n    }\n    \n    printf(\"%d %d\\n\", u1, u2);\n    free(nums);\n    return 0;\n}\n",
+    "hints": [
+      "XORing all elements yields X = u1 ^ u2.",
+      "Use diff_bit = xor_sum & (-xor_sum) to find the lowest bit where u1 and u2 differ.",
+      "Partition the numbers into two subsets based on this bit and XOR each subset."
+    ],
+    "explanation": "By XORing all elements, paired elements cancel, leaving u1 ^ u2. Since u1 != u2, at least one bit differs. Using diff_bit = x & (-x) identifies a distinguishing bit. We then partition all elements into two buckets based on this bit. Both u1 and u2 fall into different buckets, while any duplicates land together and cancel out.",
+    "time_complexity": "O(N)",
+    "space_complexity": "O(N) for input storage",
+    "common_mistakes": [
+      "Performing signed negation (-x) on INT_MIN which causes signed overflow and undefined behavior in C. Always cast to unsigned int.",
+      "Forgetting to sort the two resulting integers before printing.",
+      "Using bit shift with signed types without masking."
+    ],
+    "related_problems": [
+      "single-number-xor",
+      "basic-bit-operations"
+    ],
+    "topic_slug": "bitwise-operations",
+    "company_slugs": [
+      "facebook",
+      "amazon",
+      "microsoft",
+      "bloomberg"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6\n1 2 1 3 2 5\n",
+        "expected_output": "3 5\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 6-element test case"
+      },
+      {
+        "input": "4\n-1 0 -1 2\n",
+        "expected_output": "0 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Array with zero and negative duplicates"
+      },
+      {
+        "input": "4\n7 12 7 9\n",
+        "expected_output": "9 12\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Small 4-element case with 9 and 12 unique"
+      },
+      {
+        "input": "6\n100 500 100 300 300 200\n",
+        "expected_output": "200 500\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Unique elements 200 and 500"
+      },
+      {
+        "input": "8\n-50 -20 10 20 -50 10 20 5\n",
+        "expected_output": "-20 5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Negative and positive unique elements"
+      },
+      {
+        "input": "4\n-2147483648 1 -2147483648 2\n",
+        "expected_output": "1 2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "INT_MIN as duplicate to test overflow safety"
+      }
+    ]
+  },
+  {
+    "id": 165,
+    "title": "Reverse Bits",
+    "slug": "reverse-bits",
+    "difficulty": "hard",
+    "description": "Reverse all 32 bits of a given 32-bit unsigned integer $N$. In many systems programming scenarios—such as network protocol serialization, digital signal processing (FFT permutation), and graphics rasterization—bit reversal is an essential low-level operation.\n\nFor example, given the 32-bit integer $43261596$, its binary representation is:\n`00000010100101000001111010011100`\nReversing all 32 bits yields:\n`00111001011110000010100101000000`\nwhich represents the decimal integer $964176192$.\n\nYou can implement bit reversal using a divide-and-conquer bitmask swapping approach that executes in $O(1)$ operations without loops:\n1. Swap adjacent 1-bit pairs using mask `0x55555555`.\n2. Swap adjacent 2-bit blocks using mask `0x33333333`.\n3. Swap adjacent 4-bit nibbles using mask `0x0F0F0F0F`.\n4. Swap adjacent 8-bit bytes using mask `0x00FF00FF`.\n5. Swap 16-bit half-words: `(n >> 16) | (n << 16)`.\n\nRead an unsigned 32-bit integer from standard input, reverse its 32 bits, and print the resulting decimal integer.",
+    "input_format": "A single line containing an unsigned 32-bit integer N (0 <= N < 2^32).",
+    "output_format": "Print a single unsigned 32-bit integer representing the value obtained after reversing all 32 bits.",
+    "constraints": "0 <= N < 2^32",
+    "examples": [
+      {
+        "input": "43261596\n",
+        "output": "964176192\n",
+        "explanation": "Binary 00000010100101000001111010011100 reversed is 00111001011110000010100101000000 (964176192)."
+      },
+      {
+        "input": "1\n",
+        "output": "2147483648\n",
+        "explanation": "1 has only bit 0 set. When reversed, bit 31 is set, yielding 2^31 = 2147483648."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nunsigned int reverse_bits(unsigned int n) {\n    // Write bit reversal here\n    return 0;\n}\n\nint main(void) {\n    unsigned int n;\n    if (scanf(\"%u\", &n) != 1) return 0;\n    \n    printf(\"%u\\n\", reverse_bits(n));\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nunsigned int reverse_bits(unsigned int n) {\n    n = ((n >> 1) & 0x55555555U) | ((n & 0x55555555U) << 1);\n    n = ((n >> 2) & 0x33333333U) | ((n & 0x33333333U) << 2);\n    n = ((n >> 4) & 0x0F0F0F0FU) | ((n & 0x0F0F0F0FU) << 4);\n    n = ((n >> 8) & 0x00FF00FFU) | ((n & 0x00FF00FFU) << 8);\n    n = (n >> 16) | (n << 16);\n    return n;\n}\n\nint main(void) {\n    unsigned int n;\n    if (scanf(\"%u\", &n) != 1) return 0;\n    \n    printf(\"%u\\n\", reverse_bits(n));\n    return 0;\n}\n",
+    "hints": [
+      "You can reverse bits in a 32-step loop or using divide-and-conquer bitmasks.",
+      "In divide-and-conquer, swap adjacent 1-bit fields, then 2-bit fields, 4-bit fields, 8-bit bytes, and 16-bit halves.",
+      "Remember to use unsigned int and the 'U' suffix on constants to avoid signed arithmetic issues."
+    ],
+    "explanation": "Using divide-and-conquer, we swap bits in pairs of 1, then pairs of 2, pairs of 4, pairs of 8, and finally swap the upper and lower 16 bits. This runs in 5 bitwise swap steps (O(1) time complexity) without loops or branches.",
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Reversing only the active bits rather than all 32 bits (leading zeros must become trailing zeros).",
+      "Signed overflow when shifting bit 31 into the sign bit of a signed int.",
+      "Using 64-bit reversal masks instead of 32-bit masks."
+    ],
+    "related_problems": [
+      "basic-bit-operations",
+      "count-set-bits"
+    ],
+    "topic_slug": "bitwise-operations",
+    "company_slugs": [
+      "apple",
+      "google",
+      "bloomberg",
+      "qualcomm"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "43261596\n",
+        "expected_output": "964176192\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 32-bit number reversal"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "2147483648\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Bit 0 reversed to Bit 31"
+      },
+      {
+        "input": "0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Zero reversed is zero"
+      },
+      {
+        "input": "4294967295\n",
+        "expected_output": "4294967295\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All 1s (0xFFFFFFFF) reversed is 0xFFFFFFFF"
+      },
+      {
+        "input": "2147483648\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Bit 31 reversed to Bit 0"
+      },
+      {
+        "input": "305419896\n",
+        "expected_output": "504629760\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "0x12345678 reversed"
+      }
+    ]
+  },
+  {
+    "id": 166,
+    "title": "Bitmask Subset Enumeration",
+    "slug": "bitmask-subset-enumeration",
+    "difficulty": "very_hard",
+    "description": "Bitmasking is one of the most powerful paradigms in competitive programming and systems engineering. Because an integer's binary representation is a sequence of 0s and 1s, an integer can directly model the membership of elements in a subset.\n\nFor a set containing $N$ distinct elements, there are exactly $2^N$ possible subsets (the power set). Each integer $mask$ from $0$ to $2^N - 1$ corresponds to a unique subset. The $i$-th bit of $mask$ (where $0 \\le i < N$) is 1 if and only if the $i$-th element of the set is included in that subset.\n\nGiven a set of $N$ distinct integers:\n1. First, sort the elements in ascending order: $A[0] < A[1] < \\dots < A[N-1]$.\n2. Enumerate all $2^N$ subsets in ascending order of their numeric bitmask value, from $mask = 0$ to $mask = 2^N - 1$.\n3. For each $mask$, inspect bits $i = 0, 1, \\dots, N-1$. If $((mask \\gg i) \\,\\&\\, 1) == 1$, include element $A[i]$ in the subset.\n4. Output each subset on its own line, with elements separated by a single space. For the empty subset ($mask = 0$), output `EMPTY`.\n\nBecause $N \\le 15$, $2^N \\le 32768$, allowing enumeration to execute rapidly within standard time limits.",
+    "input_format": "The first line contains an integer N (1 <= N <= 15). The second line contains N space-separated distinct integers (-10^6 <= arr[i] <= 10^6).",
+    "output_format": "Print 2^N lines, each representing the subset corresponding to bitmask values 0, 1, ..., 2^N - 1. Print EMPTY for mask 0.",
+    "constraints": "1 <= N <= 15, -10^6 <= arr[i] <= 10^6, all elements distinct",
+    "examples": [
+      {
+        "input": "2\n1 2\n",
+        "output": "EMPTY\n1\n2\n1 2\n",
+        "explanation": "Mask 0 (00): EMPTY. Mask 1 (01): 1. Mask 2 (10): 2. Mask 3 (11): 1 2."
+      },
+      {
+        "input": "3\n3 1 2\n",
+        "output": "EMPTY\n1\n2\n1 2\n3\n1 3\n2 3\n1 2 3\n",
+        "explanation": "After sorting: [1, 2, 3]. Subsets are printed in bitmask order 0 through 7."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// Comparison function for qsort\nint compare(const void *a, const void *b) {\n    return (*(int *)a - *(int *)b);\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Sort array and enumerate subsets using bitmask from 0 to (1 << n) - 1\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nstatic int compare(const void *a, const void *b) {\n    int valA = *(const int *)a;\n    int valB = *(const int *)b;\n    if (valA < valB) return -1;\n    if (valA > valB) return 1;\n    return 0;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int arr[20];\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    qsort(arr, n, sizeof(int), compare);\n    \n    int total_subsets = 1 << n;\n    for (int mask = 0; mask < total_subsets; mask++) {\n        if (mask == 0) {\n            printf(\"EMPTY\\n\");\n            continue;\n        }\n        \n        int first = 1;\n        for (int i = 0; i < n; i++) {\n            if ((mask >> i) & 1) {\n                if (!first) {\n                    putchar(' ');\n                }\n                printf(\"%d\", arr[i]);\n                first = 0;\n            }\n        }\n        putchar('\\n');\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Sort the array first so elements are assigned bit positions in ascending order.",
+      "Loop mask from 0 to (1 << n) - 1.",
+      "For mask == 0, print 'EMPTY'. For other masks, check if (mask >> i) & 1 is non-zero."
+    ],
+    "explanation": "Each integer from 0 to (2^N - 1) serves as a binary characteristic vector for subset inclusion. Sorting the input array first ensures that bit 0 corresponds to the smallest element, bit 1 to the second smallest, and so on. We iterate through all masks in order, checking each bit in O(N) time.",
+    "time_complexity": "O(N * 2^N)",
+    "space_complexity": "O(N)",
+    "common_mistakes": [
+      "Omitting the sorting step, which leads to incorrect subset ordering.",
+      "Printing extra trailing spaces at the end of subset lines.",
+      "Using 1 << n without ensuring n < 31 (here N <= 15, so 1 << N is safe)."
+    ],
+    "related_problems": [
+      "maximum-xor-pair",
+      "basic-bit-operations"
+    ],
+    "topic_slug": "bitwise-operations",
+    "company_slugs": [
+      "facebook",
+      "google",
+      "uber",
+      "palantir"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "2\n1 2\n",
+        "expected_output": "EMPTY\n1\n2\n1 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "N=2 standard test"
+      },
+      {
+        "input": "3\n3 1 2\n",
+        "expected_output": "EMPTY\n1\n2\n1 2\n3\n1 3\n2 3\n1 2 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "N=3 unsorted input test"
+      },
+      {
+        "input": "1\n42\n",
+        "expected_output": "EMPTY\n42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element boundary case N=1"
+      },
+      {
+        "input": "3\n10 -5 0\n",
+        "expected_output": "EMPTY\n-5\n0\n-5 0\n10\n-5 10\n0 10\n-5 0 10\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Negative numbers requiring sorting"
+      },
+      {
+        "input": "4\n4 3 2 1\n",
+        "expected_output": "EMPTY\n1\n2\n1 2\n3\n1 3\n2 3\n1 2 3\n4\n1 4\n2 4\n1 2 4\n3 4\n1 3 4\n2 3 4\n1 2 3 4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "N=4 reverse sorted elements"
+      }
+    ]
+  },
+  {
+    "id": 167,
+    "title": "Maximum XOR Pair",
+    "slug": "maximum-xor-pair",
+    "difficulty": "very_hard",
+    "description": "Given an array of $N$ non-negative integers $nums$, find the maximum bitwise XOR value that can be obtained by choosing any two distinct elements (i.e. find $\\max_{0 \\le i < j < N} (nums[i] \\oplus nums[j])$).\n\nA naive brute-force algorithm tests all $\\frac{N(N-1)}{2}$ pairs, which requires $O(N^2)$ time. When $N = 100,000$, this will result in a Time Limit Exceeded error. You must implement an optimal $O(30 \\cdot N) = O(N)$ algorithm using a **Bitwise Trie** (a prefix tree over binary digits 0 and 1).\n\nIn a Bitwise Trie:\n1. Each node has at most two children: child 0 and child 1.\n2. For every number, insert its 30-bit binary representation (from the most significant bit, bit 29, down to bit 0) into the Trie.\n3. To maximize the XOR product with a given number $x$, we greedily seek opposite bits at each step. At bit $b$, if bit $b$ of $x$ is 0, we prefer to branch into child 1 (since $0 \\oplus 1 = 1$). If bit $b$ of $x$ is 1, we prefer child 0 (since $1 \\oplus 0 = 1$).\n4. If the preferred opposite branch exists in the Trie, take it and accumulate $1 \\ll b$ into the current XOR sum; otherwise, take the same bit branch.\n5. Query each number against the Trie and record the maximum XOR achieved across all numbers.\n\nGiven $N$ integers up to $10^9$, compute and print the maximum pairwise XOR.",
+    "input_format": "The first line contains an integer N (2 <= N <= 100000). The second line contains N space-separated non-negative integers (0 <= nums[i] <= 10^9).",
+    "output_format": "Print a single integer representing the maximum XOR value of any two elements in the array.",
+    "constraints": "2 <= N <= 100000, 0 <= nums[i] <= 10^9",
+    "examples": [
+      {
+        "input": "6\n3 10 5 25 2 8\n",
+        "output": "28\n",
+        "explanation": "The maximum result is 5 ^ 25 = 28 (binary 00101 ^ 11001 = 11100)."
+      },
+      {
+        "input": "2\n0 0\n",
+        "output": "0\n",
+        "explanation": "0 ^ 0 = 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// Define Bitwise Trie structure or static arrays\n// Implement insertion and greedy query\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Implement Bitwise Trie to find max XOR pair in O(N)\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\n#define MAX_NODES 3100000\n#define BITS 30\n\nstatic int trie[MAX_NODES][2];\nstatic int node_count = 1;\n\nstatic void insert(int val) {\n    int curr = 0;\n    for (int i = BITS - 1; i >= 0; i--) {\n        int b = (val >> i) & 1;\n        if (!trie[curr][b]) {\n            trie[curr][b] = node_count++;\n        }\n        curr = trie[curr][b];\n    }\n}\n\nstatic int query_max_xor(int val) {\n    int curr = 0;\n    int max_xor = 0;\n    for (int i = BITS - 1; i >= 0; i--) {\n        int b = (val >> i) & 1;\n        int opp = 1 - b;\n        if (trie[curr][opp]) {\n            max_xor |= (1 << i);\n            curr = trie[curr][opp];\n        } else {\n            curr = trie[curr][b];\n        }\n    }\n    return max_xor;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int *nums = (int *)malloc(n * sizeof(int));\n    if (!nums) return 1;\n    \n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &nums[i]);\n    }\n    \n    insert(nums[0]);\n    int best = 0;\n    for (int i = 1; i < n; i++) {\n        int candidate = query_max_xor(nums[i]);\n        if (candidate > best) {\n            best = candidate;\n        }\n        insert(nums[i]);\n    }\n    \n    printf(\"%d\\n\", best);\n    free(nums);\n    return 0;\n}\n",
+    "hints": [
+      "An O(N^2) brute force will exceed the time limit; use a Bitwise Trie.",
+      "Represent numbers in binary using 30 bits (since 10^9 < 2^30).",
+      "At each bit position, greedily attempt to match with the opposite bit (1 - b) to make the XOR bit 1."
+    ],
+    "explanation": "A Bitwise Trie stores numbers as 30-bit binary paths from root to leaf. Inserting and querying takes 30 operations per number. To maximize XOR, we traverse down the Trie choosing the opposite bit branch whenever it exists. Across N numbers, the total runtime is O(30 * N) = O(N).",
+    "time_complexity": "O(N)",
+    "space_complexity": "O(N)",
+    "common_mistakes": [
+      "Using dynamic malloc for every individual Trie node, causing excessive allocation overhead and time limit exceeded.",
+      "Using fewer than 30 bits, failing to accommodate numbers up to 10^9.",
+      "Allowing an element to pair with itself if querying after inserting all numbers without tracking indices."
+    ],
+    "related_problems": [
+      "single-number-xor",
+      "bitmask-subset-enumeration"
+    ],
+    "topic_slug": "bitwise-operations",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "amazon",
+      "bytedance"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6\n3 10 5 25 2 8\n",
+        "expected_output": "28\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard example (5 ^ 25 = 28)"
+      },
+      {
+        "input": "2\n0 0\n",
+        "expected_output": "0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Minimum input size with zero elements"
+      },
+      {
+        "input": "3\n14 70 53\n",
+        "expected_output": "127\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "70 ^ 53 = 127"
+      },
+      {
+        "input": "4\n1 2 4 8\n",
+        "expected_output": "12\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Powers of two (4 ^ 8 = 12)"
+      },
+      {
+        "input": "5\n8 1 2 12 7\n",
+        "expected_output": "15\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Max XOR reaches 15 (8 ^ 7 = 15)"
+      },
+      {
+        "input": "2\n1000000000 0\n",
+        "expected_output": "1000000000\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Upper bound constraint 10^9 paired with 0"
+      }
+    ]
+  }
+]

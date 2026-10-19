@@ -1,0 +1,1088 @@
+[
+  {
+    "id": 44,
+    "title": "Reverse String In-Place",
+    "slug": "reverse-string-in-place",
+    "difficulty": "medium",
+    "description": "Write a C program that reverses a given null-terminated string in-place without utilizing any library reversal functions such as `strrev`. The string can contain arbitrary printable ASCII characters, including letters, numbers, punctuation, and embedded spaces. Your algorithm must operate directly on the memory buffer using two pointers moving toward each other, achieving strictly $O(1)$ auxiliary memory overhead. \n\nYour solution should first determine the length of the string manually by advancing a pointer until encountering the null terminator `\\0`. Then, initialize a starting pointer at the first character and an ending pointer at the character immediately preceding the null terminator. Swap the characters pointed to by these two pointers and increment/decrement them inward until they meet or cross. Preserve the null terminator at its original position so the resulting string remains properly terminated.",
+    "input_format": "A single line containing the string to be reversed (up to $10^5$ characters).",
+    "output_format": "Print the reversed string on a single line.",
+    "constraints": "1 <= string length <= 10^5\nString consists of printable ASCII characters",
+    "examples": [
+      {
+        "input": "hello\n",
+        "output": "olleh\n",
+        "explanation": "Characters 'h' and 'o', 'e' and 'l' are swapped; middle 'l' remains."
+      },
+      {
+        "input": "Competitive Programming\n",
+        "output": "gnimmargorP evititepmoC\n",
+        "explanation": "The entire sentence including whitespace is reversed in-place."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nvoid reverse_string(char *str) {\n    // TODO: Reverse string in-place using two pointers without library functions\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    // Strip newline if present\n    size_t len = strlen(buffer);\n    if (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) {\n        buffer[--len] = '\\0';\n    }\n    reverse_string(buffer);\n    printf(\"%s\\n\", buffer);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nstatic void reverse_string(char *str) {\n    if (!str || !*str) return;\n    char *start = str;\n    char *end = str;\n    while (*end) end++;\n    end--; // Point to last non-null character\n    while (start < end) {\n        char temp = *start;\n        *start = *end;\n        *end = temp;\n        start++;\n        end--;\n    }\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    size_t len = strlen(buffer);\n    while (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) {\n        buffer[--len] = '\\0';\n    }\n    reverse_string(buffer);\n    printf(\"%s\\n\", buffer);\n    return 0;\n}\n",
+    "hints": [
+      "Find the end of the string using pointer arithmetic: advance `end` while `*end != '\\0'`, then step back by 1.",
+      "Set `start = str` and `end = str + len - 1`. While `start < end`, swap `*start` and `*end`.",
+      "Remember never to move or swap the terminating null character `\\0`."
+    ],
+    "explanation": "We locate the last printable character by incrementing a pointer until it reaches the null terminator, then decrementing it once. With two pointers pointing to the beginning and end of the string, we repeatedly exchange the characters and move the pointers inward. When the pointers meet in the middle or cross, the string is fully inverted in O(N) time with O(1) auxiliary space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Swapping the null terminator `\\0`, which truncates the string immediately at index 0.",
+      "Using an auxiliary buffer of size N, violating the in-place $O(1)$ memory requirement.",
+      "Failing to handle trailing newline characters read by `fgets`."
+    ],
+    "related_problems": [
+      "array-reversal-with-pointers",
+      "string-operations-with-pointers"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "tcs",
+      "infosys",
+      "cognizant",
+      "wipro"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "hello\n",
+        "expected_output": "olleh\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard odd-length word"
+      },
+      {
+        "input": "Competitive Programming\n",
+        "expected_output": "gnimmargorP evititepmoC\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Sentence containing spaces and mixed cases"
+      },
+      {
+        "input": "a\n",
+        "expected_output": "a\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single character string"
+      },
+      {
+        "input": "racecar\n",
+        "expected_output": "racecar\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Symmetric palindrome string"
+      },
+      {
+        "input": "12345 67890\n",
+        "expected_output": "09876 54321\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Numeric digits with space"
+      },
+      {
+        "input": "AB\n",
+        "expected_output": "BA\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Two characters (minimal even length)"
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "title": "Palindrome Checker",
+    "slug": "palindrome-checker",
+    "difficulty": "medium",
+    "description": "A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the exact same forward and backward. Alphanumeric characters include lowercase letters, uppercase letters, and ASCII digits. Given a single line of text, determine whether it is a palindrome according to this definition. \n\nYour program must output `true` if the cleaned string is a palindrome, and `false` otherwise. Implement your solution using a two-pointer approach that evaluates characters from both ends directly without copying or allocating a new filtered string, thereby maintaining $O(N)$ time complexity and $O(1)$ auxiliary space. Empty strings or strings containing only non-alphanumeric characters are considered valid palindromes because they read the same in both directions.",
+    "input_format": "A single line of text containing alphanumeric characters, spaces, and punctuation symbols (length up to $10^5$).",
+    "output_format": "Print `true` if the string is a valid palindrome, or `false` otherwise.",
+    "constraints": "1 <= string length <= 10^5\nCharacters are printable ASCII",
+    "examples": [
+      {
+        "input": "A man, a plan, a canal: Panama\n",
+        "output": "true\n",
+        "explanation": "Stripping punctuation and lowercasing gives 'amanaplanacanalpanama', which is a palindrome."
+      },
+      {
+        "input": "race a car\n",
+        "output": "false\n",
+        "explanation": "Cleaned string is 'raceacar', which is not symmetric ('raceacar' != 'racaecar')."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n#include <stdbool.h>\n\nbool is_palindrome(const char *str) {\n    // TODO: Check if string is palindrome ignoring non-alphanumeric and case\n    return false;\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    printf(\"%s\\n\", is_palindrome(buffer) ? \"true\" : \"false\");\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n#include <stdbool.h>\n\nstatic bool is_palindrome(const char *str) {\n    int left = 0;\n    int right = (int)strlen(str) - 1;\n    // Skip newlines at the end\n    while (right >= 0 && (str[right] == '\\n' || str[right] == '\\r')) {\n        right--;\n    }\n    while (left < right) {\n        while (left < right && !isalnum((unsigned char)str[left])) {\n            left++;\n        }\n        while (left < right && !isalnum((unsigned char)str[right])) {\n            right--;\n        }\n        if (tolower((unsigned char)str[left]) != tolower((unsigned char)str[right])) {\n            return false;\n        }\n        left++;\n        right--;\n    }\n    return true;\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) {\n        printf(\"true\\n\");\n        return 0;\n    }\n    printf(\"%s\\n\", is_palindrome(buffer) ? \"true\" : \"false\");\n    return 0;\n}\n",
+    "hints": [
+      "Use `isalnum((unsigned char)c)` from `<ctype.h>` to determine if a character is valid.",
+      "Use `tolower((unsigned char)c)` to compare corresponding valid characters case-insensitively.",
+      "Advance `left` whenever `str[left]` is non-alphanumeric, and decrement `right` whenever `str[right]` is non-alphanumeric."
+    ],
+    "explanation": "We maintain two pointers `left` at the start and `right` at the end of the input buffer. At each iteration, we skip non-alphanumeric characters until both pointers land on valid characters. We convert both characters to lowercase and check for equality. If they differ, the phrase cannot be a palindrome. If all matching character pairs succeed until pointers cross, the phrase is a palindrome.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Not skipping non-alphanumeric characters like spaces, commas, colons, and hyphens.",
+      "Failing to convert both characters to lowercase before comparison, causing case mismatches.",
+      "Allocating a secondary buffer of size 10^5 when the problem can be solved in-place in O(1) space."
+    ],
+    "related_problems": [
+      "reverse-string-in-place",
+      "longest-palindromic-substring"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "tcs",
+      "infosys"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "A man, a plan, a canal: Panama\n",
+        "expected_output": "true\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard famous palindrome phrase with mixed punctuation"
+      },
+      {
+        "input": "race a car\n",
+        "expected_output": "false\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Near palindrome that differs in characters"
+      },
+      {
+        "input": " \n",
+        "expected_output": "true\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "String consisting only of whitespace"
+      },
+      {
+        "input": "0P\n",
+        "expected_output": "false\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Two characters (digit and letter) that do not match"
+      },
+      {
+        "input": "Was it a car or a cat I saw?\n",
+        "expected_output": "true\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Valid question sentence palindrome"
+      },
+      {
+        "input": "No 'x' in Nixon\n",
+        "expected_output": "true\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Short quote palindrome with apostrophes"
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "title": "Anagram Detection",
+    "slug": "anagram-detection",
+    "difficulty": "medium",
+    "description": "Given two strings $S$ and $T$, determine whether $T$ is an anagram of $S$. An anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once. For the purposes of this problem, strings are compared case-sensitively and every character counts toward the frequency. \n\nYour program must print `YES` if string $T$ is an anagram of string $S$, and `NO` otherwise. An optimal implementation runs in $O(|S| + |T|)$ linear time using a fixed-size frequency table of 256 integers corresponding to all ASCII character codes. First, verify that the lengths of the two strings are identical; if they differ, $T$ cannot be an anagram of $S$. Then, increment frequency counters for each character in $S$ and decrement them for $T$. If all counters remain zero, the strings are anagrams.",
+    "input_format": "Two lines: the first line contains string $S$ and the second line contains string $T$ (lengths up to $10^5$).",
+    "output_format": "Print `YES` if $T$ is an anagram of $S$, and `NO` otherwise.",
+    "constraints": "1 <= |S|, |T| <= 10^5\nStrings contain printable ASCII characters",
+    "examples": [
+      {
+        "input": "anagram\nnagaram\n",
+        "output": "YES\n",
+        "explanation": "Both strings contain 3 'a's, 1 'n', 1 'g', 1 'r', 1 'm'."
+      },
+      {
+        "input": "rat\ncar\n",
+        "output": "NO\n",
+        "explanation": "'rat' has 't' while 'car' has 'c'; frequencies differ."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool are_anagrams(const char *s, const char *t) {\n    // TODO: Determine if t is an anagram of s in O(n) time and O(1) space\n    return false;\n}\n\nint main(void) {\n    static char s[200005], t[200005];\n    if (!fgets(s, sizeof(s), stdin)) return 0;\n    if (!fgets(t, sizeof(t), stdin)) return 0;\n    printf(\"%s\\n\", are_anagrams(s, t) ? \"YES\" : \"NO\");\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nstatic void strip_newline(char *str) {\n    size_t len = strlen(str);\n    while (len > 0 && (str[len - 1] == '\\n' || str[len - 1] == '\\r')) {\n        str[--len] = '\\0';\n    }\n}\n\nstatic bool are_anagrams(const char *s, const char *t) {\n    size_t len_s = strlen(s);\n    size_t len_t = strlen(t);\n    if (len_s != len_t) return false;\n    int counts[256] = {0};\n    for (size_t i = 0; i < len_s; i++) {\n        counts[(unsigned char)s[i]]++;\n        counts[(unsigned char)t[i]]--;\n    }\n    for (int i = 0; i < 256; i++) {\n        if (counts[i] != 0) return false;\n    }\n    return true;\n}\n\nint main(void) {\n    static char s[200005], t[200005];\n    if (!fgets(s, sizeof(s), stdin)) return 0;\n    if (!fgets(t, sizeof(t), stdin)) return 0;\n    strip_newline(s);\n    strip_newline(t);\n    printf(\"%s\\n\", are_anagrams(s, t) ? \"YES\" : \"NO\");\n    return 0;\n}\n",
+    "hints": [
+      "If `strlen(s) != strlen(t)`, they cannot be anagrams.",
+      "Create a frequency array of size 256 (for extended ASCII) initialized to 0.",
+      "Traverse both strings simultaneously: increment `counts[(unsigned char)s[i]]` and decrement `counts[(unsigned char)t[i]]`. Check that all counts end at 0."
+    ],
+    "explanation": "Two strings are anagrams if and only if they possess identical character distributions. By using an array of 256 integers, we increment counts for characters seen in $S$ and decrement counts for characters in $T$. If every element in the array is zero after a single pass, the character multisets are identical. This runs in linear $O(N)$ time and uses constant $O(1)$ space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Sorting both strings with qsort, which degrades performance to O(N log N).",
+      "Assuming characters are only lowercase English letters and allocating only 26 elements instead of 256.",
+      "Not stripping trailing newline characters read by `fgets`, which causes character mismatch."
+    ],
+    "related_problems": [
+      "character-frequency-map",
+      "first-non-repeating-character"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "amazon",
+      "goldman-sachs",
+      "tcs",
+      "wipro"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "anagram\nnagaram\n",
+        "expected_output": "YES\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard positive anagram pair"
+      },
+      {
+        "input": "rat\ncar\n",
+        "expected_output": "NO\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Same length but different characters"
+      },
+      {
+        "input": "a\na\n",
+        "expected_output": "YES\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single identical character"
+      },
+      {
+        "input": "ab\na\n",
+        "expected_output": "NO\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Strings of unequal lengths"
+      },
+      {
+        "input": "triangle\nintegral\n",
+        "expected_output": "YES\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multi-letter full English anagram"
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "title": "Character Frequency Map",
+    "slug": "character-frequency-map",
+    "difficulty": "hard",
+    "description": "Given a string $S$, count the occurrences of each printable non-whitespace character and print the frequency map sorted according to specific precedence rules. Characters must be sorted primarily by their frequency in descending order (highest count first). In the event of a tie where two or more characters appear the exact same number of times, break the tie by sorting the characters in ascending order of their ASCII values. \n\nEach character and its corresponding frequency must be formatted as `c:count` (for instance, `a:3`). Output all unique character-frequency pairs separated by a single space on a single line. Ignore newline (`\\n`), carriage return (`\\r`), and space (` `) characters in the input text. Because there are at most 128 printable ASCII characters, sorting the frequency table requires $O(1)$ operations, resulting in an optimal $O(N)$ overall time complexity.",
+    "input_format": "A single line containing the string $S$ (up to $10^5$ characters).",
+    "output_format": "Print the character frequency entries formatted as `c:count` separated by a space on a single line.",
+    "constraints": "1 <= |S| <= 10^5\nString contains ASCII characters",
+    "examples": [
+      {
+        "input": "banana\n",
+        "output": "a:3 n:2 b:1\n",
+        "explanation": "'a' appears 3 times, 'n' appears 2 times, 'b' appears 1 time."
+      },
+      {
+        "input": "tree\n",
+        "output": "e:2 r:1 t:1\n",
+        "explanation": "'e' count=2; 'r' and 't' count=1 (tie broken by ASCII order 'r' < 't')."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nvoid print_char_frequencies(const char *str) {\n    // TODO: Count non-whitespace printable chars and sort by freq desc, ASCII asc\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    print_char_frequencies(buffer);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <ctype.h>\n\ntypedef struct {\n    char ch;\n    int count;\n} CharFreq;\n\nstatic int cmp_freq(const void *a, const void *b) {\n    const CharFreq *ca = (const CharFreq *)a;\n    const CharFreq *cb = (const CharFreq *)b;\n    if (ca->count != cb->count) {\n        return cb->count - ca->count; // Descending count\n    }\n    return (unsigned char)ca->ch - (unsigned char)cb->ch; // Ascending ASCII\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    int counts[256] = {0};\n    for (int i = 0; buffer[i]; i++) {\n        unsigned char c = (unsigned char)buffer[i];\n        if (c > ' ' && c <= '~') {\n            counts[c]++;\n        }\n    }\n    CharFreq items[256];\n    int num_items = 0;\n    for (int i = 0; i < 256; i++) {\n        if (counts[i] > 0) {\n            items[num_items].ch = (char)i;\n            items[num_items].count = counts[i];\n            num_items++;\n        }\n    }\n    qsort(items, num_items, sizeof(CharFreq), cmp_freq);\n    for (int i = 0; i < num_items; i++) {\n        printf(\"%c:%d%c\", items[i].ch, items[i].count, (i == num_items - 1) ? '\\n' : ' ');\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Ignore whitespace by verifying that `(unsigned char)c > ' ' && c <= '~'`.",
+      "Store character counts in an array of size 256.",
+      "Collect characters with count > 0 into an array of structs `{ char ch; int count; }` and sort using `qsort`."
+    ],
+    "explanation": "We populate a frequency histogram over all printable non-whitespace ASCII characters in a single pass of O(N) time. Next, we transfer all characters with non-zero counts into an array of structs and sort them using `qsort`. The custom comparator sorts by `count` descending, and on ties by ASCII value ascending. Since the alphabet size is bounded by 256, sorting takes O(1) time.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Sorting characters without breaking ties via ascending ASCII value.",
+      "Including spaces, newlines, or control characters in the output.",
+      "Counting frequencies using an O(N^2) linear scan instead of a constant-size hash table."
+    ],
+    "related_problems": [
+      "anagram-detection",
+      "first-non-repeating-character"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "infosys",
+      "accenture"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "banana\n",
+        "expected_output": "a:3 n:2 b:1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard word with distinct frequency counts"
+      },
+      {
+        "input": "tree\n",
+        "expected_output": "e:2 r:1 t:1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Word with frequency tie resolved by alphabetical order"
+      },
+      {
+        "input": "cccaaa\n",
+        "expected_output": "a:3 c:3\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Equal frequency where tie-breaker strictly controls order ('a' before 'c')"
+      },
+      {
+        "input": "z\n",
+        "expected_output": "z:1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single character string"
+      },
+      {
+        "input": "Mississippi\n",
+        "expected_output": "i:4 s:4 p:2 M:1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Mixed case word with multiple frequency ties"
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "title": "First Non-Repeating Character",
+    "slug": "first-non-repeating-character",
+    "difficulty": "hard",
+    "description": "Given a string $S$ of ASCII characters, find the first non-repeating character in the string. A non-repeating character is defined as a character whose total frequency in the string is exactly 1. Your task is to identify this character and report both the character itself and its 0-based index in the string. \n\nIf a non-repeating character exists, output the character and its 0-based index separated by a space: `c index`. If every character in the string appears more than once, print `-1`. Your solution must operate in linear $O(N)$ time. Use a two-pass algorithm: in the first pass, count the total frequency of each character in an ASCII frequency array. In the second pass, traverse the string from left to right and return the very first character whose recorded frequency is 1.",
+    "input_format": "A single line containing the string $S$ (length up to $10^5$).",
+    "output_format": "Print the character and its 0-based index separated by a space (`c index`), or `-1` if none exists.",
+    "constraints": "1 <= |S| <= 10^5\nString contains printable ASCII characters without leading/trailing whitespace",
+    "examples": [
+      {
+        "input": "leetcode\n",
+        "output": "l 0\n",
+        "explanation": "'l' appears once and is at index 0."
+      },
+      {
+        "input": "loveleetcode\n",
+        "output": "v 2\n",
+        "explanation": "'l', 'o', 'e' repeat; 'v' is the first unique character at index 2."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nvoid find_first_unique_char(const char *str) {\n    // TODO: Find first character with count == 1 in O(n) time\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    size_t len = strlen(buffer);\n    while (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) buffer[--len] = '\\0';\n    find_first_unique_char(buffer);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    size_t len = strlen(buffer);\n    while (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) {\n        buffer[--len] = '\\0';\n    }\n    int counts[256] = {0};\n    for (size_t i = 0; i < len; i++) {\n        counts[(unsigned char)buffer[i]]++;\n    }\n    for (size_t i = 0; i < len; i++) {\n        if (counts[(unsigned char)buffer[i]] == 1) {\n            printf(\"%c %zu\\n\", buffer[i], i);\n            return 0;\n        }\n    }\n    printf(\"-1\\n\");\n    return 0;\n}\n",
+    "hints": [
+      "First pass: count frequencies of all characters in an array of size 256.",
+      "Second pass: iterate through the string in original order (0 to len-1) and check if the character's frequency equals 1.",
+      "Print the character and index upon first encounter and exit; if loop finishes without finding one, print -1."
+    ],
+    "explanation": "We count character occurrences in O(N) using an array of 256 integers. We then inspect the string from left to right. The first character whose stored frequency is 1 is guaranteed to be the first non-repeating character. If the entire string is traversed without finding any frequency equal to 1, we output -1.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using an O(N^2) nested loop checking each character against all others, causing TLE on N = 10^5.",
+      "Iterating through the frequency array instead of the string in the second pass, which loses original position order.",
+      "Forgetting to handle the case where every character repeats."
+    ],
+    "related_problems": [
+      "character-frequency-map",
+      "anagram-detection"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "wipro",
+      "tcs"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "leetcode\n",
+        "expected_output": "l 0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Unique character at index 0"
+      },
+      {
+        "input": "loveleetcode\n",
+        "expected_output": "v 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Unique character in middle of string"
+      },
+      {
+        "input": "aabbcc\n",
+        "expected_output": "-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All characters repeat"
+      },
+      {
+        "input": "z\n",
+        "expected_output": "z 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single character string"
+      },
+      {
+        "input": "swiss\n",
+        "expected_output": "w 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "First unique character is 'w' at index 1 ('s' repeats)"
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "title": "String Compression (RLE)",
+    "slug": "string-compression-rle",
+    "difficulty": "hard",
+    "description": "Implement Run-Length Encoding (RLE) for an input string containing alphabetic characters. Run-length encoding is a form of data compression in which consecutive identical data elements (runs) are stored as a single data value and count. Specifically, replace each consecutive contiguous run of identical characters with the character itself followed immediately by its repeat count. For example, the string `\"aaabbc\"` compresses into `\"a3b2c1\"`. \n\nYour program must output the complete run-length encoded string on a single line. Ensure your algorithm operates in linear $O(N)$ time by maintaining a pointer or index to the beginning of each run, counting how many identical characters succeed it, printing `character` and `count`, and advancing to the next distinct character.",
+    "input_format": "A single line containing the string $S$ to compress (length up to $10^5$).",
+    "output_format": "Print the run-length encoded string on a single line.",
+    "constraints": "1 <= |S| <= 10^5\nString consists of letters ('a'-'z', 'A'-'Z')",
+    "examples": [
+      {
+        "input": "aaabbc\n",
+        "output": "a3b2c1\n",
+        "explanation": "'a' repeats 3 times, 'b' repeats 2 times, 'c' repeats 1 time."
+      },
+      {
+        "input": "a\n",
+        "output": "a1\n",
+        "explanation": "Single character run of length 1."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nvoid compress_rle(const char *str) {\n    // TODO: Compress string using Run-Length Encoding in O(n) time\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    size_t len = strlen(buffer);\n    while (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) buffer[--len] = '\\0';\n    compress_rle(buffer);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    size_t len = strlen(buffer);\n    while (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) {\n        buffer[--len] = '\\0';\n    }\n    if (len == 0) return 0;\n    size_t i = 0;\n    while (i < len) {\n        char current_char = buffer[i];\n        size_t count = 0;\n        while (i < len && buffer[i] == current_char) {\n            count++;\n            i++;\n        }\n        printf(\"%c%zu\", current_char, count);\n    }\n    printf(\"\\n\");\n    return 0;\n}\n",
+    "hints": [
+      "Iterate with an index i. Record `current = str[i]`.",
+      "While `i < len` and `str[i] == current`, increment a counter and advance `i`.",
+      "Print `current` and the counter. Continue until `i == len`."
+    ],
+    "explanation": "We traverse the string sequentially. For each new character, we maintain an inner loop that counts consecutive identical characters. Once a different character or the end of the string is encountered, we output the character and its count. Because the outer and inner loops together advance `i` from 0 to N exactly once, the time complexity is strictly O(N).",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Off-by-one errors when processing the final run at the end of the string.",
+      "Omitting the count '1' for characters that appear without duplicates (RLE specifies count for all runs).",
+      "Modifying the string buffer during traversal causing buffer overrun."
+    ],
+    "related_problems": [
+      "reverse-string-in-place",
+      "string-tokenizer"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "cisco",
+      "tcs"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "aaabbc\n",
+        "expected_output": "a3b2c1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard multiple runs"
+      },
+      {
+        "input": "a\n",
+        "expected_output": "a1\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Single character string"
+      },
+      {
+        "input": "wwwwaaadexxxxxxywww\n",
+        "expected_output": "w4a3d1e1x6y1w3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Longer string with alternating single and multiple runs"
+      },
+      {
+        "input": "abcde\n",
+        "expected_output": "a1b1c1d1e1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All distinct single character runs"
+      },
+      {
+        "input": "AAAAAAAAAA\n",
+        "expected_output": "A10\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Single character run of double-digit length 10"
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "title": "Longest Substring Without Repeating",
+    "slug": "longest-substring-without-repeating",
+    "difficulty": "very_hard",
+    "description": "Given a string $S$, find the length of the longest contiguous substring that does not contain any repeating characters. A substring is a contiguous non-empty sequence of characters within a string. For example, in `\"abcabcbb\"`, the longest substring without repeating characters is `\"abc\"`, which has length 3. \n\nA naive brute force checking all substrings takes $O(N^3)$ or $O(N^2)$ time, which is too slow for large inputs. Implement an optimal $O(N)$ sliding window approach in C: maintain a window bounded by indices $[left, right]$ and an array of size 256 storing the last seen 0-based index of every ASCII character. When expanding the window by moving $right$, if the character at $right$ was previously observed at an index $\\ge left$, advance $left$ immediately to $\\text{last\\_seen}[\\text{character}] + 1$ to remove the duplicate.",
+    "input_format": "A single line containing the string $S$ (length up to $10^5$).",
+    "output_format": "Print an integer representing the maximum length of a substring without repeating characters.",
+    "constraints": "1 <= |S| <= 10^5\nString consists of printable ASCII characters",
+    "examples": [
+      {
+        "input": "abcabcbb\n",
+        "output": "3\n",
+        "explanation": "The answer is 'abc', with length 3."
+      },
+      {
+        "input": "bbbbb\n",
+        "output": "1\n",
+        "explanation": "The longest unique substring is 'b', length 1."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nint length_of_longest_substring(const char *str) {\n    // TODO: Find length of longest substring without repeating characters in O(n)\n    return 0;\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    size_t len = strlen(buffer);\n    while (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) buffer[--len] = '\\0';\n    printf(\"%d\\n\", length_of_longest_substring(buffer));\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    size_t len = strlen(buffer);\n    while (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) {\n        buffer[--len] = '\\0';\n    }\n    int last_pos[256];\n    for (int i = 0; i < 256; i++) last_pos[i] = -1;\n    int max_len = 0;\n    int left = 0;\n    for (int right = 0; right < (int)len; right++) {\n        unsigned char c = (unsigned char)buffer[right];\n        if (last_pos[c] >= left) {\n            left = last_pos[c] + 1;\n        }\n        last_pos[c] = right;\n        int current_len = right - left + 1;\n        if (current_len > max_len) {\n            max_len = current_len;\n        }\n    }\n    printf(\"%d\\n\", max_len);\n    return 0;\n}\n",
+    "hints": [
+      "Use a sliding window [left, right] and a 256-element array `last_pos` initialized to -1.",
+      "When processing character c at index `right`, if `last_pos[c] >= left`, move `left = last_pos[c] + 1`.",
+      "Always update `last_pos[c] = right` and `max_len = max(max_len, right - left + 1)`."
+    ],
+    "explanation": "We track the most recent index of each character in `last_pos`. As the `right` pointer expands the window, if character `c` was seen within the current window (`last_pos[c] >= left`), we jump `left` to `last_pos[c] + 1`. This maintains a valid substring without duplicates at all times, completing in a single pass of O(N) time with O(1) space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Moving `left` backward when a character seen long before the current window is encountered (must check `last_pos[c] >= left`).",
+      "Using an O(N^2) or O(N^3) brute force approach which times out on 100,000 characters.",
+      "Not indexing with `unsigned char`, leading to negative array indices for high ASCII bytes."
+    ],
+    "related_problems": [
+      "longest-palindromic-substring",
+      "sliding-window-maximum"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "amazon",
+      "google",
+      "meta",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "abcabcbb\n",
+        "expected_output": "3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard recurring sequence ('abc' max length 3)"
+      },
+      {
+        "input": "bbbbb\n",
+        "expected_output": "1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "All identical characters"
+      },
+      {
+        "input": "pwwkew\n",
+        "expected_output": "3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Answer is 'wke', length 3 ('pwke' is a subsequence, not a substring)"
+      },
+      {
+        "input": "a\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single character string"
+      },
+      {
+        "input": "abcdef\n",
+        "expected_output": "6\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All unique characters (entire string is valid)"
+      },
+      {
+        "input": "abba\n",
+        "expected_output": "2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Classic test checking that left does not move backward on second 'a'"
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "title": "KMP Pattern Matching",
+    "slug": "kmp-pattern-matching",
+    "difficulty": "very_hard",
+    "description": "Implement the Knuth-Morris-Pratt (KMP) string matching algorithm in C. Given a text string $T$ and a pattern string $P$, determine all 0-based starting indices in $T$ where pattern $P$ appears as an exact match. The standard naive pattern searching algorithm takes $O(|T| \\times |P|)$ worst-case time, which degenerates when many partial matches occur. \n\nThe KMP algorithm achieves optimal $O(|T| + |P|)$ time complexity by preprocessing pattern $P$ into a Longest Prefix Suffix (LPS) array. The LPS array `lps[i]` stores the length of the longest proper prefix of $P[0..i]$ that is also a suffix of $P[0..i]$. During matching, whenever a character mismatch occurs after several matches, the LPS array informs the search pointer how many characters can be safely skipped without re-evaluating text characters. Output all 0-based match indices separated by a space, or `-1` if pattern $P$ does not occur in $T$.",
+    "input_format": "The first line contains text string $T$. The second line contains pattern string $P$ ($1 \\le |P| \\le |T| \\le 10^5$).",
+    "output_format": "Print all 0-based starting indices separated by a single space on a single line, or `-1` if no occurrence is found.",
+    "constraints": "1 <= |P| <= |T| <= 10^5\nStrings consist of printable ASCII characters",
+    "examples": [
+      {
+        "input": "ABABDABACDABABCABAB\nABABCABAB\n",
+        "output": "10\n",
+        "explanation": "Pattern 'ABABCABAB' starts at index 10 in the text."
+      },
+      {
+        "input": "AABAACAADAABAABA\nAABA\n",
+        "output": "0 9 12\n",
+        "explanation": "Pattern 'AABA' occurs at indices 0, 9, and 12."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nvoid compute_lps(const char *pat, int m, int *lps) {\n    // TODO: Compute Longest Prefix Suffix array\n}\n\nvoid kmp_search(const char *txt, const char *pat) {\n    // TODO: Search pat in txt using KMP algorithm in O(|txt| + |pat|) time\n}\n\nint main(void) {\n    static char txt[200005], pat[200005];\n    if (!fgets(txt, sizeof(txt), stdin)) return 0;\n    if (!fgets(pat, sizeof(pat), stdin)) return 0;\n    kmp_search(txt, pat);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nstatic void strip_newline(char *s) {\n    size_t len = strlen(s);\n    while (len > 0 && (s[len - 1] == '\\n' || s[len - 1] == '\\r')) {\n        s[--len] = '\\0';\n    }\n}\n\nstatic void compute_lps(const char *pat, int m, int *lps) {\n    int len = 0;\n    lps[0] = 0;\n    int i = 1;\n    while (i < m) {\n        if (pat[i] == pat[len]) {\n            len++;\n            lps[i] = len;\n            i++;\n        } else {\n            if (len != 0) {\n                len = lps[len - 1];\n            } else {\n                lps[i] = 0;\n                i++;\n            }\n        }\n    }\n}\n\nint main(void) {\n    static char txt[200005], pat[200005];\n    if (!fgets(txt, sizeof(txt), stdin)) return 0;\n    if (!fgets(pat, sizeof(pat), stdin)) return 0;\n    strip_newline(txt);\n    strip_newline(pat);\n    int n = (int)strlen(txt);\n    int m = (int)strlen(pat);\n    if (m == 0 || n < m) {\n        printf(\"-1\\n\");\n        return 0;\n    }\n    int *lps = (int *)malloc(m * sizeof(int));\n    compute_lps(pat, m, lps);\n    int i = 0, j = 0;\n    int found = 0;\n    while (i < n) {\n        if (pat[j] == txt[i]) {\n            i++;\n            j++;\n        }\n        if (j == m) {\n            if (found) printf(\" \");\n            printf(\"%d\", i - j);\n            found = 1;\n            j = lps[j - 1];\n        } else if (i < n && pat[j] != txt[i]) {\n            if (j != 0) {\n                j = lps[j - 1];\n            } else {\n                i++;\n            }\n        }\n    }\n    if (!found) {\n        printf(\"-1\");\n    }\n    printf(\"\\n\");\n    free(lps);\n    return 0;\n}\n",
+    "hints": [
+      "Construct the LPS (longest proper prefix which is also suffix) table for pattern P in O(|P|) time.",
+      "Maintain text index i and pattern index j. If `txt[i] == pat[j]`, increment both.",
+      "On mismatch with j > 0, set `j = lps[j - 1]` without incrementing i. When `j == m`, record match at `i - j` and set `j = lps[j - 1]`."
+    ],
+    "explanation": "The KMP algorithm constructs the LPS array in O(|P|) time. During the search phase, whenever a mismatch occurs after j matching characters, the prefix of length lps[j - 1] is known to already match the preceding text characters. Thus, j can fall back to lps[j - 1] without backing up the text pointer i. This guarantees that i never decreases, achieving O(|T| + |P|) total time.",
+    "time_complexity": "O(|T| + |P|)",
+    "space_complexity": "O(|P|)",
+    "common_mistakes": [
+      "Backing up pointer i in text on mismatch, reverting to naive O(|T| * |P|) behavior.",
+      "Incorrect LPS computation when falling back (must set `len = lps[len - 1]` instead of resetting to 0).",
+      "Failing to handle multiple overlapping occurrences (must set `j = lps[j - 1]` after a match is recorded)."
+    ],
+    "related_problems": [
+      "implement-strstr",
+      "longest-substring-without-repeating"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "amazon",
+      "adobe"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "ABABDABACDABABCABAB\nABABCABAB\n",
+        "expected_output": "10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard textbook KMP example with partial match fallback"
+      },
+      {
+        "input": "AABAACAADAABAABA\nAABA\n",
+        "expected_output": "0 9 12\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Multiple matches with overlap"
+      },
+      {
+        "input": "HELLO WORLD\nBYE\n",
+        "expected_output": "-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Pattern not present in text"
+      },
+      {
+        "input": "AAAAA\nAA\n",
+        "expected_output": "0 1 2 3\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Heavily overlapping occurrences"
+      },
+      {
+        "input": "CODING\nCODING\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Pattern identical to text"
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "title": "Implement strstr",
+    "slug": "implement-strstr",
+    "difficulty": "hard",
+    "description": "Implement a manual version of the standard C library function `strstr` without including or calling `strstr`. Given two strings, `haystack` and `needle`, find the 0-based index of the first occurrence of `needle` in `haystack`. If `needle` is not part of `haystack`, your function must return `-1`. If `needle` is an empty string, the return value should be `0`, conforming to standard C library specification. \n\nYour implementation must perform manual character-by-character comparison using pointers. Take care to handle edge cases properly: when the length of `needle` exceeds the length of `haystack`, the function should immediately return `-1` without entering out-of-bounds comparisons.",
+    "input_format": "Two lines: the first line contains `haystack` and the second line contains `needle` (lengths up to $10^5$).",
+    "output_format": "Print the 0-based index of the first occurrence, or `-1` if needle is not found.",
+    "constraints": "0 <= |needle|, |haystack| <= 10^5\nBoth strings consist of printable ASCII characters",
+    "examples": [
+      {
+        "input": "sadbutsad\nsad\n",
+        "output": "0\n",
+        "explanation": "'sad' occurs at index 0 and 6; the first occurrence is at 0."
+      },
+      {
+        "input": "leetcode\nleeto\n",
+        "output": "-1\n",
+        "explanation": "'leeto' does not occur anywhere in 'leetcode'."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nint my_strstr(const char *haystack, const char *needle) {\n    // TODO: Manual implementation of strstr returning first occurrence index\n    return -1;\n}\n\nint main(void) {\n    static char haystack[200005], needle[200005];\n    if (!fgets(haystack, sizeof(haystack), stdin)) return 0;\n    if (!fgets(needle, sizeof(needle), stdin)) return 0;\n    // Strip newlines\n    size_t hlen = strlen(haystack);\n    while (hlen > 0 && (haystack[hlen - 1] == '\\n' || haystack[hlen - 1] == '\\r')) haystack[--hlen] = '\\0';\n    size_t nlen = strlen(needle);\n    while (nlen > 0 && (needle[nlen - 1] == '\\n' || needle[nlen - 1] == '\\r')) needle[--nlen] = '\\0';\n    printf(\"%d\\n\", my_strstr(haystack, needle));\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nstatic int my_strstr(const char *haystack, const char *needle) {\n    if (!*needle) return 0;\n    const char *h = haystack;\n    while (*h) {\n        const char *h_sub = h;\n        const char *n = needle;\n        while (*h_sub && *n && *h_sub == *n) {\n            h_sub++;\n            n++;\n        }\n        if (!*n) {\n            return (int)(h - haystack);\n        }\n        h++;\n    }\n    return -1;\n}\n\nint main(void) {\n    static char haystack[200005], needle[200005];\n    if (!fgets(haystack, sizeof(haystack), stdin)) return 0;\n    if (!fgets(needle, sizeof(needle), stdin)) return 0;\n    size_t hlen = strlen(haystack);\n    while (hlen > 0 && (haystack[hlen - 1] == '\\n' || haystack[hlen - 1] == '\\r')) haystack[--hlen] = '\\0';\n    size_t nlen = strlen(needle);\n    while (nlen > 0 && (needle[nlen - 1] == '\\n' || needle[nlen - 1] == '\\r')) needle[--nlen] = '\\0';\n    printf(\"%d\\n\", my_strstr(haystack, needle));\n    return 0;\n}\n",
+    "hints": [
+      "If `*needle == '\\0'`, return 0 immediately.",
+      "Loop through `haystack` using pointer `h`. For each `h`, compare characters with `needle` using inner pointers.",
+      "If inner needle pointer reaches '\\0', match found: return `h - haystack`. If `h` reaches end of haystack without match, return -1."
+    ],
+    "explanation": "We iterate pointer `h` across `haystack`. At each position, we compare consecutive characters with `needle`. If the needle pointer reaches its null terminator, all characters have matched and we return the difference `h - haystack`. If no match is found after scanning the entire haystack, we return -1.",
+    "time_complexity": "O(|haystack| * |needle|)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Returning 0 instead of -1 when needle is not found.",
+      "Missing the special case where needle is empty string `\"\"` (should return 0).",
+      "Accessing memory past the end of `haystack` during inner loop comparisons."
+    ],
+    "related_problems": [
+      "kmp-pattern-matching",
+      "string-operations-with-pointers"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "microsoft",
+      "apple",
+      "amazon",
+      "tcs"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "sadbutsad\nsad\n",
+        "expected_output": "0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Needle appears at start and later in haystack"
+      },
+      {
+        "input": "leetcode\nleeto\n",
+        "expected_output": "-1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Needle not present in haystack"
+      },
+      {
+        "input": "mississippi\nissip\n",
+        "expected_output": "4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Classic repetitive substring match"
+      },
+      {
+        "input": "hello\nll\n",
+        "expected_output": "2\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Needle in the middle of haystack"
+      },
+      {
+        "input": "abc\nc\n",
+        "expected_output": "2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Needle at the very end of haystack"
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "title": "Longest Palindromic Substring",
+    "slug": "longest-palindromic-substring",
+    "difficulty": "very_hard",
+    "description": "Given a string $S$, find and print the longest palindromic substring in $S$. A palindromic string is a string that reads the exact same backwards as forwards. A substring is a contiguous sequence of characters within the string. If there are multiple palindromic substrings with the exact same maximum length, output the one that occurs first (i.e., with the smallest starting index). \n\nAn optimal approach expands around possible centers in $O(N^2)$ time and $O(1)$ auxiliary space. In a string of length $N$, there are $2N - 1$ potential centers: $N$ single-character centers for odd-length palindromes (such as `\"aba\"`), and $N - 1$ between-character centers for even-length palindromes (such as `\"abba\"`). By expanding outward from each center while characters match, we find the longest palindrome efficiently.",
+    "input_format": "A single line containing the string $S$ ($1 \\le |S| \\le 2000$).",
+    "output_format": "Print the longest palindromic substring on a single line.",
+    "constraints": "1 <= |S| <= 2000\nString consists of printable ASCII characters",
+    "examples": [
+      {
+        "input": "babad\n",
+        "output": "bab\n",
+        "explanation": "'bab' is a valid answer. 'aba' is also 3, but 'bab' occurs first."
+      },
+      {
+        "input": "cbbd\n",
+        "output": "bb\n",
+        "explanation": "'bb' is the longest palindromic substring."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nvoid longest_palindrome(const char *str) {\n    // TODO: Find and print longest palindromic substring in O(n^2) time\n}\n\nint main(void) {\n    static char buffer[5005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    size_t len = strlen(buffer);\n    while (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) buffer[--len] = '\\0';\n    longest_palindrome(buffer);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nstatic void expand(const char *s, int len, int left, int right, int *best_start, int *best_len) {\n    while (left >= 0 && right < len && s[left] == s[right]) {\n        left--;\n        right++;\n    }\n    int cur_len = right - left - 1;\n    int start = left + 1;\n    if (cur_len > *best_len) {\n        *best_len = cur_len;\n        *best_start = start;\n    }\n}\n\nint main(void) {\n    static char buffer[5005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    int len = (int)strlen(buffer);\n    while (len > 0 && (buffer[len - 1] == '\\n' || buffer[len - 1] == '\\r')) {\n        buffer[--len] = '\\0';\n    }\n    if (len == 0) return 0;\n    int best_start = 0;\n    int best_len = 1;\n    for (int i = 0; i < len; i++) {\n        // Odd length palindromes\n        expand(buffer, len, i, i, &best_start, &best_len);\n        // Even length palindromes\n        expand(buffer, len, i, i + 1, &best_start, &best_len);\n    }\n    for (int i = 0; i < best_len; i++) {\n        putchar(buffer[best_start + i]);\n    }\n    putchar('\\n');\n    return 0;\n}\n",
+    "hints": [
+      "Every palindrome has a center: either a single character (odd length) or two characters (even length).",
+      "For each index i, expand outward for odd center `(i, i)` and even center `(i, i+1)`.",
+      "Update `best_start` and `best_len` strictly when `cur_len > best_len` to guarantee preserving the earliest occurring palindrome."
+    ],
+    "explanation": "There are 2N-1 centers in a string of length N. Expanding around each center as long as `s[left] == s[right]` finds the maximum palindrome centered at that position. Since expansion takes at most O(N) steps and there are 2N centers, total time complexity is O(N^2) with O(1) extra space. Updating best length strictly when `cur_len > best_len` guarantees that the earliest starting palindrome is chosen in case of ties.",
+    "time_complexity": "O(n^2)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Only checking odd-length palindromes, failing to detect even-length palindromes like \"bb\" or \"abba\".",
+      "Using `>=` instead of `>` when updating best length, inadvertently replacing the earliest occurrence with a later one.",
+      "Using an O(N^3) brute force substring checking algorithm."
+    ],
+    "related_problems": [
+      "palindrome-checker",
+      "longest-substring-without-repeating"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "amazon",
+      "google",
+      "microsoft",
+      "meta"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "babad\n",
+        "expected_output": "bab\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard odd palindrome with tie-breaker returning earliest ('bab')"
+      },
+      {
+        "input": "cbbd\n",
+        "expected_output": "bb\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Even-length palindrome ('bb')"
+      },
+      {
+        "input": "a\n",
+        "expected_output": "a\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single character string"
+      },
+      {
+        "input": "ac\n",
+        "expected_output": "a\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Two distinct characters, earliest single character is chosen"
+      },
+      {
+        "input": "racecar\n",
+        "expected_output": "racecar\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Entire string is a palindrome"
+      },
+      {
+        "input": "forgeeksskeegfor\n",
+        "expected_output": "geeksskeeg\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Long embedded even palindrome"
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "title": "String Tokenizer",
+    "slug": "string-tokenizer",
+    "difficulty": "hard",
+    "description": "Implement a custom string tokenizer function in C without using the standard library `strtok` function. Given an input string and a string containing one or more delimiter characters, split the input text into individual tokens. A token is a maximal sequence of contiguous characters that contains none of the delimiter characters. \n\nYour program must print each extracted token on a separate line. Crucially, consecutive delimiters must be treated as a single boundary: empty tokens must not be printed. Similarly, leading and trailing delimiters in the input text must be ignored. Your tokenizer should scan through the input string in a single linear pass of $O(N \\times D)$ time, where $N$ is the text length and $D$ is the number of delimiter characters (with $D \\le 256$, making $O(N)$ overall).",
+    "input_format": "The first line contains the input text string. The second line contains the delimiter characters string.",
+    "output_format": "Print each non-empty token on its own line.",
+    "constraints": "1 <= text length <= 10^5\n1 <= delimiters length <= 256\nPrintable ASCII characters",
+    "examples": [
+      {
+        "input": "Hello,world;this:is-C\n,;:-\n",
+        "output": "Hello\nworld\nthis\nis\nC\n",
+        "explanation": "Separated by delimiters comma, semicolon, colon, hyphen."
+      },
+      {
+        "input": "apple,,banana;;;cherry\n,;\n",
+        "output": "apple\nbanana\ncherry\n",
+        "explanation": "Consecutive delimiters are collapsed; no empty tokens printed."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nvoid custom_tokenize(const char *text, const char *delims) {\n    // TODO: Split text by delims and print each non-empty token without strtok\n}\n\nint main(void) {\n    static char text[200005], delims[300];\n    if (!fgets(text, sizeof(text), stdin)) return 0;\n    if (!fgets(delims, sizeof(delims), stdin)) return 0;\n    // Strip newlines\n    size_t tlen = strlen(text);\n    while (tlen > 0 && (text[tlen - 1] == '\\n' || text[tlen - 1] == '\\r')) text[--tlen] = '\\0';\n    size_t dlen = strlen(delims);\n    while (dlen > 0 && (delims[dlen - 1] == '\\n' || delims[dlen - 1] == '\\r')) delims[--dlen] = '\\0';\n    custom_tokenize(text, delims);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nstatic void strip_nl(char *s) {\n    size_t len = strlen(s);\n    while (len > 0 && (s[len - 1] == '\\n' || s[len - 1] == '\\r')) {\n        s[--len] = '\\0';\n    }\n}\n\nint main(void) {\n    static char text[200005], delims[300];\n    if (!fgets(text, sizeof(text), stdin)) return 0;\n    if (!fgets(delims, sizeof(delims), stdin)) return 0;\n    strip_nl(text);\n    strip_nl(delims);\n    int is_delim[256] = {0};\n    for (int i = 0; delims[i]; i++) {\n        is_delim[(unsigned char)delims[i]] = 1;\n    }\n    int token_start = -1;\n    int len = (int)strlen(text);\n    for (int i = 0; i <= len; i++) {\n        int at_delim = (i == len) || is_delim[(unsigned char)text[i]];\n        if (at_delim) {\n            if (token_start != -1) {\n                for (int j = token_start; j < i; j++) {\n                    putchar(text[j]);\n                }\n                putchar('\\n');\n                token_start = -1;\n            }\n        } else {\n            if (token_start == -1) {\n                token_start = i;\n            }\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Build a boolean lookup table `is_delim[256]` for O(1) delimiter checking.",
+      "Track `token_start = -1`. When encountering a non-delimiter character with `token_start == -1`, set `token_start = i`.",
+      "When encountering a delimiter or the end of the string (`i == len`), if `token_start != -1`, print characters from `token_start` to `i - 1` and reset `token_start = -1`."
+    ],
+    "explanation": "We create an indicator array `is_delim` marking all delimiter characters. As we traverse the text string up to index `len`, we transition between delimiter state and token state. When entering a non-delimiter, we record `token_start`. When arriving at a delimiter or string termination, if `token_start != -1`, we print the token and reset `token_start`. This naturally suppresses consecutive, leading, and trailing delimiters in O(N) time with O(1) space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Printing empty lines when consecutive delimiters occur.",
+      "Missing the final token if the text does not end with a delimiter.",
+      "Using `strtok`, which modifies the string and is explicitly disallowed."
+    ],
+    "related_problems": [
+      "string-compression-rle",
+      "string-operations-with-pointers"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "cisco",
+      "qualcomm",
+      "oracle",
+      "infosys"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "Hello,world;this:is-C\n,;:-\n",
+        "expected_output": "Hello\nworld\nthis\nis\nC\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard sentence with multiple punctuation delimiters"
+      },
+      {
+        "input": "apple,,banana;;;cherry\n,;\n",
+        "expected_output": "apple\nbanana\ncherry\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Consecutive delimiters collapsed without empty tokens"
+      },
+      {
+        "input": "one two three\n \n",
+        "expected_output": "one\ntwo\nthree\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Space delimiter"
+      },
+      {
+        "input": "...leading...trailing...\n.\n",
+        "expected_output": "leading\ntrailing\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Leading and trailing delimiters"
+      },
+      {
+        "input": "no_delimiters_here\n,\n",
+        "expected_output": "no_delimiters_here\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "String containing none of the delimiter characters"
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "title": "Custom atoi Implementation",
+    "slug": "custom-atoi-implementation",
+    "difficulty": "hard",
+    "description": "Implement a custom `my_atoi` function that converts a string into a 32-bit signed integer (similar to the standard C library function `atoi`). Your implementation must strictly satisfy the following step-by-step parsing rules: \n\n1. **Whitespace**: Discard any leading whitespace characters (`' '`, `'\\t'`, `'\\n'`, etc.). 2. **Signedness**: Check if the next character is `'-'` or `'+'`. Assume the number is positive if neither is present. 3. **Conversion**: Read subsequent digits until the first non-digit character is encountered or the end of the string is reached. Ignore all characters following the digits. 4. **Rounding / Clamping**: If the parsed integer exceeds the 32-bit signed integer range $[-2^{31}, 2^{31} - 1]$, clamp the integer to its boundary: return $2147483647$ (`INT_MAX`) on overflow, or $-2147483648$ (`INT_MIN`) on underflow. 5. **Default**: If no valid digits were read, return $0$.",
+    "input_format": "A single line containing the string to be converted.",
+    "output_format": "Print the converted 32-bit signed integer on a single line.",
+    "constraints": "1 <= string length <= 10^5\nString consists of printable ASCII characters",
+    "examples": [
+      {
+        "input": "42\n",
+        "output": "42\n",
+        "explanation": "Leading digits '42' are read directly."
+      },
+      {
+        "input": "   -42\n",
+        "output": "-42\n",
+        "explanation": "Leading spaces are skipped; '-' indicates negative; '42' is read."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <limits.h>\n\nint my_atoi(const char *str) {\n    // TODO: Implement custom atoi handling signs, overflow, and invalid characters\n    return 0;\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    printf(\"%d\\n\", my_atoi(buffer));\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <ctype.h>\n#include <limits.h>\n\nstatic int my_atoi(const char *str) {\n    int i = 0;\n    // Step 1: Skip leading whitespace\n    while (str[i] && isspace((unsigned char)str[i])) {\n        i++;\n    }\n    // Step 2: Sign check\n    int sign = 1;\n    if (str[i] == '+' || str[i] == '-') {\n        if (str[i] == '-') sign = -1;\n        i++;\n    }\n    // Step 3 & 4: Parse digits and check overflow\n    long long result = 0;\n    while (str[i] && isdigit((unsigned char)str[i])) {\n        int digit = str[i] - '0';\n        result = result * 10 + digit;\n        if (sign == 1 && result > INT_MAX) {\n            return INT_MAX;\n        }\n        if (sign == -1 && -result < INT_MIN) {\n            return INT_MIN;\n        }\n        i++;\n    }\n    return (int)(sign * result);\n}\n\nint main(void) {\n    static char buffer[200005];\n    if (!fgets(buffer, sizeof(buffer), stdin)) return 0;\n    printf(\"%d\\n\", my_atoi(buffer));\n    return 0;\n}\n",
+    "hints": [
+      "Skip all leading characters where `isspace((unsigned char)str[i])` is true.",
+      "Check for an optional '+' or '-' sign. Set `sign = -1` for '-', else `1`.",
+      "Accumulate into a `long long` variable. If `sign == 1 && result > INT_MAX`, return `INT_MAX`. If `sign == -1 && -result < INT_MIN`, return `INT_MIN`."
+    ],
+    "explanation": "We parse the string by first discarding leading whitespace. If a sign is detected, we record it. Next, we iterate over numeric characters, converting ASCII digits to numbers. We clamp results to INT_MAX (2147483647) or INT_MIN (-2147483648) whenever the parsed value exceeds 32-bit limits. Parsing stops at the first non-digit character, returning the clamped integer.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Allowing multiple signs (e.g. `\"+-12\"`), which is invalid and should evaluate to 0.",
+      "Failing to clamp to INT_MAX or INT_MIN on overflow, causing undefined signed integer overflow behavior in C.",
+      "Continuing to parse digits after encountering letters or punctuation."
+    ],
+    "related_problems": [
+      "implement-strstr",
+      "custom-atoi-implementation"
+    ],
+    "topic_slug": "strings",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "bloomberg",
+      "uber"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "42\n",
+        "expected_output": "42\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard positive integer"
+      },
+      {
+        "input": "   -42\n",
+        "expected_output": "-42\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Leading spaces and negative sign"
+      },
+      {
+        "input": "4193 with words\n",
+        "expected_output": "4193\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Valid digits followed by trailing words"
+      },
+      {
+        "input": "words and 987\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Leading words before digits (evaluates to 0)"
+      },
+      {
+        "input": "-91283472332\n",
+        "expected_output": "-2147483648\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Severe negative underflow clamped to INT_MIN"
+      },
+      {
+        "input": "2147483648\n",
+        "expected_output": "2147483647\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Overflow beyond INT_MAX clamped to 2147483647"
+      },
+      {
+        "input": "+0 123\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Positive zero followed by space"
+      }
+    ]
+  }
+]

@@ -1,0 +1,885 @@
+[
+  {
+    "id": 19,
+    "title": "Recursive Power Calculator",
+    "slug": "recursive-power-calculator",
+    "difficulty": "medium",
+    "description": "Fast exponentiation (also known as binary exponentiation or exponentiation by squaring) is an algorithm that computes integer powers $A^B \\pmod M$ in logarithmic time $O(\\log B)$ instead of linear time $O(B)$. It relies on the recursive mathematical property:\n- If $B = 0$: $A^0 = 1 \\pmod M$\n- If $B$ is even: $A^B = (A^{B/2} \\cdot A^{B/2}) \\pmod M$\n- If $B$ is odd: $A^B = (A \\cdot A^{B-1}) \\pmod M$\n\nIn standard programming environments, when $B$ is as large as $10^{18}$, linear iteration will time out. A recursive binary exponentiation function solves this efficiently by halving the exponent at each recursive call.\n\nWrite a program in C that implements fast exponentiation recursively. Process $T$ queries, each specifying base $A$, exponent $B$, and modulus $M$. For each query, output $(A^B) \\pmod M$. Note the edge case: when $M = 1$, any number modulo 1 equals 0.",
+    "input_format": "Line 1: An integer $T$ ($1 \\le T \\le 100$), the number of test queries.\nNext $T$ lines: Each line contains three space-separated integers $A$, $B$, and $M$ ($0 \\le A \\le 10^9$, $0 \\le B \\le 10^{18}$, $1 \\le M \\le 10^9+7$).",
+    "output_format": "For each query, print $(A^B) \\pmod M$ on a new line.",
+    "constraints": "$1 \\le T \\le 100$, $0 \\le A \\le 10^9$, $0 \\le B \\le 10^{18}$, $1 \\le M \\le 10^9+7$. Use 64-bit unsigned integers (`unsigned long long`).",
+    "examples": [
+      {
+        "input": "3\n2 10 1000\n3 5 100\n5 0 7",
+        "output": "24\n43\n1",
+        "explanation": "2^10 = 1024 % 1000 = 24. 3^5 = 243 % 100 = 43. 5^0 = 1 % 7 = 1."
+      },
+      {
+        "input": "2\n7 1000000 1000000007\n10 5 1",
+        "output": "423455799\n0",
+        "explanation": "7^1000000 mod 1000000007 = 423455799. Anything mod 1 is 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nunsigned long long power_mod(unsigned long long a, unsigned long long b, unsigned long long m) {\n    // Implement recursive binary exponentiation\n    return 0;\n}\n\nint main(void) {\n    // Read T and process queries\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic unsigned long long power_mod(unsigned long long a, unsigned long long b, unsigned long long m) {\n    if (m == 1) return 0;\n    if (b == 0) return 1 % m;\n    unsigned long long half = power_mod(a, b / 2, m);\n    unsigned long long half_sq = (half * half) % m;\n    if (b & 1) {\n        return (half_sq * (a % m)) % m;\n    }\n    return half_sq;\n}\n\nint main(void) {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    while (t--) {\n        unsigned long long a, b, m;\n        scanf(\"%llu %llu %llu\", &a, &b, &m);\n        printf(\"%llu\\n\", power_mod(a, b, m));\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Base case: when B == 0, return 1 % m (be mindful if m == 1).",
+      "Compute half = power_mod(a, b / 2, m) once, then square it: (half * half) % m.",
+      "If B is odd, multiply once more by (a % m) and take modulo m."
+    ],
+    "explanation": "Binary exponentiation reduces the exponent by half in each recursive step, resulting in a maximum recursion depth of log2(B) <= 60. By computing the recursive call only once per step and squaring the result modulo M, we avoid redundant calculations and prevent intermediate integer overflow.",
+    "time_complexity": "O(log B)",
+    "space_complexity": "O(log B) call stack",
+    "common_mistakes": [
+      "Calling power_mod(a, b/2, m) twice instead of storing the result in a variable, degrading complexity to O(B).",
+      "Multiplying 64-bit integers without taking intermediate modulo, risking 64-bit overflow.",
+      "Returning 1 when m == 1 (1 % 1 is 0)."
+    ],
+    "related_problems": [
+      "tower-of-hanoi-with-move-tracking",
+      "recursive-digit-sum"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["google", "amazon", "microsoft", "meta"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "3\n2 10 1000\n3 5 100\n5 0 7\n",
+        "expected_output": "24\n43\n1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Basic powers with small exponents"
+      },
+      {
+        "input": "2\n7 1000000 1000000007\n10 5 1\n",
+        "expected_output": "423455799\n0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Large exponent with prime modulus and modulus 1 edge case"
+      },
+      {
+        "input": "1\n0 10 5\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "A=0 base edge case"
+      },
+      {
+        "input": "1\n0 0 10\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "0^0 edge case evaluating to 1 mod 10"
+      },
+      {
+        "input": "2\n2 62 1000000007\n123456789 987654321 1000000007\n",
+        "expected_output": "673741829\n327090886\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Large exponent test cases"
+      },
+      {
+        "input": "1\n999999999 1000000000000000000 1000000007\n",
+        "expected_output": "974015099\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Maximum exponent B=10^18"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "title": "Tower of Hanoi with Move Tracking",
+    "slug": "tower-of-hanoi-with-move-tracking",
+    "difficulty": "hard",
+    "description": "The Tower of Hanoi is a classic mathematical puzzle invented by Édouard Lucas in 1883. It consists of three rods (Source, Auxiliary, Destination) and $N$ disks of differing diameters which can slide onto any rod. The puzzle begins with the disks neatly stacked on the Source peg in order of decreasing size, with the smallest disk (disk 1) at the top and largest disk (disk $N$) at the bottom.\n\nThe objective is to transfer the entire stack from Source to Destination obeying three strict rules:\n1. Only one disk may be moved at a time.\n2. Each move consists of taking the upper disk from one of the stacks and placing it on top of another stack.\n3. No disk may be placed on top of a disk that is smaller than itself.\n\nThe minimum number of moves required to solve the puzzle for $N$ disks is $2^N - 1$. Write a recursive program in C that prints the total move count and the exact sequence of individual moves.",
+    "input_format": "A single line containing the integer $N$ ($1 \\le N \\le 12$) followed by three single-character peg identifiers for Source, Auxiliary, and Destination, separated by spaces (e.g. `3 A B C`).",
+    "output_format": "Line 1: `Total moves: <count>`\nSubsequent lines: Each move printed as `Move disk <k> from <source> to <destination>`.",
+    "constraints": "$1 \\le N \\le 12$. Peg identifiers are single non-whitespace characters.",
+    "examples": [
+      {
+        "input": "2 A B C",
+        "output": "Total moves: 3\nMove disk 1 from A to B\nMove disk 2 from A to C\nMove disk 1 from B to C",
+        "explanation": "Solving 2 disks requires 3 moves: moving disk 1 to auxiliary peg B, disk 2 to destination C, and disk 1 from B to C."
+      },
+      {
+        "input": "3 X Y Z",
+        "output": "Total moves: 7\nMove disk 1 from X to Z\nMove disk 2 from X to Y\nMove disk 1 from Z to Y\nMove disk 3 from X to Z\nMove disk 1 from Y to X\nMove disk 2 from Y to Z\nMove disk 1 from X to Z",
+        "explanation": "Solving 3 disks requires 2^3 - 1 = 7 moves."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nvoid solve_hanoi(int n, char from, char aux, char to) {\n    // Implement recursive Tower of Hanoi\n}\n\nint main(void) {\n    // Read input and track moves\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic void solve_hanoi(int n, char from, char aux, char to) {\n    if (n == 0) return;\n    solve_hanoi(n - 1, from, to, aux);\n    printf(\"Move disk %d from %c to %c\\n\", n, from, to);\n    solve_hanoi(n - 1, aux, from, to);\n}\n\nint main(void) {\n    int n;\n    char from, aux, to;\n    if (scanf(\"%d %c %c %c\", &n, &from, &aux, &to) != 4) return 0;\n\n    long long total_moves = (1LL << n) - 1;\n    printf(\"Total moves: %lld\\n\", total_moves);\n    solve_hanoi(n, from, aux, to);\n    return 0;\n}\n",
+    "hints": [
+      "To move n disks from A to C using B: first move n - 1 disks from A to B using C.",
+      "Next, move the single largest disk n directly from A to C.",
+      "Finally, move the n - 1 disks from B to C using A."
+    ],
+    "explanation": "Tower of Hanoi exhibits optimal substructure. By recursively transferring the top n - 1 disks to the auxiliary peg, the largest disk n is exposed and moved to the destination. Recursively moving the n - 1 disks from the auxiliary peg to the destination completes the step. The total number of operations satisfies T(n) = 2T(n-1) + 1 = 2^n - 1.",
+    "time_complexity": "O(2^N)",
+    "space_complexity": "O(N) call stack",
+    "common_mistakes": [
+      "Swapping the auxiliary and destination peg parameters in the recursive calls.",
+      "Using standard 1 << n without 1LL for larger n.",
+      "Incorrect formatting of peg letters or disk numbers."
+    ],
+    "related_problems": [
+      "recursive-power-calculator",
+      "recursive-maze-solver"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["microsoft", "amazon", "adobe"],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "2 A B C\n",
+        "expected_output": "Total moves: 3\nMove disk 1 from A to B\nMove disk 2 from A to C\nMove disk 1 from B to C\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "2-disk Tower of Hanoi"
+      },
+      {
+        "input": "3 X Y Z\n",
+        "expected_output": "Total moves: 7\nMove disk 1 from X to Z\nMove disk 2 from X to Y\nMove disk 1 from Z to Y\nMove disk 3 from X to Z\nMove disk 1 from Y to X\nMove disk 2 from Y to Z\nMove disk 1 from X to Z\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "3-disk Tower of Hanoi with custom peg labels"
+      },
+      {
+        "input": "1 A B C\n",
+        "expected_output": "Total moves: 1\nMove disk 1 from A to C\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single disk edge case"
+      },
+      {
+        "input": "4 S A D\n",
+        "expected_output": "Total moves: 15\nMove disk 1 from S to A\nMove disk 2 from S to D\nMove disk 1 from A to D\nMove disk 3 from S to A\nMove disk 1 from D to S\nMove disk 2 from D to A\nMove disk 1 from S to A\nMove disk 4 from S to D\nMove disk 1 from A to D\nMove disk 2 from A to S\nMove disk 1 from D to S\nMove disk 3 from A to D\nMove disk 1 from S to A\nMove disk 2 from S to D\nMove disk 1 from A to D\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "4-disk Tower of Hanoi"
+      },
+      {
+        "input": "5 1 2 3\n",
+        "expected_output": "Total moves: 31\nMove disk 1 from 1 to 3\nMove disk 2 from 1 to 2\nMove disk 1 from 3 to 2\nMove disk 3 from 1 to 3\nMove disk 1 from 2 to 1\nMove disk 2 from 2 to 3\nMove disk 1 from 1 to 3\nMove disk 4 from 1 to 2\nMove disk 1 from 3 to 2\nMove disk 2 from 3 to 1\nMove disk 1 from 2 to 1\nMove disk 3 from 3 to 2\nMove disk 1 from 1 to 3\nMove disk 2 from 1 to 2\nMove disk 1 from 3 to 2\nMove disk 5 from 1 to 3\nMove disk 1 from 2 to 1\nMove disk 2 from 2 to 3\nMove disk 1 from 1 to 3\nMove disk 3 from 2 to 1\nMove disk 1 from 3 to 2\nMove disk 2 from 3 to 1\nMove disk 1 from 2 to 1\nMove disk 4 from 2 to 3\nMove disk 1 from 1 to 3\nMove disk 2 from 1 to 2\nMove disk 1 from 3 to 2\nMove disk 3 from 1 to 3\nMove disk 1 from 2 to 1\nMove disk 2 from 2 to 3\nMove disk 1 from 1 to 3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "5-disk Tower of Hanoi with numeric peg labels"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Recursive Subset Sum",
+    "slug": "recursive-subset-sum",
+    "difficulty": "hard",
+    "description": "The Subset Sum problem is a foundational problem in computer science and complexity theory. Given an array of $N$ integers and a target value $T$, determine whether there exists a non-empty subset of the elements whose sum equals $T$.\n\nIn this problem, elements can be positive, negative, or zero. Because a non-empty subset must contain at least one element, an empty selection of 0 elements is not considered a valid subset.\n\nRecursive backtracking solves this problem by branching at each index: either include the current element in the subset or exclude it. Write a recursive C function that explores the state space and prints `YES` if a valid non-empty subset exists that sums to $T$, or `NO` otherwise.",
+    "input_format": "Line 1: Two space-separated integers $N$ ($1 \\le N \\le 22$) and $T$ ($-10^8 \\le T \\le 10^8$).\nLine 2: $N$ space-separated integers $A_1, A_2, \\dots, A_N$ ($-10^7 \\le A_i \\le 10^7$).",
+    "output_format": "Print `YES` if a non-empty subset sums to $T$, otherwise print `NO`.",
+    "constraints": "$1 \\le N \\le 22$, $-10^8 \\le T \\le 10^8$, $-10^7 \\le A_i \\le 10^7$.",
+    "examples": [
+      {
+        "input": "5 9\n3 34 4 12 5",
+        "output": "YES",
+        "explanation": "The subset {4, 5} sums to 9."
+      },
+      {
+        "input": "5 30\n3 34 4 12 5",
+        "output": "NO",
+        "explanation": "No subset sums to 30."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdbool.h>\n\nbool subset_sum(int arr[], int n, int idx, long long current_sum, int count, long long target) {\n    // Implement recursive subset sum search\n    return false;\n}\n\nint main(void) {\n    // Read input and check for subset sum\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdbool.h>\n\nstatic int arr[32];\nstatic int n;\nstatic long long target;\n\nstatic bool solve(int idx, long long current_sum, int count) {\n    if (idx == n) {\n        return (count > 0 && current_sum == target);\n    }\n    // Include arr[idx]\n    if (solve(idx + 1, current_sum + arr[idx], count + 1)) return true;\n    // Exclude arr[idx]\n    if (solve(idx + 1, current_sum, count)) return true;\n    return false;\n}\n\nint main(void) {\n    if (scanf(\"%d %lld\", &n, &target) != 2) return 0;\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    if (solve(0, 0, 0)) {\n        printf(\"YES\\n\");\n    } else {\n        printf(\"NO\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Track both the accumulated sum and the count of elements included so far.",
+      "At index N, verify that count > 0 and current_sum == target.",
+      "Branch recursively: one call includes arr[idx], the second call excludes arr[idx]."
+    ],
+    "explanation": "With N <= 22, the search space consists of 2^N <= 4,194,304 states. A depth-first recursive search evaluates the decision tree. Short-circuiting evaluation returns true immediately when any valid branch is discovered.",
+    "time_complexity": "O(2^N)",
+    "space_complexity": "O(N) call stack",
+    "common_mistakes": [
+      "Allowing an empty subset (count == 0) to satisfy a target of 0.",
+      "Failing to handle negative numbers in the array or target.",
+      "Integer overflow by using 32-bit int for accumulated sums."
+    ],
+    "related_problems": [
+      "expression-operator-insertion",
+      "n-queens-counter"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["facebook", "google", "amazon"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5 9\n3 34 4 12 5\n",
+        "expected_output": "YES\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard positive subset sum"
+      },
+      {
+        "input": "5 30\n3 34 4 12 5\n",
+        "expected_output": "NO\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Impossible target"
+      },
+      {
+        "input": "1 0\n0\n",
+        "expected_output": "YES\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element {0} matching target 0"
+      },
+      {
+        "input": "4 -5\n2 -3 -4 1\n",
+        "expected_output": "YES\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Negative integers forming negative target (2 + -3 + -4 = -5)"
+      },
+      {
+        "input": "5 17\n2 4 6 8 10\n",
+        "expected_output": "NO\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Even numbers array cannot form odd sum"
+      },
+      {
+        "input": "6 100\n10 20 30 40 50 60\n",
+        "expected_output": "YES\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple valid subsets (10+30+60 = 100)"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "title": "N-Queens Counter",
+    "slug": "n-queens-counter",
+    "difficulty": "very_hard",
+    "description": "The $N$-Queens puzzle is a quintessential problem in computer science and artificial intelligence. The challenge is to place $N$ non-attacking queens on an $N \\times N$ chessboard such that no two queens threaten each other. Under standard chess rules, a queen attacks any piece sharing its row, column, or diagonal.\n\nBecause each queen must occupy a distinct row, any valid arrangement places exactly one queen per row. Backtracking with bit manipulation allows high-speed pruning of attacked columns and diagonals:\n- A bitmask `cols` tracks occupied columns.\n- A bitmask `diag1` tracks occupied primary diagonals (top-left to bottom-right, shifting left by 1 when advancing rows).\n- A bitmask `diag2` tracks occupied secondary diagonals (top-right to bottom-left, shifting right by 1 when advancing rows).\n\nWrite an optimized recursive backtracking program in C that computes the exact number of distinct solutions for a given board size $N$.",
+    "input_format": "A single line containing the integer $N$ ($1 \\le N \\le 14$).",
+    "output_format": "Print a single integer: the total number of distinct valid solutions.",
+    "constraints": "$1 \\le N \\le 14$.",
+    "examples": [
+      {
+        "input": "4",
+        "output": "2",
+        "explanation": "On a 4x4 board, exactly 2 distinct valid N-Queens configurations exist."
+      },
+      {
+        "input": "8",
+        "output": "92",
+        "explanation": "On a standard 8x8 chessboard, there are 92 distinct solutions."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nvoid count_nqueens(int row, int cols, int d1, int d2, int n, int *total) {\n    // Implement bitwise recursive N-Queens solver\n}\n\nint main(void) {\n    // Read N and print total solutions\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic void solve_queens(int row, int cols, int d1, int d2, int mask, int *count) {\n    if (cols == mask) {\n        (*count)++;\n        return;\n    }\n    int available = mask & ~(cols | d1 | d2);\n    while (available) {\n        int p = available & -available;\n        available -= p;\n        solve_queens(row + 1, cols | p, (d1 | p) << 1, (d2 | p) >> 1, mask, count);\n    }\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    int mask = (1 << n) - 1;\n    int count = 0;\n    solve_queens(0, 0, 0, 0, mask, &count);\n\n    printf(\"%d\\n\", count);\n    return 0;\n}\n",
+    "hints": [
+      "Use bitmasks to represent occupied columns and diagonals in O(1) time.",
+      "The formula available = mask & ~(cols | d1 | d2) identifies all safe positions in the current row.",
+      "Extract the lowest available position using bitwise trick: p = available & -available."
+    ],
+    "explanation": "Bitwise backtracking solves N-Queens at machine speed. Three integer bitmasks track column conflicts, main diagonals (shifted left each row), and anti-diagonals (shifted right each row). Safe positions are extracted using two's complement bit trick available & -available until no positions remain.",
+    "time_complexity": "O(N!)",
+    "space_complexity": "O(N) call stack",
+    "common_mistakes": [
+      "Using a 2D array and scanning rows/diagonals iteratively, which times out for N >= 12.",
+      "Failing to shift diagonals correctly when recursing to row + 1.",
+      "Incorrect bitmask masking causing high bits to corrupt diagonal state."
+    ],
+    "related_problems": [
+      "recursive-subset-sum",
+      "recursive-maze-solver"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["google", "facebook", "uber", "amazon"],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "4\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 4-Queens"
+      },
+      {
+        "input": "8\n",
+        "expected_output": "92\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Classic 8-Queens"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single cell board"
+      },
+      {
+        "input": "2\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=2 has 0 valid solutions"
+      },
+      {
+        "input": "3\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=3 has 0 valid solutions"
+      },
+      {
+        "input": "10\n",
+        "expected_output": "724\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "10-Queens count"
+      },
+      {
+        "input": "12\n",
+        "expected_output": "14200\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "12-Queens count"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Recursive String Permutations",
+    "slug": "recursive-string-permutations",
+    "difficulty": "hard",
+    "description": "Generating all permutations of a string is a standard recursive problem that illustrates backtracking, combinatorial enumeration, and duplicate management. When the string contains duplicate characters, generating permutations naively produces identical duplicate results.\n\nTo generate all unique permutations in lexicographical order:\n1. First sort the input characters in ascending ASCII order.\n2. In the recursive backtracking function, maintain a boolean array tracking which character indices have been used in the current branch.\n3. Skip duplicate characters: if character $S[i] == S[i-1]$ and index $i-1$ has not been used in the current recursive path, picking index $i$ would lead to duplicate permutations and must be skipped.\n\nWrite a C program that reads a string $S$ of lowercase English letters, generates all unique permutations, prints the total count on the first line, and outputs each permutation on a separate line in lexicographical order.",
+    "input_format": "A single line containing the string $S$ ($1 \\le |S| \\le 8$) of lowercase English letters.",
+    "output_format": "Line 1: An integer, the total count of unique permutations.\nSubsequent lines: Each unique permutation printed in lexicographical order.",
+    "constraints": "$1 \\le |S| \\le 8$. $S$ consists only of lowercase English letters.",
+    "examples": [
+      {
+        "input": "aba",
+        "output": "3\naab\naba\nbaa",
+        "explanation": "'aba' has 3 unique permutations: 'aab', 'aba', 'baa'."
+      },
+      {
+        "input": "abc",
+        "output": "6\nabc\nacb\nbac\nbca\ncab\ncba",
+        "explanation": "3 distinct characters yield 3! = 6 unique permutations."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(void) {\n    // Generate unique string permutations recursively\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n\nstatic char str[16];\nstatic int len;\nstatic bool used[16];\nstatic char current[16];\n\nstatic char results[45000][16];\nstatic int total_count = 0;\n\nstatic int cmp_char(const void *a, const void *b) {\n    return (*(const char *)a - *(const char *)b);\n}\n\nstatic void permute(int depth) {\n    if (depth == len) {\n        current[depth] = '\\0';\n        strcpy(results[total_count++], current);\n        return;\n    }\n    for (int i = 0; i < len; i++) {\n        if (used[i]) continue;\n        if (i > 0 && str[i] == str[i - 1] && !used[i - 1]) continue;\n\n        used[i] = true;\n        current[depth] = str[i];\n        permute(depth + 1);\n        used[i] = false;\n    }\n}\n\nint main(void) {\n    if (scanf(\"%15s\", str) != 1) return 0;\n    len = strlen(str);\n    qsort(str, len, sizeof(char), cmp_char);\n\n    permute(0);\n\n    printf(\"%d\\n\", total_count);\n    for (int i = 0; i < total_count; i++) {\n        printf(\"%s\\n\", results[i]);\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Sort the string first so that duplicate characters are adjacent.",
+      "Use a visited boolean array to know which indices are currently selected.",
+      "Prune duplicate branches with condition: if (i > 0 && str[i] == str[i-1] && !used[i-1]) continue."
+    ],
+    "explanation": "Sorting the input characters ensures lexicographical order. The backtracking algorithm builds the permutation character by character. To prevent duplicate permutations from identical characters, we enforce that duplicate characters must be chosen in index order: str[i] cannot be chosen if the identical str[i-1] is unused.",
+    "time_complexity": "O(N * N!)",
+    "space_complexity": "O(N * N!)",
+    "common_mistakes": [
+      "Not sorting the string before beginning recursive backtracking.",
+      "Generating duplicate permutations when identical characters are present.",
+      "Printing in non-lexicographical order."
+    ],
+    "related_problems": [
+      "expression-operator-insertion",
+      "recursive-subset-sum"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["google", "microsoft", "amazon", "linkedin"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "aba\n",
+        "expected_output": "3\naab\naba\nbaa\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "String with duplicates"
+      },
+      {
+        "input": "abc\n",
+        "expected_output": "6\nabc\nacb\nbac\nbca\ncab\ncba\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "3 distinct characters"
+      },
+      {
+        "input": "a\n",
+        "expected_output": "1\na\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single character string"
+      },
+      {
+        "input": "aaaa\n",
+        "expected_output": "1\naaaa\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All duplicate characters"
+      },
+      {
+        "input": "baca\n",
+        "expected_output": "12\naabc\naacb\nabac\nabca\nacab\nacba\nbaac\nbaca\nbcaa\ncaab\ncaba\ncbaa\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "4-character string with duplicates"
+      },
+      {
+        "input": "ab\n",
+        "expected_output": "2\nab\nba\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "2 distinct characters"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "title": "Recursive Binary Search with Count",
+    "slug": "recursive-binary-search-with-count",
+    "difficulty": "medium",
+    "description": "Binary search is the quintessential divide-and-conquer search algorithm. Given a sorted array $A$ of $N$ integers and a target value $K$, binary search determines whether $K$ is present in $O(\\log N)$ time by recursively inspecting the midpoint element.\n\nIn this problem, implement binary search strictly as a recursive function:\n```c\nint binary_search(int arr[], int low, int high, int target, int *comparisons);\n```\nAt each recursive step:\n1. If `low > high`, the element is not found. Return `-1`.\n2. Compute midpoint index: `mid = low + (high - low) / 2`.\n3. Increment the comparison counter by 1.\n4. If `arr[mid] == target`, target is found at index `mid` (0-indexed). Return `mid`.\n5. If `target < arr[mid]`, recursively search the left subarray `[low, mid - 1]`.\n6. Otherwise, recursively search the right subarray `[mid + 1, high]`.\n\nProcess $Q$ queries and output the search result and exact comparison count for each query.",
+    "input_format": "Line 1: An integer $N$ ($1 \\le N \\le 10^5$), the size of the sorted array.\nLine 2: $N$ space-separated sorted integers $A_0, A_1, \\dots, A_{N-1}$.\nLine 3: An integer $Q$ ($1 \\le Q \\le 100$), the number of queries.\nNext $Q$ lines: Each line contains a target integer $K$.",
+    "output_format": "For each query, print:\n`Found at index <mid> with <count> comparisons`\nor\n`Not found with <count> comparisons`",
+    "constraints": "$1 \\le N \\le 10^5$, $1 \\le Q \\le 100$. Array is sorted in non-decreasing order.",
+    "examples": [
+      {
+        "input": "5\n10 20 30 40 50\n2\n30\n25",
+        "output": "Found at index 2 with 1 comparisons\nNot found with 2 comparisons",
+        "explanation": "Target 30 is at mid index 2 on the first comparison. Target 25 is not found after inspecting indices 2 and 0."
+      },
+      {
+        "input": "6\n2 4 6 8 10 12\n2\n2\n12",
+        "output": "Found at index 0 with 2 comparisons\nFound at index 5 with 3 comparisons",
+        "explanation": "Search traces midpoint steps for 2 and 12."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint recursive_binary_search(int arr[], int low, int high, int target, int *comparisons) {\n    // Implement recursive binary search with comparison counter\n    return -1;\n}\n\nint main(void) {\n    // Read array and process Q queries\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic int arr[100005];\n\nstatic int recursive_binary_search(int a[], int low, int high, int target, int *comparisons) {\n    if (low > high) return -1;\n    int mid = low + (high - low) / 2;\n    (*comparisons)++;\n    if (a[mid] == target) return mid;\n    if (target < a[mid]) {\n        return recursive_binary_search(a, low, mid - 1, target, comparisons);\n    } else {\n        return recursive_binary_search(a, mid + 1, high, target, comparisons);\n    }\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    while (q--) {\n        int target;\n        scanf(\"%d\", &target);\n        int comps = 0;\n        int idx = recursive_binary_search(arr, 0, n - 1, target, &comps);\n        if (idx != -1) {\n            printf(\"Found at index %d with %d comparisons\\n\", idx, comps);\n        } else {\n            printf(\"Not found with %d comparisons\\n\", comps);\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Midpoint index formula: mid = low + (high - low) / 2.",
+      "Increment *comparisons exactly once per recursive invocation before checking equality.",
+      "If arr[mid] == target, return mid immediately."
+    ],
+    "explanation": "Binary search halves the search space at each recursive call. By tracking comparisons through a pointer argument (*comparisons), we count how many midpoint evaluations were performed during the search path.",
+    "time_complexity": "O(Q * log N)",
+    "space_complexity": "O(log N) call stack",
+    "common_mistakes": [
+      "Using (low + high) / 2 which can overflow for large indices.",
+      "Failing to increment comparison count on failed comparisons.",
+      "Passing mid instead of mid - 1 or mid + 1, causing infinite recursion."
+    ],
+    "related_problems": [
+      "recursive-array-merge-sort",
+      "recursive-power-calculator"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["amazon", "microsoft", "oracle", "cisco"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\n10 20 30 40 50\n2\n30\n25\n",
+        "expected_output": "Found at index 2 with 1 comparisons\nNot found with 2 comparisons\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Odd-length array found and not found queries"
+      },
+      {
+        "input": "6\n2 4 6 8 10 12\n2\n2\n12\n",
+        "expected_output": "Found at index 0 with 2 comparisons\nFound at index 5 with 3 comparisons\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Even-length array boundary element searches"
+      },
+      {
+        "input": "1\n100\n2\n100\n50\n",
+        "expected_output": "Found at index 0 with 1 comparisons\nNot found with 1 comparisons\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single element array"
+      },
+      {
+        "input": "7\n1 3 5 7 9 11 13\n3\n7\n1\n13\n",
+        "expected_output": "Found at index 3 with 1 comparisons\nFound at index 0 with 3 comparisons\nFound at index 6 with 3 comparisons\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Perfect binary tree array size N=7"
+      },
+      {
+        "input": "4\n10 20 30 40\n2\n5\n45\n",
+        "expected_output": "Not found with 2 comparisons\nNot found with 3 comparisons\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Targets strictly outside array range"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "title": "Recursive Array Merge Sort",
+    "slug": "recursive-array-merge-sort",
+    "difficulty": "hard",
+    "description": "Merge Sort is an $O(N \\log N)$ comparison-based sorting algorithm based on the divide-and-conquer paradigm. Invented by John von Neumann in 1945, it divides the array into two halves, recursively sorts each half, and then merges the two sorted halves into a single sorted array.\n\nBeyond sorting, merge sort uniquely enables counting the number of inversions in an array in $O(N \\log N)$ time. An inversion is a pair of indices $(i, j)$ such that $i < j$ and $A[i] > A[j]$. Inversions measure how far an array is from being sorted. When merging two sorted halves `left` and `right`, whenever an element from the right subarray is smaller than an element from the left subarray, it is smaller than all remaining elements in the left subarray, contributing `(mid - i + 1)` inversions.\n\nImplement recursive merge sort in C. Output the sorted array on the first line, and on the second line output the total number of inversions counted during the sort.",
+    "input_format": "Line 1: An integer $N$ ($1 \\le N \\le 10^5$).\nLine 2: $N$ space-separated integers $A_1, A_2, \\dots, A_N$ ($-10^9 \\le A_i \\le 10^9$).",
+    "output_format": "Line 1: The sorted array, with elements separated by a single space.\nLine 2: `Inversions: <count>`.",
+    "constraints": "$1 \\le N \\le 10^5$, $-10^9 \\le A_i \\le 10^9$. Inversion count may reach $N(N-1)/2 \\approx 5 \\times 10^9$ and requires a 64-bit signed integer (`long long`).",
+    "examples": [
+      {
+        "input": "5\n2 4 1 3 5",
+        "output": "1 2 3 4 5\nInversions: 3",
+        "explanation": "Sorted array is 1 2 3 4 5. The 3 inverted pairs are (2, 1), (4, 1), and (4, 3)."
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "1 2 3 4\nInversions: 6",
+        "explanation": "Reverse-sorted array of size 4 has 4*3/2 = 6 inversions."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nlong long merge_sort(int arr[], int temp[], int left, int right) {\n    // Implement recursive merge sort with inversion counting\n    return 0;\n}\n\nint main(void) {\n    // Read array, sort, and print results\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic int arr[100005];\nstatic int temp[100005];\n\nstatic long long merge(int a[], int tmp[], int left, int mid, int right) {\n    int i = left;\n    int j = mid + 1;\n    int k = left;\n    long long inv_count = 0;\n\n    while (i <= mid && j <= right) {\n        if (a[i] <= a[j]) {\n            tmp[k++] = a[i++];\n        } else {\n            tmp[k++] = a[j++];\n            inv_count += (mid - i + 1);\n        }\n    }\n    while (i <= mid) tmp[k++] = a[i++];\n    while (j <= right) tmp[k++] = a[j++];\n    for (i = left; i <= right; i++) a[i] = tmp[i];\n\n    return inv_count;\n}\n\nstatic long long merge_sort(int a[], int tmp[], int left, int right) {\n    long long inv_count = 0;\n    if (left < right) {\n        int mid = left + (right - left) / 2;\n        inv_count += merge_sort(a, tmp, left, mid);\n        inv_count += merge_sort(a, tmp, mid + 1, right);\n        inv_count += merge(a, tmp, left, mid, right);\n    }\n    return inv_count;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    long long invs = merge_sort(arr, temp, 0, n - 1);\n\n    for (int i = 0; i < n; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", arr[i]);\n    }\n    printf(\"\\nInversions: %lld\\n\", invs);\n    return 0;\n}\n",
+    "hints": [
+      "Divide the array into left and right halves around mid = left + (right - left) / 2.",
+      "During the merge step, if a[i] > a[j], add (mid - i + 1) to the inversion count.",
+      "Store inversion count in a 64-bit integer (long long) to prevent overflow."
+    ],
+    "explanation": "Divide-and-conquer splits the array recursively into halves. During merging, elements from left and right halves are merged in sorted order. If a[j] is smaller than a[i], it is also smaller than all elements from index i to mid, adding mid - i + 1 inversions in O(1) time.",
+    "time_complexity": "O(N log N)",
+    "space_complexity": "O(N)",
+    "common_mistakes": [
+      "Using standard 32-bit int for inversion count, which overflows when inversions exceed 2*10^9.",
+      "Using strict < instead of <= when comparing a[i] <= a[j], leading to duplicate elements incorrectly counting as inversions.",
+      "Off-by-one errors in copying elements back from the temporary buffer."
+    ],
+    "related_problems": [
+      "recursive-binary-search-with-count",
+      "recursive-subset-sum"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["google", "microsoft", "amazon", "uber"],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "5\n2 4 1 3 5\n",
+        "expected_output": "1 2 3 4 5\nInversions: 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard unsorted array"
+      },
+      {
+        "input": "4\n4 3 2 1\n",
+        "expected_output": "1 2 3 4\nInversions: 6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Reverse-sorted array with maximum inversions"
+      },
+      {
+        "input": "1\n42\n",
+        "expected_output": "42\nInversions: 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single element array"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "expected_output": "1 2 3 4 5\nInversions: 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Already sorted array with 0 inversions"
+      },
+      {
+        "input": "6\n9 1 8 2 7 3\n",
+        "expected_output": "1 2 3 7 8 9\nInversions: 9\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Alternating values"
+      },
+      {
+        "input": "8\n5 5 2 2 1 1 8 8\n",
+        "expected_output": "1 1 2 2 5 5 8 8\nInversions: 14\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Array containing duplicate elements"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "title": "Recursive Digit Sum",
+    "slug": "recursive-digit-sum",
+    "difficulty": "medium",
+    "description": "The digital root (also known as the super digit or repeated digit sum) of a non-negative integer is the single-digit value obtained by an iterative process of summing digits, on each iteration using the result from the previous iteration until a single-digit number is reached.\n\nYou are given two numbers represented as a string $N$ and an integer $K$. The number $P$ is created by concatenating string $N$ exactly $K$ times. For example, if $N = \"148\"$ and $K = 3$, then $P = 148148148$.\n\nYour task is to compute the super digit of $P$ using recursion:\n1. Compute the initial sum of the digits of string $N$ using a recursive function over the string length, and multiply this initial sum by $K$.\n2. If the resulting sum is greater than or equal to 10, recursively sum the digits of that number until a single digit remains.\n3. Output the final single-digit result.",
+    "input_format": "A single line containing the string $N$ ($1 \\le |N| \\le 10^5$) and the integer $K$ ($1 \\le K \\le 10^5$) separated by a space.",
+    "output_format": "Print a single integer: the single-digit super digit.",
+    "constraints": "$1 \\le |N| \\le 10^5$, $1 \\le K \\le 10^5$. $N$ consists of digits '0'-'9'.",
+    "examples": [
+      {
+        "input": "148 3",
+        "output": "3",
+        "explanation": "Initial sum = (1 + 4 + 8) * 3 = 13 * 3 = 39. Then super_digit(39) -> 3 + 9 = 12 -> super_digit(12) -> 1 + 2 = 3."
+      },
+      {
+        "input": "9875 4",
+        "output": "8",
+        "explanation": "Initial sum = (9 + 8 + 7 + 5) * 4 = 29 * 4 = 116. Next: 1 + 1 + 6 = 8."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nlong long super_digit(long long n) {\n    // Implement recursive super digit computation\n    return 0;\n}\n\nint main(void) {\n    // Read N and K and compute recursive digit sum\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nstatic long long super_digit(long long n) {\n    if (n < 10) return n;\n    long long sum = 0;\n    while (n > 0) {\n        sum += n % 10;\n        n /= 10;\n    }\n    return super_digit(sum);\n}\n\nint main(void) {\n    char s[100005];\n    long long k;\n    if (scanf(\"%100004s %lld\", s, &k) != 2) return 0;\n\n    long long initial_sum = 0;\n    for (int i = 0; s[i] != '\\0'; i++) {\n        initial_sum += (s[i] - '0');\n    }\n    initial_sum *= k;\n\n    printf(\"%lld\\n\", super_digit(initial_sum));\n    return 0;\n}\n",
+    "hints": [
+      "Do NOT create the entire string P of length |N| * K, as it can be up to 10^10 characters and will exhaust memory.",
+      "First compute the sum of digits of string N, then multiply by K to get the first sum.",
+      "Pass this sum to a recursive function that extracts digits and sums them until the value is < 10."
+    ],
+    "explanation": "Because digit sums are distributive over concatenation, sum(digits(N * K)) = sum(digits(N)) * K. Computing the initial sum of N takes O(|N|) time and requires no string replication. The resulting number is at most 9 * 10^5 * 10^5 = 9 * 10^10, which easily fits in a 64-bit integer. Subsequent recursive digit sums converge to a single digit in at most 3 recursive steps.",
+    "time_complexity": "O(|N|)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Attempting to concatenate string N into memory K times, causing buffer overflow or out-of-memory crash.",
+      "Using 32-bit integer for initial_sum = digit_sum * K which can reach 9 * 10^10.",
+      "Incorrect base case (terminating when n <= 10 instead of n < 10, leaving 10 unreduced)."
+    ],
+    "related_problems": [
+      "recursive-power-calculator",
+      "armstrong-number-range"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["hackerrank", "goldman-sachs", "morgan-stanley"],
+    "company_source_type": "adapted_practice",
+    "test_cases": [
+      {
+        "input": "148 3\n",
+        "expected_output": "3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard Hackerrank example"
+      },
+      {
+        "input": "9875 4\n",
+        "expected_output": "8\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Multi-digit number repeated 4 times"
+      },
+      {
+        "input": "7 1\n",
+        "expected_output": "7\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single digit repeated once"
+      },
+      {
+        "input": "9 100000\n",
+        "expected_output": "9\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Digit 9 repeated 100000 times"
+      },
+      {
+        "input": "123456789 10\n",
+        "expected_output": "9\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Sequence 1 to 9 repeated 10 times"
+      },
+      {
+        "input": "1000 5\n",
+        "expected_output": "5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Power of 10 repeated 5 times"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "title": "Recursive Maze Solver",
+    "slug": "recursive-maze-solver",
+    "difficulty": "very_hard",
+    "description": "Maze solving using recursive depth-first backtracking is a classical problem in graph theory and pathfinding algorithms. You are given a 2D grid of size $R \\times C$ representing a maze:\n- `'S'`: The starting cell\n- `'E'`: The destination exit cell\n- `'.'`: An open traversable pathway\n- `'#'`: An impassable wall\n\nFrom any cell, movement is allowed to an adjacent cell (sharing an edge) in four directions. To ensure deterministic path traversal, the recursive search MUST explore adjacent unvisited neighbors in the following strict priority order:\n1. Up (`'U'`, row - 1, col)\n2. Right (`'R'`, row, col + 1)\n3. Down (`'D'`, row + 1, col)\n4. Left (`'L'`, row, col - 1)\n\nIf a path from `'S'` to `'E'` exists:\n- Print `PATH FOUND` on Line 1.\n- Print `Path: <directions>` on Line 2 (e.g. `Path: RRD`).\n- Print `Steps: <step_count>` on Line 3.\n- Print the final $R \\times C$ maze grid, where all traversed intermediate path cells (excluding `'S'` and `'E'`) are marked with `'*'`. Cells not on the solution path retain their original characters.\n\nIf no path connects `'S'` and `'E'`, print `NO PATH`.",
+    "input_format": "Line 1: Two space-separated integers $R$ and $C$ ($1 \\le R, C \\le 15$).\nNext $R$ lines: Each line contains a string of length $C$ containing `'S'`, `'E'`, `'.'`, and `'#'`.",
+    "output_format": "If a path is found:\n`PATH FOUND`\n`Path: <directions>`\n`Steps: <count>`\nfollowed by the $R$ lines of the maze grid with solution path marked with `'*'`.\nIf no path exists, print `NO PATH`.",
+    "constraints": "$1 \\le R, C \\le 15$. Exactly one `'S'` and one `'E'` exist in the maze.",
+    "examples": [
+      {
+        "input": "3 3\nS..\n.#.\n..E",
+        "output": "PATH FOUND\nPath: RRDD\nSteps: 4\nS**\n.#*\n..E",
+        "explanation": "Path moves Right, Right, Down, Down from S to E. Traversed path cells are replaced by '*'."
+      },
+      {
+        "input": "3 3\nS##\n###\n##E",
+        "output": "NO PATH",
+        "explanation": "S is completely trapped by walls."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdbool.h>\n\nint main(void) {\n    // Solve maze recursively using backtracking\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdbool.h>\n\nstatic int R, C;\nstatic char grid[20][20];\nstatic bool visited[20][20];\nstatic char path[500];\nstatic int path_len = 0;\nstatic bool in_path[20][20];\n\nstatic const int dr[] = {-1, 0, 1, 0};\nstatic const int dc[] = {0, 1, 0, -1};\nstatic const char dir_char[] = {'U', 'R', 'D', 'L'};\n\nstatic bool dfs(int r, int c) {\n    if (grid[r][c] == 'E') return true;\n\n    visited[r][c] = true;\n    for (int i = 0; i < 4; i++) {\n        int nr = r + dr[i];\n        int nc = c + dc[i];\n        if (nr >= 0 && nr < R && nc >= 0 && nc < C && !visited[nr][nc] && grid[nr][nc] != '#') {\n            path[path_len++] = dir_char[i];\n            if (grid[nr][nc] != 'E') in_path[nr][nc] = true;\n            if (dfs(nr, nc)) return true;\n            if (grid[nr][nc] != 'E') in_path[nr][nc] = false;\n            path_len--;\n        }\n    }\n    return false;\n}\n\nint main(void) {\n    if (scanf(\"%d %d\", &R, &C) != 2) return 0;\n    int sr = -1, sc = -1;\n    for (int r = 0; r < R; r++) {\n        scanf(\"%19s\", grid[r]);\n        for (int c = 0; c < C; c++) {\n            if (grid[r][c] == 'S') {\n                sr = r; sc = c;\n            }\n        }\n    }\n\n    if (dfs(sr, sc)) {\n        path[path_len] = '\\0';\n        printf(\"PATH FOUND\\n\");\n        printf(\"Path: %s\\n\", path);\n        printf(\"Steps: %d\\n\", path_len);\n        for (int r = 0; r < R; r++) {\n            for (int c = 0; c < C; c++) {\n                if (in_path[r][c]) putchar('*');\n                else putchar(grid[r][c]);\n            }\n            putchar('\\n');\n        }\n    } else {\n        printf(\"NO PATH\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Find the coordinates of 'S' to initiate recursive DFS.",
+      "Explore neighbors in the exact order: Up, Right, Down, Left.",
+      "Maintain a visited array to avoid cycles, and unmark in_path on backtrack."
+    ],
+    "explanation": "Recursive DFS searches reachable cells according to the specified directional precedence. A visited matrix prevents revisiting cells within a branch. When the exit 'E' is reached, true is propagated back through the call stack while recording the path directions and intermediate '*' coordinates.",
+    "time_complexity": "O(R * C)",
+    "space_complexity": "O(R * C) call stack and visited matrix",
+    "common_mistakes": [
+      "Exploring directions in an arbitrary order instead of Up, Right, Down, Left.",
+      "Replacing 'S' or 'E' with '*' in the final grid output.",
+      "Forgetting to mark visited cells, resulting in infinite recursive loops."
+    ],
+    "related_problems": [
+      "n-queens-counter",
+      "recursive-subset-sum"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["google", "microsoft", "uber", "palantir"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "3 3\nS..\n.#.\n..E\n",
+        "expected_output": "PATH FOUND\nPath: RRDD\nSteps: 4\nS**\n.#*\n..E\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "3x3 simple open maze"
+      },
+      {
+        "input": "3 3\nS##\n###\n##E\n",
+        "expected_output": "NO PATH\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Completely blocked maze"
+      },
+      {
+        "input": "1 2\nSE\n",
+        "expected_output": "PATH FOUND\nPath: R\nSteps: 1\nSE\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "1x2 adjacent start and exit"
+      },
+      {
+        "input": "4 4\nS.#.\n..#.\n#.#.\n..#E\n",
+        "expected_output": "PATH FOUND\nPath: RDDLLDDRRR\nSteps: 10\nS*#.\n**#.\n#*#.\n***E\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "4x4 maze with walls forcing loop"
+      },
+      {
+        "input": "5 5\nS....\n####.\n.....\n.####\n....E\n",
+        "expected_output": "PATH FOUND\nPath: RRRRDDLLLLDDRRRR\nSteps: 16\nS****\n####*\n*****\n*####\n****E\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "5x5 snake corridor maze"
+      },
+      {
+        "input": "4 4\nS...\n....\n....\n###E\n",
+        "expected_output": "NO PATH\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Target E surrounded by walls"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "title": "Mutual Recursion Sequence",
+    "slug": "mutual-recursion-sequence",
+    "difficulty": "hard",
+    "description": "Mutual recursion occurs when two or more functions are defined in terms of each other. A famous example of mutual recursion is the Hofstadter Female and Male sequences ($F$ and $M$), introduced by Douglas Hofstadter in his Pulitzer Prize-winning 1979 book *Gödel, Escher, Bach: an Eternal Golden Braid*.\n\nThe sequences are defined for all non-negative integers as follows:\n- $F(0) = 1$\n- $M(0) = 0$\n- $F(n) = n - M(F(n - 1)), \\quad \\text{for } n > 0$\n- $M(n) = n - F(M(n - 1)), \\quad \\text{for } n > 0$\n\nNotice that the value of $F(n)$ requires evaluating $M$ on the result of $F(n-1)$, and vice versa. Naive evaluation of these mutually recursive functions results in exponential time complexity due to redundant overlapping subproblems.\n\nImplement mutual recursion with memoization in C to compute $F(N)$ and $M(N)$ for $T$ input queries.",
+    "input_format": "Line 1: An integer $T$ ($1 \\le T \\le 50$), the number of queries.\nNext $T$ lines: Each line contains a single integer $N$ ($0 \\le N \\le 10^4$).",
+    "output_format": "For each query, print: `F(<N>) = <val>, M(<N>) = <val>`.",
+    "constraints": "$1 \\le T \\le 50$, $0 \\le N \\le 10^4$.",
+    "examples": [
+      {
+        "input": "4\n0\n1\n5\n10",
+        "output": "F(0) = 1, M(0) = 0\nF(1) = 1, M(1) = 0\nF(5) = 3, M(5) = 3\nF(10) = 6, M(10) = 6",
+        "explanation": "F(0)=1, M(0)=0. F(1) = 1 - M(F(0)) = 1 - M(1) = 1 - (1 - F(M(0))) = 1 - (1 - F(0)) = 1 - (1 - 1) = 1."
+      },
+      {
+        "input": "2\n2\n4",
+        "output": "F(2) = 2, M(2) = 1\nF(4) = 3, M(4) = 2",
+        "explanation": "Evaluating mutual recurrence for N=2 and N=4."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint female(int n);\nint male(int n);\n\nint main(void) {\n    // Implement Hofstadter mutual recursion with memoization\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\n#define MAXN 10005\n\nstatic int memo_F[MAXN];\nstatic int memo_M[MAXN];\n\nstatic int male(int n);\n\nstatic int female(int n) {\n    if (n == 0) return 1;\n    if (memo_F[n] != -1) return memo_F[n];\n    memo_F[n] = n - male(female(n - 1));\n    return memo_F[n];\n}\n\nstatic int male(int n) {\n    if (n == 0) return 0;\n    if (memo_M[n] != -1) return memo_M[n];\n    memo_M[n] = n - female(male(n - 1));\n    return memo_M[n];\n}\n\nint main(void) {\n    memset(memo_F, -1, sizeof(memo_F));\n    memset(memo_M, -1, sizeof(memo_M));\n\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    while (t--) {\n        int n;\n        scanf(\"%d\", &n);\n        printf(\"F(%d) = %d, M(%d) = %d\\n\", n, female(n), n, male(n));\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Declare forward function prototypes for both female() and male() functions.",
+      "Use memoization arrays initialized to -1 to cache previously computed results.",
+      "Base cases: female(0) = 1, male(0) = 0."
+    ],
+    "explanation": "Mutual recursion requires forward declarations in C so that female() can call male() and male() can call female(). Without memoization, evaluating F(N) branches into multiple nested calls, causing exponential runtime. With memoization arrays memo_F and memo_M, each state from 0 to N is evaluated at most once, reducing the complexity to O(N).",
+    "time_complexity": "O(N)",
+    "space_complexity": "O(N) for memoization and call stack",
+    "common_mistakes": [
+      "Omitting forward function declarations, which causes C compiler compilation errors.",
+      "Evaluating recursively without memoization, leading to stack overflow or timeout for N > 30.",
+      "Mixing up the base cases: F(0) is 1, but M(0) is 0."
+    ],
+    "related_problems": [
+      "recursive-power-calculator",
+      "recursive-digit-sum"
+    ],
+    "topic_slug": "functions-recursion",
+    "company_slugs": ["palantir", "google", "bloomberg"],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "4\n0\n1\n5\n10\n",
+        "expected_output": "F(0) = 1, M(0) = 0\nF(1) = 1, M(1) = 0\nF(5) = 3, M(5) = 3\nF(10) = 6, M(10) = 6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Small N queries including base cases"
+      },
+      {
+        "input": "2\n2\n4\n",
+        "expected_output": "F(2) = 2, M(2) = 1\nF(4) = 3, M(4) = 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Even values N=2 and N=4"
+      },
+      {
+        "input": "1\n0\n",
+        "expected_output": "F(0) = 1, M(0) = 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=0 boundary case"
+      },
+      {
+        "input": "3\n15\n20\n25\n",
+        "expected_output": "F(15) = 9, M(15) = 9\nF(20) = 12, M(20) = 12\nF(25) = 16, M(25) = 15\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Intermediate values up to 25"
+      },
+      {
+        "input": "2\n50\n100\n",
+        "expected_output": "F(50) = 31, M(50) = 31\nF(100) = 62, M(100) = 62\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Higher values N=50 and N=100"
+      },
+      {
+        "input": "1\n1000\n",
+        "expected_output": "F(1000) = 618, M(1000) = 618\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Large N=1000 demonstrating memoization performance"
+      }
+    ]
+  }
+]

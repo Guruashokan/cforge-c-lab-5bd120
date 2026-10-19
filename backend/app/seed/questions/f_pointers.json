@@ -1,0 +1,1053 @@
+[
+  {
+    "id": 56,
+    "title": "Pointer Arithmetic Calculator",
+    "slug": "pointer-arithmetic-calculator",
+    "difficulty": "medium",
+    "description": "In the C programming language, pointer arithmetic operates in terms of element sizes rather than raw byte offsets. Adding an integer $k$ to a pointer of type `int *` advances the memory address by $k \\times \\text{sizeof}(int)$ bytes, effectively moving the pointer by $k$ array elements. Similarly, subtracting two pointers of the same type yields the number of elements separating them (`ptrdiff_t`). \n\nYou are given an array of $N$ integers and an active pointer `ptr` initially pointing to the start of the array (`&arr[0]`). You will process $Q$ sequential commands that simulate pointer operations: - `MOVE <delta>`: Move `ptr` by integer `delta` positions (`ptr += delta`). Output the value at the new pointer location (`*ptr`). - `PRINT`: Output the value currently pointed to (`*ptr`). - `DIFF <index>`: Compute and output the pointer difference between `ptr` and the address of element at `index` (`ptr - &arr[index]`). Your program must output the result of each command on a new line.",
+    "input_format": "The first line contains $N$ followed by $N$ space-separated integers. The second line contains $Q$ (number of operations). The next $Q$ lines each contain a command (`MOVE <delta>`, `PRINT`, or `DIFF <index>`).",
+    "output_format": "Print the result of each operation on a separate line.",
+    "constraints": "1 <= N <= 10^5\n1 <= Q <= 10^5\n-10^9 <= arr[i] <= 10^9\nCommands will not move ptr out of array bounds [0, N-1]",
+    "examples": [
+      {
+        "input": "5 10 20 30 40 50\n4\nMOVE 2\nPRINT\nDIFF 0\nMOVE 1\n",
+        "output": "30\n30\n2\n40\n",
+        "explanation": "MOVE 2 moves ptr to arr[2] (value 30). PRINT outputs 30. DIFF 0 evaluates (&arr[2] - &arr[0]) = 2. MOVE 1 moves ptr to arr[3] (value 40)."
+      },
+      {
+        "input": "4 1 2 3 4\n3\nMOVE 3\nDIFF 1\nMOVE -2\n",
+        "output": "4\n2\n2\n",
+        "explanation": "MOVE 3 lands on arr[3]=4. DIFF 1 evaluates 3 - 1 = 2. MOVE -2 moves back to arr[1]=2."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    int *ptr = arr;\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    // TODO: Process Q pointer arithmetic operations\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &arr[i]) != 1) arr[i] = 0;\n    }\n    int *ptr = arr;\n    int q;\n    if (scanf(\"%d\", &q) != 1) { free(arr); return 0; }\n    for (int k = 0; k < q; k++) {\n        char cmd[16];\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"MOVE\") == 0) {\n            int delta;\n            scanf(\"%d\", &delta);\n            ptr += delta;\n            printf(\"%d\\n\", *ptr);\n        } else if (strcmp(cmd, \"PRINT\") == 0) {\n            printf(\"%d\\n\", *ptr);\n        } else if (strcmp(cmd, \"DIFF\") == 0) {\n            int idx;\n            scanf(\"%d\", &idx);\n            ptrdiff_t diff = ptr - (arr + idx);\n            printf(\"%td\\n\", diff);\n        }\n    }\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "In C, `ptr += delta` adjusts the pointer by `delta * sizeof(int)` bytes, moving it by `delta` elements.",
+      "Pointer difference `ptr1 - ptr2` returns the distance in elements as type `ptrdiff_t` (formatted with `%td` in `printf`).",
+      "Dereferencing `*ptr` accesses the value of the array element at the current pointer position."
+    ],
+    "explanation": "Pointer arithmetic is scaled by the type of the pointed-to object. For `int *`, incrementing or decrementing moves the address by `sizeof(int)`. Subtracting two pointers that point to elements in the same array computes the exact number of elements separating them. We maintain `int *ptr = arr;` and update or dereference it in O(1) time per command.",
+    "time_complexity": "O(n + q)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Thinking `ptr += delta` adds raw bytes instead of element offsets.",
+      "Printing the memory address instead of dereferencing `*ptr` for MOVE or PRINT.",
+      "Formatting pointer difference with `%d` instead of `%td` (or casting to `long long`)."
+    ],
+    "related_problems": [
+      "array-reversal-with-pointers",
+      "string-operations-with-pointers"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "qualcomm",
+      "intel",
+      "embedded_systems",
+      "tcs"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5 10 20 30 40 50\n4\nMOVE 2\nPRINT\nDIFF 0\nMOVE 1\n",
+        "expected_output": "30\n30\n2\n40\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Forward movement, print, difference check"
+      },
+      {
+        "input": "4 1 2 3 4\n3\nMOVE 3\nDIFF 1\nMOVE -2\n",
+        "expected_output": "4\n2\n2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Forward and backward moves"
+      },
+      {
+        "input": "1 99\n2\nPRINT\nDIFF 0\n",
+        "expected_output": "99\n0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array with diff 0"
+      },
+      {
+        "input": "6 100 200 300 400 500 600\n3\nMOVE 4\nMOVE -3\nPRINT\n",
+        "expected_output": "500\n200\n200\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Successive moves ending with PRINT"
+      },
+      {
+        "input": "3 7 8 9\n3\nDIFF 0\nMOVE 1\nDIFF 2\n",
+        "expected_output": "0\n8\n-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Negative pointer difference where ptr is before arr + idx"
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "title": "Array Reversal with Pointers",
+    "slug": "array-reversal-with-pointers",
+    "difficulty": "medium",
+    "description": "Reversing an array in-place is a foundational data structures problem. In this challenge, you must implement the array reversal strictly through pointer operations, dereferencing, and pointer arithmetic, without using the array subscript operator `[]` anywhere inside the reversal algorithm. \n\nGiven an array of $N$ integers, initialize a pointer `left` to point to the first element `arr`, and a pointer `right` to point to the last element `arr + n - 1`. In a loop while `left < right`, exchange the values pointed to by `left` and `right` using a temporary integer variable, then advance `left++` and decrement `right--`. Print all elements of the reversed array separated by a space on a single line.",
+    "input_format": "The first line contains an integer $N$ ($1 \\le N \\le 10^5$). The second line contains $N$ space-separated integers.",
+    "output_format": "Print the $N$ reversed integers separated by a single space on a single line.",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "output": "5 4 3 2 1\n",
+        "explanation": "Pointers swap (1, 5) and (2, 4); middle element 3 remains in place."
+      },
+      {
+        "input": "4\n10 20 30 40\n",
+        "output": "40 30 20 10\n",
+        "explanation": "Pointers swap (10, 40) and (20, 30)."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid reverse_with_pointers(int *start, int *end) {\n    // TODO: Reverse array using only pointer arithmetic and dereferencing (no [])\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) scanf(\"%d\", arr + i);\n    reverse_with_pointers(arr, arr + n - 1);\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", *(arr + i), (i == n - 1) ? '\\n' : ' ');\n    }\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nstatic void reverse_with_pointers(int *start, int *end) {\n    while (start < end) {\n        int temp = *start;\n        *start = *end;\n        *end = temp;\n        start++;\n        end--;\n    }\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", arr + i) != 1) *(arr + i) = 0;\n    }\n    if (n > 1) {\n        reverse_with_pointers(arr, arr + n - 1);\n    }\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", *(arr + i), (i == n - 1) ? '\\n' : ' ');\n    }\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Pass pointer `arr` as start and pointer `arr + n - 1` as end.",
+      "Use `*start` and `*end` to dereference values, swap them into a temporary variable.",
+      "Advance `start++` and decrement `end--` until `start >= end`."
+    ],
+    "explanation": "Using pointer arithmetic, `arr + i` directly addresses the i-th element. By setting `start = arr` and `end = arr + n - 1`, we compare addresses using `start < end`. Each iteration swaps `*start` and `*end`, then shifts `start` forward and `end` backward. This runs in O(N) time with zero additional array allocations and strictly O(1) space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Passing `arr + n` instead of `arr + n - 1` as the ending pointer, which points one past the last element.",
+      "Swapping the pointer addresses (`start = end`) instead of dereferencing values (`*start = *end`).",
+      "Using array subscript syntax `[]` inside the pointer reversal function."
+    ],
+    "related_problems": [
+      "pointer-arithmetic-calculator",
+      "reverse-string-in-place"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "infosys",
+      "wipro",
+      "tcs",
+      "cognizant"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "expected_output": "5 4 3 2 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard odd-length array"
+      },
+      {
+        "input": "4\n10 20 30 40\n",
+        "expected_output": "40 30 20 10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard even-length array"
+      },
+      {
+        "input": "1\n42\n",
+        "expected_output": "42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "6\n-1 -2 -3 -4 -5 -6\n",
+        "expected_output": "-6 -5 -4 -3 -2 -1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "All negative integers"
+      },
+      {
+        "input": "2\n7 9\n",
+        "expected_output": "9 7\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Two elements"
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "title": "Pointer-to-Pointer Matrix",
+    "slug": "pointer-to-pointer-matrix",
+    "difficulty": "hard",
+    "description": "In C, dynamically allocated 2D matrices can be constructed using a pointer-to-pointer (`int **`). This involves allocating an array of $R$ pointers to integers (`malloc(R * sizeof(int *))`), and then allocating each individual row of $C$ integers (`malloc(C * sizeof(int))`). \n\nYour task is to: 1. Read matrix dimensions $R$ and $C$, and allocate an $R \\times C$ matrix using `int **`. 2. Read the matrix elements and store them. 3. Dynamically allocate a second matrix of dimensions $C \\times R$ using `int **` to store the transpose. 4. Compute the transpose: cell $(j, i)$ of the transposed matrix receives the value from cell $(i, j)$ of the original matrix. 5. Print the transposed matrix ($C$ lines, each containing $R$ space-separated integers). 6. Properly free every dynamically allocated row and the row pointer arrays for both matrices without memory leaks.",
+    "input_format": "The first line contains two integers $R$ and $C$ ($1 \\le R, C \\le 500$). The next $R$ lines each contain $C$ space-separated integers.",
+    "output_format": "Print $C$ lines representing the transposed matrix, with each line containing $R$ space-separated integers.",
+    "constraints": "1 <= R, C <= 500\n-10^9 <= matrix[i][j] <= 10^9",
+    "examples": [
+      {
+        "input": "2 3\n1 2 3\n4 5 6\n",
+        "output": "1 4\n2 5\n3 6\n",
+        "explanation": "Original 2x3 matrix transposed into 3x2 matrix."
+      },
+      {
+        "input": "3 3\n1 0 0\n0 1 0\n0 0 1\n",
+        "output": "1 0 0\n0 1 0\n0 0 1\n",
+        "explanation": "Transposition of 3x3 identity matrix is identical to itself."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint **allocate_matrix(int r, int c) {\n    // TODO: Allocate int ** and each row\n    return NULL;\n}\n\nvoid free_matrix(int **mat, int r) {\n    // TODO: Free each row and mat\n}\n\nint main(void) {\n    int r, c;\n    if (scanf(\"%d %d\", &r, &c) != 2) return 0;\n    // TODO: Read, transpose, print, and free\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nstatic int **allocate_matrix(int r, int c) {\n    int **mat = (int **)malloc(r * sizeof(int *));\n    for (int i = 0; i < r; i++) {\n        mat[i] = (int *)malloc(c * sizeof(int));\n    }\n    return mat;\n}\n\nstatic void free_matrix(int **mat, int r) {\n    if (!mat) return;\n    for (int i = 0; i < r; i++) {\n        free(mat[i]);\n    }\n    free(mat);\n}\n\nint main(void) {\n    int r, c;\n    if (scanf(\"%d %d\", &r, &c) != 2) return 0;\n    int **matrix = allocate_matrix(r, c);\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) {\n            if (scanf(\"%d\", &matrix[i][j]) != 1) matrix[i][j] = 0;\n        }\n    }\n    int **trans = allocate_matrix(c, r);\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) {\n            trans[j][i] = matrix[i][j];\n        }\n    }\n    for (int j = 0; j < c; j++) {\n        for (int i = 0; i < r; i++) {\n            printf(\"%d%c\", trans[j][i], (i == r - 1) ? '\\n' : ' ');\n        }\n    }\n    free_matrix(matrix, r);\n    free_matrix(trans, c);\n    return 0;\n}\n",
+    "hints": [
+      "Allocation requires two steps: first `mat = malloc(r * sizeof(int *))`, then for each row `mat[i] = malloc(c * sizeof(int))`.",
+      "Transposing swaps coordinates: `trans[j][i] = matrix[i][j]` where trans has C rows and R columns.",
+      "Deallocation must free each row `mat[i]` before freeing the outer pointer `mat` to avoid memory leaks."
+    ],
+    "explanation": "A pointer-to-pointer matrix allocates each row independently on the heap. The transposed matrix swaps row and column dimensions ($C \\times R$). We populate `trans[j][i] = matrix[i][j]` in O(R * C) time. Crucially, freeing dynamically allocated 2D matrices requires iterating through all rows and calling `free(mat[i])` before calling `free(mat)`.",
+    "time_complexity": "O(r * c)",
+    "space_complexity": "O(r * c)",
+    "common_mistakes": [
+      "Freeing `mat` before freeing each `mat[i]`, causing dangling pointers and memory leaks.",
+      "Confusing row and column bounds in the transposed matrix (trans has C rows and R columns).",
+      "Allocating `sizeof(int)` instead of `sizeof(int *)` for the row pointer array."
+    ],
+    "related_problems": [
+      "spiral-matrix-traversal",
+      "pointer-arithmetic-calculator"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "qualcomm",
+      "intel",
+      "oracle",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "2 3\n1 2 3\n4 5 6\n",
+        "expected_output": "1 4\n2 5\n3 6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard rectangular 2x3 matrix"
+      },
+      {
+        "input": "3 3\n1 0 0\n0 1 0\n0 0 1\n",
+        "expected_output": "1 0 0\n0 1 0\n0 0 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Square 3x3 identity matrix"
+      },
+      {
+        "input": "1 4\n10 20 30 40\n",
+        "expected_output": "10\n20\n30\n40\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single-row matrix transposed into single-column"
+      },
+      {
+        "input": "3 1\n1\n2\n3\n",
+        "expected_output": "1 2 3\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single-column matrix transposed into single-row"
+      },
+      {
+        "input": "2 2\n-1 5\n3 -7\n",
+        "expected_output": "-1 3\n5 -7\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "2x2 matrix with negative numbers"
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "title": "String Operations with Pointers",
+    "slug": "string-operations-with-pointers",
+    "difficulty": "hard",
+    "description": "Write custom implementations of three core C string manipulation functions using exclusively pointer arithmetic and dereferencing: - `my_strlen(const char *s)`: Returns the number of characters before the terminating null byte `\\0`. - `my_strcpy(char *dest, const char *src)`: Copies characters from `src` to `dest` including `\\0`, and returns `dest`. - `my_strcat(char *dest, const char *src)`: Appends `src` to the end of `dest` overwriting `dest`'s null byte, and returns `dest`. \n\nDo NOT use any functions from `<string.h>` or array indexing `[]` in the implementation of these three functions. Given two input strings $S1$ and $S2$: 1. Print the length of $S1$ on line 1. 2. Print the length of $S2$ on line 2. 3. Copy $S1$ into a destination buffer, concatenate $S2$ to it, and print the concatenated string on line 3.",
+    "input_format": "Two lines: the first line contains string $S1$ and the second line contains string $S2$ (lengths up to $10^4$).",
+    "output_format": "Line 1: length of $S1$. Line 2: length of $S2$. Line 3: concatenated string ($S1 + S2$).",
+    "constraints": "0 <= |S1|, |S2| <= 10^4\nStrings contain printable ASCII characters",
+    "examples": [
+      {
+        "input": "Hello\nWorld\n",
+        "output": "5\n5\nHelloWorld\n",
+        "explanation": "len('Hello')=5, len('World')=5; concatenation is 'HelloWorld'."
+      },
+      {
+        "input": "C\nProgramming\n",
+        "output": "1\n11\nCProgramming\n",
+        "explanation": "len('C')=1, len('Programming')=11; result 'CProgramming'."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nsize_t my_strlen(const char *s) {\n    // TODO: Pointer-only implementation of strlen\n    return 0;\n}\n\nchar *my_strcpy(char *dest, const char *src) {\n    // TODO: Pointer-only implementation of strcpy\n    return dest;\n}\n\nchar *my_strcat(char *dest, const char *src) {\n    // TODO: Pointer-only implementation of strcat\n    return dest;\n}\n\nint main(void) {\n    static char s1[20005], s2[20005], dest[40010];\n    // TODO: Read inputs, call custom functions, print results\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nstatic size_t my_strlen(const char *s) {\n    const char *p = s;\n    while (*p) p++;\n    return (size_t)(p - s);\n}\n\nstatic char *my_strcpy(char *dest, const char *src) {\n    char *d = dest;\n    while ((*d++ = *src++));\n    return dest;\n}\n\nstatic char *my_strcat(char *dest, const char *src) {\n    char *d = dest;\n    while (*d) d++;\n    while ((*d++ = *src++));\n    return dest;\n}\n\nstatic void strip_nl(char *s) {\n    while (*s) {\n        if (*s == '\\n' || *s == '\\r') {\n            *s = '\\0';\n            break;\n        }\n        s++;\n    }\n}\n\nint main(void) {\n    static char s1[20005], s2[20005], dest[40010];\n    if (!fgets(s1, sizeof(s1), stdin)) s1[0] = '\\0';\n    if (!fgets(s2, sizeof(s2), stdin)) s2[0] = '\\0';\n    strip_nl(s1);\n    strip_nl(s2);\n    printf(\"%zu\\n\", my_strlen(s1));\n    printf(\"%zu\\n\", my_strlen(s2));\n    my_strcpy(dest, s1);\n    my_strcat(dest, s2);\n    printf(\"%s\\n\", dest);\n    return 0;\n}\n",
+    "hints": [
+      "For `my_strlen`: advance a pointer `p` while `*p != '\\0'`, then return pointer difference `p - s`.",
+      "For `my_strcpy`: use the idiomatic C idiom `while ((*d++ = *src++));`.",
+      "For `my_strcat`: first advance `d` until `*d == '\\0'`, then copy `src` into `d`."
+    ],
+    "explanation": "Each function uses pure pointer manipulation. `my_strlen` computes the pointer offset from the initial address to the null terminator. `my_strcpy` dereferences and copies characters while advancing pointers, terminating after copying the null byte `\\0`. `my_strcat` seeks the end of `dest` and appends `src`. All three functions operate in O(N) time without bracket notation.",
+    "time_complexity": "O(|S1| + |S2|)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using `<string.h>` functions (`strlen`, `strcpy`, `strcat`), which violates the prompt's explicit constraints.",
+      "Failing to null-terminate the destination buffer in `my_strcat`.",
+      "Using array subscript syntax `[]` instead of pointer dereferencing `*ptr`."
+    ],
+    "related_problems": [
+      "reverse-string-in-place",
+      "string-tokenizer"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "cisco",
+      "tcs",
+      "infosys",
+      "hcl"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "Hello\nWorld\n",
+        "expected_output": "5\n5\nHelloWorld\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard two words"
+      },
+      {
+        "input": "C\nProgramming\n",
+        "expected_output": "1\n11\nCProgramming\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Single character and multi-character word"
+      },
+      {
+        "input": "abc\n\n",
+        "expected_output": "3\n0\nabc\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Second string is empty"
+      },
+      {
+        "input": "Open\nAI\n",
+        "expected_output": "4\n2\nOpenAI\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Short strings concatenation"
+      },
+      {
+        "input": "Pointer\nMastery\n",
+        "expected_output": "7\n7\nPointerMastery\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Equal length strings"
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "title": "Swap Using Double Pointers",
+    "slug": "swap-using-double-pointers",
+    "difficulty": "medium",
+    "description": "In C, parameters are passed by value. To modify a pointer variable declared in a caller function, the caller must pass the address of that pointer\u2014resulting in a pointer-to-pointer (`int **`). In this challenge, you will implement a pointer swap function: `void swap_pointers(int **p1, int **p2)` that exchanges the memory addresses stored inside two pointer variables so that `*p1` now points to what `p2` previously pointed to, and vice versa. \n\nYour program must read two integers $A$ and $B$, initialize `ptr1 = &A` and `ptr2 = &B`, print the values pointed to before the swap: `Before: *ptr1 = A, *ptr2 = B`, call `swap_pointers(&ptr1, &ptr2)`, and print the values pointed to after the swap: `After: *ptr1 = B, *ptr2 = A`. Notice that the variables $A$ and $B$ themselves remain completely unchanged; only the pointer targets are exchanged.",
+    "input_format": "A single line containing two integers $A$ and $B$.",
+    "output_format": "Line 1: `Before: *ptr1 = A, *ptr2 = B`\nLine 2: `After: *ptr1 = B, *ptr2 = A`",
+    "constraints": "-10^9 <= A, B <= 10^9",
+    "examples": [
+      {
+        "input": "10 20\n",
+        "output": "Before: *ptr1 = 10, *ptr2 = 20\nAfter: *ptr1 = 20, *ptr2 = 10\n",
+        "explanation": "ptr1 redirected from A to B; ptr2 redirected from B to A."
+      },
+      {
+        "input": "0 -5\n",
+        "output": "Before: *ptr1 = 0, *ptr2 = -5\nAfter: *ptr1 = -5, *ptr2 = 0\n",
+        "explanation": "Pointers swapped with negative numbers."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nvoid swap_pointers(int **p1, int **p2) {\n    // TODO: Swap the addresses held by *p1 and *p2\n}\n\nint main(void) {\n    int a, b;\n    if (scanf(\"%d %d\", &a, &b) != 2) return 0;\n    int *ptr1 = &a;\n    int *ptr2 = &b;\n    printf(\"Before: *ptr1 = %d, *ptr2 = %d\\n\", *ptr1, *ptr2);\n    swap_pointers(&ptr1, &ptr2);\n    printf(\"After: *ptr1 = %d, *ptr2 = %d\\n\", *ptr1, *ptr2);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic void swap_pointers(int **p1, int **p2) {\n    int *temp = *p1;\n    *p1 = *p2;\n    *p2 = temp;\n}\n\nint main(void) {\n    int a, b;\n    if (scanf(\"%d %d\", &a, &b) != 2) return 0;\n    int *ptr1 = &a;\n    int *ptr2 = &b;\n    printf(\"Before: *ptr1 = %d, *ptr2 = %d\\n\", *ptr1, *ptr2);\n    swap_pointers(&ptr1, &ptr2);\n    printf(\"After: *ptr1 = %d, *ptr2 = %d\\n\", *ptr1, *ptr2);\n    return 0;\n}\n",
+    "hints": [
+      "In `swap_pointers`, `p1` is an `int **`. Dereferencing it once (`*p1`) yields an `int *`.",
+      "Store `*p1` in a temporary `int *temp` variable.",
+      "Assign `*p1 = *p2` and `*p2 = temp`. This exchanges what `ptr1` and `ptr2` point to in `main`."
+    ],
+    "explanation": "To swap where two pointer variables point, the function must receive the addresses of those pointer variables. Thus, the parameters must be double pointers `int **p1` and `int **p2`. Dereferencing them (`*p1`, `*p2`) gives access to the original pointer variables. Exchanging them redirects the pointers without copying or modifying the integer values in memory.",
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Swapping values (`**p1 = **p2`) instead of swapping pointer targets (`*p1 = *p2`).",
+      "Passing single pointers `swap(ptr1, ptr2)`, which passes pointers by value and has no effect in the caller.",
+      "Dereferencing NULL pointers."
+    ],
+    "related_problems": [
+      "generic-swap-with-void-pointers",
+      "pointer-to-pointer-matrix"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "wipro",
+      "cognizant",
+      "tcs",
+      "accenture"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "10 20\n",
+        "expected_output": "Before: *ptr1 = 10, *ptr2 = 20\nAfter: *ptr1 = 20, *ptr2 = 10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard positive integers"
+      },
+      {
+        "input": "0 -5\n",
+        "expected_output": "Before: *ptr1 = 0, *ptr2 = -5\nAfter: *ptr1 = -5, *ptr2 = 0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Zero and negative integer"
+      },
+      {
+        "input": "100 100\n",
+        "expected_output": "Before: *ptr1 = 100, *ptr2 = 100\nAfter: *ptr1 = 100, *ptr2 = 100\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Identical values"
+      },
+      {
+        "input": "-50 50\n",
+        "expected_output": "Before: *ptr1 = -50, *ptr2 = 50\nAfter: *ptr1 = 50, *ptr2 = -50\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Opposite signed integers"
+      },
+      {
+        "input": "999 1\n",
+        "expected_output": "Before: *ptr1 = 999, *ptr2 = 1\nAfter: *ptr1 = 1, *ptr2 = 999\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Asymmetric magnitudes"
+      }
+    ]
+  },
+  {
+    "id": 61,
+    "title": "Function Pointer Calculator",
+    "slug": "function-pointer-calculator",
+    "difficulty": "hard",
+    "description": "Function pointers in C allow functions to be passed as arguments, stored in arrays, and invoked dynamically at runtime. In this problem, you will build an arithmetic calculation engine driven by an array or dispatch table of function pointers. \n\nDefine an operation function pointer type: `typedef int (*calc_func_t)(int, int);` Implement individual functions for addition (`+`), subtraction (`-`), multiplication (`*`), division (`/`), and modulo (`%`). Process $Q$ arithmetic queries of the form: `OP A B` (for example: `+ 10 20` or `/ 20 4`). Look up and invoke the corresponding function pointer dynamically. If the operation is `/` or `%` and the divisor $B$ is $0$, your program must print `ERROR: Division by zero` instead of performing the division. Otherwise, print the integer result on a new line.",
+    "input_format": "The first line contains an integer $Q$ ($1 \\le Q \\le 10^4$). The next $Q$ lines each contain an operator symbol `OP` (`+`, `-`, `*`, `/`, `%`) and two integers $A$ and $B$.",
+    "output_format": "For each query, print the computed integer result or `ERROR: Division by zero` on a new line.",
+    "constraints": "1 <= Q <= 10^4\n-10^5 <= A, B <= 10^5",
+    "examples": [
+      {
+        "input": "5\n+ 10 20\n- 50 15\n* 6 7\n/ 20 4\n% 17 5\n",
+        "output": "30\n35\n42\n5\n2\n",
+        "explanation": "Calculates 10+20=30, 50-15=35, 6*7=42, 20/4=5, 17%5=2."
+      },
+      {
+        "input": "2\n/ 10 0\n% 7 0\n",
+        "output": "ERROR: Division by zero\nERROR: Division by zero\n",
+        "explanation": "Zero divisor triggers error message for both division and modulo."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\ntypedef int (*calc_func_t)(int, int);\n\n// TODO: Implement add, sub, mul, div_op, mod_op functions\n// TODO: Set up function pointer lookup table and handle division by zero\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    // TODO: Process Q calculations\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\ntypedef int (*calc_func_t)(int, int);\n\nstatic int op_add(int a, int b) { return a + b; }\nstatic int op_sub(int a, int b) { return a - b; }\nstatic int op_mul(int a, int b) { return a * b; }\nstatic int op_div(int a, int b) { return a / b; }\nstatic int op_mod(int a, int b) { return a % b; }\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    for (int i = 0; i < q; i++) {\n        char op[4];\n        int a, b;\n        if (scanf(\"%s %d %d\", op, &a, &b) != 3) break;\n        calc_func_t func = NULL;\n        switch (op[0]) {\n            case '+': func = op_add; break;\n            case '-': func = op_sub; break;\n            case '*': func = op_mul; break;\n            case '/': func = op_div; break;\n            case '%': func = op_mod; break;\n        }\n        if ((op[0] == '/' || op[0] == '%') && b == 0) {\n            printf(\"ERROR: Division by zero\\n\");\n        } else if (func) {\n            printf(\"%d\\n\", func(a, b));\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Declare `typedef int (*calc_func_t)(int, int);`.",
+      "Implement individual functions `int op_add(int a, int b) { return a + b; }` etc.",
+      "Before calling `func(a, b)` for '/' or '%', check if `b == 0` and print `ERROR: Division by zero`."
+    ],
+    "explanation": "Function pointers allow dynamic dispatch without hardcoding function calls at every invocation site. We map each operator character to a corresponding function pointer `calc_func_t`. Before calling functions that perform division or modulo, we check that `b != 0` to prevent runtime SIGFPE signals. Each operation executes in O(1) time.",
+    "time_complexity": "O(q)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Neglecting to check `b == 0` before executing division or modulo, resulting in program crash (SIGFPE).",
+      "Incorrect function pointer syntax (e.g. omitting parentheses around `(*calc_func_t)`).",
+      "Reading operator with `%c` without skipping leading whitespace (use `%s` instead)."
+    ],
+    "related_problems": [
+      "sort-array-of-strings-with-pointers",
+      "generic-swap-with-void-pointers"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "qualcomm",
+      "intel",
+      "bosch",
+      "cisco"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\n+ 10 20\n- 50 15\n* 6 7\n/ 20 4\n% 17 5\n",
+        "expected_output": "30\n35\n42\n5\n2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard arithmetic for all five operations"
+      },
+      {
+        "input": "2\n/ 10 0\n% 7 0\n",
+        "expected_output": "ERROR: Division by zero\nERROR: Division by zero\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Division and modulo by zero error handling"
+      },
+      {
+        "input": "3\n- 10 30\n* -4 5\n+ 0 0\n",
+        "expected_output": "-20\n-20\n0\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Negative results and zero addition"
+      },
+      {
+        "input": "4\n/ 100 3\n% 100 3\n+ -15 -25\n- 0 5\n",
+        "expected_output": "33\n1\n-40\n-5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Truncated integer division and negative operations"
+      },
+      {
+        "input": "2\n* 123 0\n/ -10 2\n",
+        "expected_output": "0\n-5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Multiplication by zero and negative division"
+      }
+    ]
+  },
+  {
+    "id": 62,
+    "title": "Sort Array of Strings with Pointers",
+    "slug": "sort-array-of-strings-with-pointers",
+    "difficulty": "hard",
+    "description": "Sorting an array of strings in C can be computationally expensive if strings are copied repeatedly. An efficient, idiomatic approach creates an array of pointers (`char *lines[N]`) where each pointer references a string buffer in memory. Sorting is then performed by swapping only the pointer addresses rather than copying string characters. \n\nGiven $N$ strings, store each string in memory and initialize an array of pointers pointing to each string. Sort the pointer array in lexicographical ascending order using standard library `qsort` along with a custom comparator function pointer: `int compare_strings(const void *a, const void *b)` Inside the comparator, cast the void pointers properly to pointer-to-pointer-to-const-char: `const char *str_a = *(const char **)a;` and compare with `strcmp`. Print the sorted strings, one per line.",
+    "input_format": "The first line contains an integer $N$ ($1 \\le N \\le 10^4$). The next $N$ lines each contain a string (up to 100 characters).",
+    "output_format": "Print the $N$ sorted strings on separate lines in lexicographical order.",
+    "constraints": "1 <= N <= 10^4\n1 <= length of each string <= 100\nStrings contain lowercase/uppercase English letters and digits",
+    "examples": [
+      {
+        "input": "4\nbanana\napple\norange\nmango\n",
+        "output": "apple\nbanana\nmango\norange\n",
+        "explanation": "Pointers are sorted lexicographically; original character buffers remain in place."
+      },
+      {
+        "input": "3\ncat\ncar\ncab\n",
+        "output": "cab\ncar\ncat\n",
+        "explanation": "Lexicographical sorting places 'cab' before 'car', and 'car' before 'cat'."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint compare_strings(const void *a, const void *b) {\n    // TODO: Cast void pointers to const char ** and call strcmp\n    return 0;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    // TODO: Allocate array of string pointers, read strings, sort with qsort, print\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nstatic int compare_strings(const void *a, const void *b) {\n    const char *sa = *(const char * const *)a;\n    const char *sb = *(const char * const *)b;\n    return strcmp(sa, sb);\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    char **lines = (char **)malloc(n * sizeof(char *));\n    for (int i = 0; i < n; i++) {\n        lines[i] = (char *)malloc(128 * sizeof(char));\n        if (scanf(\"%s\", lines[i]) != 1) lines[i][0] = '\\0';\n    }\n    qsort(lines, n, sizeof(char *), compare_strings);\n    for (int i = 0; i < n; i++) {\n        printf(\"%s\\n\", lines[i]);\n        free(lines[i]);\n    }\n    free(lines);\n    return 0;\n}\n",
+    "hints": [
+      "In `qsort(lines, n, sizeof(char *), compare_strings)`, each element passed to the comparator is a `char *`.",
+      "Therefore, `a` and `b` in the comparator are pointers to `char *`, i.e., `char **`.",
+      "Cast `*(const char **)a` and `*(const char **)b` before calling `strcmp`."
+    ],
+    "explanation": "Sorting an array of pointers avoids expensive memory copies of string buffers. Because `qsort` passes pointers to array elements, and each array element is a `char *`, the arguments received by `compare_strings` are `char **`. Dereferencing once retrieves the `char *` pointing to the string content, which is compared with `strcmp`. Runtime is O(N log N * L) where L is max string length.",
+    "time_complexity": "O(n log n * L)",
+    "space_complexity": "O(n * L)",
+    "common_mistakes": [
+      "Casting `(const char *)a` directly instead of `*(const char **)a`, leading to memory segmentation faults.",
+      "Passing `sizeof(char)` instead of `sizeof(char *)` in the third argument to `qsort`.",
+      "Failing to free dynamically allocated string buffers after printing."
+    ],
+    "related_problems": [
+      "pointer-to-pointer-matrix",
+      "function-pointer-calculator"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "adobe",
+      "infosys"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\nbanana\napple\norange\nmango\n",
+        "expected_output": "apple\nbanana\nmango\norange\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard four fruit words"
+      },
+      {
+        "input": "3\ncat\ncar\ncab\n",
+        "expected_output": "cab\ncar\ncat\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Words with common prefixes"
+      },
+      {
+        "input": "1\nsolo\n",
+        "expected_output": "solo\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single string array"
+      },
+      {
+        "input": "5\nzebra\nlion\nelephant\nbear\naardvark\n",
+        "expected_output": "aardvark\nbear\nelephant\nlion\nzebra\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Alphabetically dispersed list"
+      },
+      {
+        "input": "3\nsame\nsame\nsame\n",
+        "expected_output": "same\nsame\nsame\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Array of duplicate strings"
+      }
+    ]
+  },
+  {
+    "id": 63,
+    "title": "Const Correctness Challenge",
+    "slug": "const-correctness-challenge",
+    "difficulty": "hard",
+    "description": "Const correctness is essential for writing secure, bug-free C code that prevents accidental modification of read-only buffers. A pointer to const data (`const int *ptr`) ensures the pointed-to values cannot be modified through that pointer, while a const pointer (`int * const ptr`) ensures the pointer itself cannot be redirected to a different address. A pointer declared as `const int * const ptr` enforces both immutability guarantees simultaneously. \n\nIn this challenge, implement three read-only inspection functions that operate on an array via `const int * const arr`: - `compute_sum(const int * const arr, int n)`: Computes and returns the 64-bit sum of all elements. - `find_max(const int * const arr, int n)`: Finds and returns the maximum integer value in the array. - `search_value(const int * const arr, int n, int target)`: Performs a linear search and returns the first 0-based index of `target`, or `-1` if not found. Given array elements and $Q$ query commands (`SUM`, `MAX`, `SEARCH <val>`), output the result for each query.",
+    "input_format": "The first line contains $N$ ($1 \\le N \\le 10^5$). The second line contains $N$ space-separated integers. The third line contains $Q$. The next $Q$ lines each contain a command (`SUM`, `MAX`, or `SEARCH <val>`).",
+    "output_format": "For each command, print the computed integer result on a new line.",
+    "constraints": "1 <= N <= 10^5\n1 <= Q <= 10^4\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "5\n10 25 5 40 15\n3\nSUM\nMAX\nSEARCH 5\n",
+        "output": "95\n40\n2\n",
+        "explanation": "Sum is 10+25+5+40+15=95; Max is 40; Value 5 is found at index 2."
+      },
+      {
+        "input": "4\n1 2 3 4\n2\nSEARCH 10\nSUM\n",
+        "output": "-1\n10\n",
+        "explanation": "Value 10 is not in the array (-1); Sum is 1+2+3+4=10."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nlong long compute_sum(const int * const arr, int n) {\n    // TODO: Return 64-bit sum\n    return 0;\n}\n\nint find_max(const int * const arr, int n) {\n    // TODO: Return maximum value\n    return 0;\n}\n\nint search_value(const int * const arr, int n, int target) {\n    // TODO: Return first index or -1\n    return -1;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    // TODO: Process input and commands\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nstatic long long compute_sum(const int * const arr, int n) {\n    long long sum = 0;\n    for (int i = 0; i < n; i++) {\n        sum += *(arr + i);\n    }\n    return sum;\n}\n\nstatic int find_max(const int * const arr, int n) {\n    int max_val = *arr;\n    for (int i = 1; i < n; i++) {\n        if (*(arr + i) > max_val) {\n            max_val = *(arr + i);\n        }\n    }\n    return max_val;\n}\n\nstatic int search_value(const int * const arr, int n, int target) {\n    for (int i = 0; i < n; i++) {\n        if (*(arr + i) == target) {\n            return i;\n        }\n    }\n    return -1;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", arr + i) != 1) *(arr + i) = 0;\n    }\n    int q;\n    if (scanf(\"%d\", &q) != 1) { free(arr); return 0; }\n    for (int i = 0; i < q; i++) {\n        char cmd[16];\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"SUM\") == 0) {\n            printf(\"%lld\\n\", compute_sum(arr, n));\n        } else if (strcmp(cmd, \"MAX\") == 0) {\n            printf(\"%d\\n\", find_max(arr, n));\n        } else if (strcmp(cmd, \"SEARCH\") == 0) {\n            int target;\n            scanf(\"%d\", &target);\n            printf(\"%d\\n\", search_value(arr, n, target));\n        }\n    }\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "In `const int * const arr`, the first `const` makes `*arr` read-only, and the second `const` prevents reassigning `arr`.",
+      "You can inspect values using `*(arr + i)` or by creating a local temporary pointer `const int *p = arr`.",
+      "Use `long long` for the sum accumulator to avoid overflow."
+    ],
+    "explanation": "Qualifying pointers with `const int * const` guarantees compile-time immutability of both the pointer variable itself and the memory it addresses. The functions iterate through the buffer without altering any elements. Each query executes in O(N) time with O(1) space.",
+    "time_complexity": "O(n * q)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Attempting to modify `*arr` in a const-qualified function, triggering a compiler error.",
+      "Using 32-bit int instead of `long long` for summing up to 10^5 integers.",
+      "Initializing `max_val` to 0 instead of `*arr`, failing when all numbers are negative."
+    ],
+    "related_problems": [
+      "pointer-arithmetic-calculator",
+      "array-reversal-with-pointers"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "google",
+      "qualcomm",
+      "arm",
+      "apple"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\n10 25 5 40 15\n3\nSUM\nMAX\nSEARCH 5\n",
+        "expected_output": "95\n40\n2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard queries on positive array"
+      },
+      {
+        "input": "4\n1 2 3 4\n2\nSEARCH 10\nSUM\n",
+        "expected_output": "-1\n10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Search miss and sum"
+      },
+      {
+        "input": "1\n-7\n3\nSUM\nMAX\nSEARCH -7\n",
+        "expected_output": "-7\n-7\n0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single negative element"
+      },
+      {
+        "input": "6\n12 -4 8 -4 20 1\n3\nMAX\nSEARCH -4\nSUM\n",
+        "expected_output": "20\n1\n33\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Duplicate target returning first index (1)"
+      },
+      {
+        "input": "3\n100 200 300\n2\nSEARCH 300\nMAX\n",
+        "expected_output": "2\n300\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Search for last element"
+      }
+    ]
+  },
+  {
+    "id": 64,
+    "title": "Pointer-Based Linked List",
+    "slug": "pointer-based-linked-list",
+    "difficulty": "hard",
+    "description": "Implement a dynamic singly linked list in C using raw pointers and struct memory allocation. Define the node structure as: `typedef struct Node { int data; struct Node *next; } Node;` Maintain a pointer `head` that initially points to `NULL`. \n\nYour program will process $Q$ sequential commands: - `INSERT_FRONT <val>`: Allocate a new node containing `val` and insert it at the front of the list (`new_node->next = head; head = new_node`). - `INSERT_BACK <val>`: Allocate a new node containing `val` and append it to the tail of the list. - `DELETE <val>`: Search for the first occurrence of a node whose data equals `val`, unlink it from the list, and free its memory. If no such node exists, do nothing. - `PRINT`: Traverse the list and print all node data values separated by spaces on a single line. If the list is empty, print `EMPTY`. Ensure all allocated nodes are safely freed at program termination.",
+    "input_format": "The first line contains an integer $Q$ ($1 \\le Q \\le 1000$). The next $Q$ lines each contain a command (`INSERT_FRONT <val>`, `INSERT_BACK <val>`, `DELETE <val>`, or `PRINT`).",
+    "output_format": "For each `PRINT` command, output the space-separated list elements or `EMPTY` on a new line.",
+    "constraints": "1 <= Q <= 1000\n-10^9 <= val <= 10^9",
+    "examples": [
+      {
+        "input": "6\nINSERT_FRONT 10\nINSERT_BACK 20\nINSERT_FRONT 5\nPRINT\nDELETE 10\nPRINT\n",
+        "output": "5 10 20\n5 20\n",
+        "explanation": "List becomes [5, 10, 20]. Deleting 10 leaves [5, 20]."
+      },
+      {
+        "input": "4\nPRINT\nINSERT_BACK 42\nPRINT\nDELETE 42\n",
+        "output": "EMPTY\n42\n",
+        "explanation": "Initial PRINT gives EMPTY. After insert, 42 is printed."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\n// TODO: Implement insert_front, insert_back, delete_val, print_list, free_list\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    Node *head = NULL;\n    // TODO: Process Q commands\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nstatic Node *insert_front(Node *head, int val) {\n    Node *n = (Node *)malloc(sizeof(Node));\n    n->data = val;\n    n->next = head;\n    return n;\n}\n\nstatic Node *insert_back(Node *head, int val) {\n    Node *n = (Node *)malloc(sizeof(Node));\n    n->data = val;\n    n->next = NULL;\n    if (!head) return n;\n    Node *curr = head;\n    while (curr->next) curr = curr->next;\n    curr->next = n;\n    return head;\n}\n\nstatic Node *delete_val(Node *head, int val) {\n    if (!head) return NULL;\n    if (head->data == val) {\n        Node *tmp = head->next;\n        free(head);\n        return tmp;\n    }\n    Node *curr = head;\n    while (curr->next && curr->next->data != val) {\n        curr = curr->next;\n    }\n    if (curr->next) {\n        Node *target = curr->next;\n        curr->next = target->next;\n        free(target);\n    }\n    return head;\n}\n\nstatic void print_list(const Node *head) {\n    if (!head) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    const Node *curr = head;\n    while (curr) {\n        printf(\"%d%s\", curr->data, curr->next ? \" \" : \"\\n\");\n        curr = curr->next;\n    }\n}\n\nstatic void free_all(Node *head) {\n    while (head) {\n        Node *tmp = head->next;\n        free(head);\n        head = tmp;\n    }\n}\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    Node *head = NULL;\n    for (int i = 0; i < q; i++) {\n        char cmd[20];\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"INSERT_FRONT\") == 0) {\n            int v;\n            scanf(\"%d\", &v);\n            head = insert_front(head, v);\n        } else if (strcmp(cmd, \"INSERT_BACK\") == 0) {\n            int v;\n            scanf(\"%d\", &v);\n            head = insert_back(head, v);\n        } else if (strcmp(cmd, \"DELETE\") == 0) {\n            int v;\n            scanf(\"%d\", &v);\n            head = delete_val(head, v);\n        } else if (strcmp(cmd, \"PRINT\") == 0) {\n            print_list(head);\n        }\n    }\n    free_all(head);\n    return 0;\n}\n",
+    "hints": [
+      "Remember to handle deletion of the head node as a special case: `head = head->next; free(old_head)`.",
+      "When appending to the back of an empty list (`head == NULL`), the new node becomes the head.",
+      "Always store `next` pointer in a temporary variable before calling `free()` on any node."
+    ],
+    "explanation": "Each list node contains integer data and a pointer to the next node. Inserting at the front takes O(1) time. Inserting at the back traverses to the terminal node in O(N) time. Deletion unlinks the matched node by pointing the predecessor's `next` to the target's `next`, followed by `free()`. This demonstrates fundamental pointer manipulation and heap lifecycle management.",
+    "time_complexity": "O(n) per operation",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Dereferencing freed memory (`free(target); curr->next = target->next;`).",
+      "Losing the rest of the list when deleting the head node.",
+      "Memory leaks from orphaned nodes not freed after deletion or program exit."
+    ],
+    "related_problems": [
+      "pointer-maze-traversal",
+      "dangling-pointer-detection"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "oracle",
+      "tcs"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "6\nINSERT_FRONT 10\nINSERT_BACK 20\nINSERT_FRONT 5\nPRINT\nDELETE 10\nPRINT\n",
+        "expected_output": "5 10 20\n5 20\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard front/back insertions and middle deletion"
+      },
+      {
+        "input": "4\nPRINT\nINSERT_BACK 42\nPRINT\nDELETE 42\n",
+        "expected_output": "EMPTY\n42\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty list and single node insertion"
+      },
+      {
+        "input": "6\nINSERT_BACK 1\nINSERT_BACK 2\nINSERT_BACK 3\nDELETE 5\nPRINT\nDELETE 1\n",
+        "expected_output": "1 2 3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Deleting non-existent element and head element"
+      },
+      {
+        "input": "5\nINSERT_FRONT 100\nINSERT_FRONT 200\nINSERT_FRONT 300\nDELETE 100\nPRINT\n",
+        "expected_output": "300 200\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Deleting tail element"
+      },
+      {
+        "input": "4\nINSERT_BACK 7\nDELETE 7\nPRINT\nDELETE 7\n",
+        "expected_output": "EMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Deleting sole node resulting in EMPTY"
+      }
+    ]
+  },
+  {
+    "id": 65,
+    "title": "Dangling Pointer Detection",
+    "slug": "dangling-pointer-detection",
+    "difficulty": "very_hard",
+    "description": "A dangling pointer in C arises when a pointer continues to reference a memory location that has already been deallocated. Dereferencing a dangling pointer leads to undefined behavior, data corruption, and severe security vulnerabilities (use-after-free). In this problem, you will simulate a safe memory management and alias tracking runtime in C. \n\nYour system manages memory slots with IDs from $0$ to $99$ and named pointer variables (such as `p1`, `ptr`, `a`). Process $Q$ simulation commands: - `ALLOC <id> <val>`: Allocates memory slot `id` with integer value `val` (marks slot active). - `ALIAS <ptr_name> <id>`: Associates pointer variable `ptr_name` to point to slot `id`. - `FREE <id>`: Deallocates slot `id` (marks slot freed). Any pointers referencing this slot immediately become dangling. - `DEREF <ptr_name>`: Evaluates `ptr_name`.   * If `ptr_name` was never assigned to any slot, print `NULL POINTER`.   * If the slot it references has been freed, print `DANGLING POINTER DETECTED`.   * If the slot is currently valid and active, print its integer value.",
+    "input_format": "The first line contains an integer $Q$ ($1 \\le Q \\le 1000$). The next $Q$ lines each contain a command (`ALLOC <id> <val>`, `ALIAS <ptr_name> <id>`, `FREE <id>`, or `DEREF <ptr_name>`).",
+    "output_format": "For each `DEREF` command, print the dereferenced value, `DANGLING POINTER DETECTED`, or `NULL POINTER` on a new line.",
+    "constraints": "1 <= Q <= 1000\n0 <= id <= 99\n-10^9 <= val <= 10^9\nptr_name consists of up to 15 alphanumeric characters",
+    "examples": [
+      {
+        "input": "5\nALLOC 1 42\nALIAS p1 1\nDEREF p1\nFREE 1\nDEREF p1\n",
+        "output": "42\nDANGLING POINTER DETECTED\n",
+        "explanation": "p1 dereferences 42 when valid. After FREE 1, dereferencing p1 detects a dangling pointer."
+      },
+      {
+        "input": "6\nALLOC 0 100\nALIAS a 0\nALIAS b 0\nDEREF a\nFREE 0\nDEREF b\n",
+        "output": "100\nDANGLING POINTER DETECTED\n",
+        "explanation": "Both 'a' and 'b' aliased slot 0. Freeing slot 0 renders 'b' dangling as well."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n// TODO: Track heap slots (active, freed, value) and named pointer aliases\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    // TODO: Process memory simulation commands\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int is_allocated;\n    int is_freed;\n    int value;\n} Slot;\n\ntypedef struct {\n    char name[16];\n    int slot_id;\n} Alias;\n\nstatic Slot slots[100];\nstatic Alias aliases[1000];\nstatic int alias_count = 0;\n\nstatic int find_alias(const char *name) {\n    for (int i = 0; i < alias_count; i++) {\n        if (strcmp(aliases[i].name, name) == 0) return i;\n    }\n    return -1;\n}\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    for (int i = 0; i < 100; i++) {\n        slots[i].is_allocated = 0;\n        slots[i].is_freed = 0;\n    }\n    for (int k = 0; k < q; k++) {\n        char cmd[16];\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"ALLOC\") == 0) {\n            int id, val;\n            scanf(\"%d %d\", &id, &val);\n            slots[id].is_allocated = 1;\n            slots[id].is_freed = 0;\n            slots[id].value = val;\n        } else if (strcmp(cmd, \"ALIAS\") == 0) {\n            char name[16];\n            int id;\n            scanf(\"%s %d\", name, &id);\n            int idx = find_alias(name);\n            if (idx == -1) {\n                strcpy(aliases[alias_count].name, name);\n                aliases[alias_count].slot_id = id;\n                alias_count++;\n            } else {\n                aliases[idx].slot_id = id;\n            }\n        } else if (strcmp(cmd, \"FREE\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            slots[id].is_allocated = 0;\n            slots[id].is_freed = 1;\n        } else if (strcmp(cmd, \"DEREF\") == 0) {\n            char name[16];\n            scanf(\"%s\", name);\n            int idx = find_alias(name);\n            if (idx == -1) {\n                printf(\"NULL POINTER\\n\");\n            } else {\n                int id = aliases[idx].slot_id;\n                if (slots[id].is_freed) {\n                    printf(\"DANGLING POINTER DETECTED\\n\");\n                } else if (slots[id].is_allocated) {\n                    printf(\"%d\\n\", slots[id].value);\n                } else {\n                    printf(\"NULL POINTER\\n\");\n                }\n            }\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Track memory slots with two states: `is_allocated` and `is_freed`.",
+      "When `FREE <id>` is called, set `is_allocated = 0` and `is_freed = 1`.",
+      "When `DEREF <ptr_name>` occurs, lookup the slot target. If `is_freed == 1`, report `DANGLING POINTER DETECTED`."
+    ],
+    "explanation": "In manual memory management, multiple pointer variables can point to the same heap block. When `free()` is called on that address, all aliases become dangling unless explicitly set to NULL. Our simulation maintains heap block metadata (allocated/freed/value) alongside alias mapping. Dereferencing checks whether the referenced block was marked freed, correctly identifying use-after-free bugs in O(1) time.",
+    "time_complexity": "O(q * A) where A is number of aliases",
+    "space_complexity": "O(A + slots)",
+    "common_mistakes": [
+      "Assuming freeing a slot only invalidates the pointer passed to free, ignoring other aliases.",
+      "Failing to distinguish between an unassigned/NULL pointer and a pointer to a freed slot.",
+      "Buffer overflow on string comparison of alias names."
+    ],
+    "related_problems": [
+      "pointer-based-linked-list",
+      "generic-swap-with-void-pointers"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "apple",
+      "arm"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\nALLOC 1 42\nALIAS p1 1\nDEREF p1\nFREE 1\nDEREF p1\n",
+        "expected_output": "42\nDANGLING POINTER DETECTED\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Direct allocation, alias, read, free, dangling detection"
+      },
+      {
+        "input": "6\nALLOC 0 100\nALIAS a 0\nALIAS b 0\nDEREF a\nFREE 0\nDEREF b\n",
+        "expected_output": "100\nDANGLING POINTER DETECTED\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Two aliases pointing to same block, one freed"
+      },
+      {
+        "input": "4\nALLOC 2 555\nALIAS ptr 2\nDEREF ptr\nDEREF ptr\n",
+        "expected_output": "555\n555\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple valid dereferences without free"
+      },
+      {
+        "input": "7\nALLOC 1 10\nALLOC 2 20\nALIAS p1 1\nALIAS p2 2\nFREE 1\nDEREF p1\nDEREF p2\n",
+        "expected_output": "DANGLING POINTER DETECTED\n20\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Independent slots where one is freed and one remains valid"
+      },
+      {
+        "input": "4\nDEREF ghost\nALLOC 3 77\nALIAS ghost 3\nDEREF ghost\n",
+        "expected_output": "NULL POINTER\n77\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "DEREF before assignment outputs NULL POINTER"
+      }
+    ]
+  },
+  {
+    "id": 66,
+    "title": "Generic Swap with Void Pointers",
+    "slug": "generic-swap-with-void-pointers",
+    "difficulty": "very_hard",
+    "description": "In C, writing generic functions that operate seamlessly across any data type requires the use of void pointers (`void *`) and raw byte copying. A generic swap function has the signature: `void generic_swap(void *a, void *b, size_t size)` Because `void *` cannot be directly dereferenced, the memory bytes must be accessed by casting the pointers to `unsigned char *`. The function then iterates byte-by-byte for `size` bytes, swapping individual bytes between the two memory locations using a temporary `unsigned char`. \n\nYou must implement `generic_swap` and apply it to swap two values of a given type: - If type is `INT`: read two integers, swap them using `generic_swap(&x, &y, sizeof(int))`, and print `Swapped: <y> <x>`. - If type is `DOUBLE`: read two floating-point numbers, swap them using `generic_swap(&x, &y, sizeof(double))`, and print formatted to 2 decimal places: `Swapped: %.2f %.2f`. - If type is `STR`: read two space-delimited words into buffers, swap their entire buffer contents, and print `Swapped: <str2> <str1>`.",
+    "input_format": "The first line contains the type identifier (`INT`, `DOUBLE`, or `STR`). The second line contains the two space-separated values.",
+    "output_format": "Print `Swapped: <val1_after> <val2_after>` on a single line (doubles formatted to 2 decimal places).",
+    "constraints": "INT: -10^9 <= val <= 10^9\nDOUBLE: -10^6 <= val <= 10^6\nSTR: string length <= 100",
+    "examples": [
+      {
+        "input": "INT\n10 20\n",
+        "output": "Swapped: 20 10\n",
+        "explanation": "Two integers swapped byte-by-byte using void pointers."
+      },
+      {
+        "input": "DOUBLE\n3.14 2.72\n",
+        "output": "Swapped: 2.72 3.14\n",
+        "explanation": "Two double-precision values swapped byte-by-byte."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nvoid generic_swap(void *a, void *b, size_t size) {\n    // TODO: Byte-by-byte swap using unsigned char * pointers\n}\n\nint main(void) {\n    char type[16];\n    if (scanf(\"%s\", type) != 1) return 0;\n    // TODO: Read values, call generic_swap, print swapped result\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nstatic void generic_swap(void *a, void *b, size_t size) {\n    unsigned char *p1 = (unsigned char *)a;\n    unsigned char *p2 = (unsigned char *)b;\n    for (size_t i = 0; i < size; i++) {\n        unsigned char temp = p1[i];\n        p1[i] = p2[i];\n        p2[i] = temp;\n    }\n}\n\nint main(void) {\n    char type[16];\n    if (scanf(\"%s\", type) != 1) return 0;\n    if (strcmp(type, \"INT\") == 0) {\n        int v1, v2;\n        scanf(\"%d %d\", &v1, &v2);\n        generic_swap(&v1, &v2, sizeof(int));\n        printf(\"Swapped: %d %d\\n\", v1, v2);\n    } else if (strcmp(type, \"DOUBLE\") == 0) {\n        double d1, d2;\n        scanf(\"%lf %lf\", &d1, &d2);\n        generic_swap(&d1, &d2, sizeof(double));\n        printf(\"Swapped: %.2f %.2f\\n\", d1, d2);\n    } else if (strcmp(type, \"STR\") == 0) {\n        char s1[128], s2[128];\n        scanf(\"%s %s\", s1, s2);\n        generic_swap(s1, s2, sizeof(s1));\n        printf(\"Swapped: %s %s\\n\", s1, s2);\n    }\n    return 0;\n}\n",
+    "hints": [
+      "In C, you cannot dereference a `void *` directly; cast it to `unsigned char *`.",
+      "Iterate `i` from 0 to `size - 1` and swap `p1[i]` with `p2[i]` using an `unsigned char` temp variable.",
+      "For strings, pass the full buffer capacity (e.g. `sizeof(s1)`) to ensure complete memory buffer exchange."
+    ],
+    "explanation": "Void pointers provide the foundation for polymorphism in C. By casting `void *` to `unsigned char *`, we gain access to individual memory bytes. Swapping `size` consecutive bytes exchanges the representations of the objects in memory regardless of whether they are integers, IEEE 754 floating point doubles, or character arrays. Runtime is O(size).",
+    "time_complexity": "O(size)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Dereferencing `void *` without casting to a concrete pointer type like `unsigned char *`.",
+      "Using `sizeof(char *)` instead of `sizeof(buffer)` when swapping string arrays.",
+      "Failing to format floating point numbers to 2 decimal places."
+    ],
+    "related_problems": [
+      "swap-using-double-pointers",
+      "function-pointer-calculator"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "qualcomm",
+      "cisco",
+      "bloomberg",
+      "intel"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "INT\n10 20\n",
+        "expected_output": "Swapped: 20 10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard integer swap"
+      },
+      {
+        "input": "DOUBLE\n3.14 2.72\n",
+        "expected_output": "Swapped: 2.72 3.14\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Double floating-point swap"
+      },
+      {
+        "input": "STR\nhello world\n",
+        "expected_output": "Swapped: world hello\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "String buffers swap"
+      },
+      {
+        "input": "INT\n-100 500\n",
+        "expected_output": "Swapped: 500 -100\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Negative and positive integers"
+      },
+      {
+        "input": "DOUBLE\n0.00 99.99\n",
+        "expected_output": "Swapped: 99.99 0.00\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Double with zeroes"
+      },
+      {
+        "input": "STR\nAlpha Beta\n",
+        "expected_output": "Swapped: Beta Alpha\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Capitalized strings"
+      }
+    ]
+  },
+  {
+    "id": 67,
+    "title": "Pointer Maze Traversal",
+    "slug": "pointer-maze-traversal",
+    "difficulty": "very_hard",
+    "description": "A pointer-linked maze is a graph where each room is represented by a dynamically allocated structure containing pointers to adjacent rooms: ```c\ntypedef struct Room {\n    char name[32];\n    struct Room *up;\n    struct Room *down;\n    struct Room *left;\n    struct Room *right;\n} Room;\n```\nIf a passage in a particular direction is blocked or does not exist, the corresponding pointer is set to `NULL`. \n\nYou are given $N$ rooms, their names, and the names of the rooms reachable in each of the four directions (`U`, `D`, `L`, `R`), with `NONE` indicating a `NULL` pointer. You start at a designated `start_room` pointer and receive a sequence of $M$ movement instructions (`U`, `D`, `L`, `R`). For each move: - Follow the corresponding pointer. If the pointer is not `NULL`, transition to that room. - If the pointer is `NULL` (`NONE`), the move is blocked: stay in the current room. After processing each move, record the name of the room you currently occupy. Output the $M$ room names separated by spaces on line 1, and `Final: <room_name>` on line 2.",
+    "input_format": "Line 1: $N$ (number of rooms, $1 \\le N \\le 100$). Next $N$ lines: `name up down left right` (each a string or `NONE`). Next line: `start_room`. Next line: $M$ followed by $M$ space-separated direction characters (`U`, `D`, `L`, `R`).",
+    "output_format": "Line 1: $M$ room names visited after each move separated by a space.\nLine 2: `Final: <room_name>`",
+    "constraints": "1 <= N <= 100\n1 <= M <= 1000\nRoom names are alphanumeric strings of up to 31 characters",
+    "examples": [
+      {
+        "input": "4\nEntrance Hall NONE NONE RoomA\nRoomA NONE NONE Entrance Treasure\nHall Entrance NONE NONE NONE\nTreasure NONE NONE RoomA NONE\nEntrance\n3 R R U\n",
+        "output": "RoomA Treasure Treasure\nFinal: Treasure\n",
+        "explanation": "Entrance -> R -> RoomA. RoomA -> R -> Treasure. Treasure -> U is NULL (blocked, remains in Treasure)."
+      },
+      {
+        "input": "2\nA NONE NONE NONE B\nB NONE NONE A NONE\nA\n2 R L\n",
+        "output": "B A\nFinal: A\n",
+        "explanation": "A -> R -> B. B -> L -> A. Final room is A."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Room {\n    char name[32];\n    struct Room *up, *down, *left, *right;\n} Room;\n\n// TODO: Construct pointer graph and traverse moves\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    // TODO: Read rooms, link pointers, navigate\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Room {\n    char name[32];\n    struct Room *up;\n    struct Room *down;\n    struct Room *left;\n    struct Room *right;\n} Room;\n\nstatic Room *find_room(Room *rooms, int n, const char *name) {\n    if (strcmp(name, \"NONE\") == 0) return NULL;\n    for (int i = 0; i < n; i++) {\n        if (strcmp(rooms[i].name, name) == 0) return &rooms[i];\n    }\n    return NULL;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    Room *rooms = (Room *)malloc(n * sizeof(Room));\n    char up_names[100][32], down_names[100][32], left_names[100][32], right_names[100][32];\n    for (int i = 0; i < n; i++) {\n        scanf(\"%s %s %s %s %s\", rooms[i].name, up_names[i], down_names[i], left_names[i], right_names[i]);\n        rooms[i].up = rooms[i].down = rooms[i].left = rooms[i].right = NULL;\n    }\n    // Link pointers\n    for (int i = 0; i < n; i++) {\n        rooms[i].up = find_room(rooms, n, up_names[i]);\n        rooms[i].down = find_room(rooms, n, down_names[i]);\n        rooms[i].left = find_room(rooms, n, left_names[i]);\n        rooms[i].right = find_room(rooms, n, right_names[i]);\n    }\n    char start_name[32];\n    scanf(\"%s\", start_name);\n    Room *current = find_room(rooms, n, start_name);\n    int m;\n    if (scanf(\"%d\", &m) != 1) { free(rooms); return 0; }\n    for (int i = 0; i < m; i++) {\n        char dir[4];\n        scanf(\"%s\", dir);\n        Room *next = NULL;\n        if (dir[0] == 'U') next = current->up;\n        else if (dir[0] == 'D') next = current->down;\n        else if (dir[0] == 'L') next = current->left;\n        else if (dir[0] == 'R') next = current->right;\n        if (next != NULL) {\n            current = next;\n        }\n        printf(\"%s%c\", current->name, (i == m - 1) ? '\\n' : ' ');\n    }\n    printf(\"Final: %s\\n\", current->name);\n    free(rooms);\n    return 0;\n}\n",
+    "hints": [
+      "First allocate an array of `Room` structures and read all names.",
+      "In a second pass, set `rooms[i].up = find_room(up_name)`, linking actual pointer references.",
+      "During traversal, check if `next != NULL`. If non-NULL, update `current = next`; if NULL, stay at `current`."
+    ],
+    "explanation": "This problem demonstrates graph modeling through raw C pointers. Each room holds 4 directional pointers to other Room structs. We resolve string room names to actual pointer addresses during graph construction. Traversal simply follows pointer chains: `current = current->right;`. If the pointer is NULL, the movement is blocked and the pointer does not change. Runtime is O(N^2 + M) and auxiliary space is O(N).",
+    "time_complexity": "O(N^2 + M)",
+    "space_complexity": "O(N)",
+    "common_mistakes": [
+      "Dereferencing a NULL pointer when a move is blocked, leading to segmentation fault.",
+      "Linking pointers before all Room structures have been allocated, causing invalid pointer references.",
+      "Forgetting to output the final room name in `Final: <room_name>` format."
+    ],
+    "related_problems": [
+      "pointer-based-linked-list",
+      "pointer-to-pointer-matrix"
+    ],
+    "topic_slug": "pointers",
+    "company_slugs": [
+      "google",
+      "meta",
+      "amazon",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\nEntrance Hall NONE NONE RoomA\nRoomA NONE NONE Entrance Treasure\nHall Entrance NONE NONE NONE\nTreasure NONE NONE RoomA NONE\nEntrance\n3 R R U\n",
+        "expected_output": "RoomA Treasure Treasure\nFinal: Treasure\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 4-room maze with one blocked move"
+      },
+      {
+        "input": "2\nA NONE NONE NONE B\nB NONE NONE A NONE\nA\n2 R L\n",
+        "expected_output": "B A\nFinal: A\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Two connected rooms with back-and-forth movement"
+      },
+      {
+        "input": "1\nOnly NONE NONE NONE NONE\nOnly\n3 U D L\n",
+        "expected_output": "Only Only Only\nFinal: Only\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single isolated room with all moves blocked"
+      },
+      {
+        "input": "3\nStart B NONE NONE NONE\nB C Start NONE NONE\nC NONE B NONE NONE\nStart\n4 U U D D\n",
+        "expected_output": "B C B Start\nFinal: Start\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Linear vertical path traversal"
+      },
+      {
+        "input": "4\nNorth NONE South NONE NONE\nSouth North NONE NONE NONE\nEast NONE NONE NONE West\nWest NONE NONE East NONE\nNorth\n3 D U D\n",
+        "expected_output": "South North South\nFinal: South\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Alternating directional steps"
+      }
+    ]
+  }
+]

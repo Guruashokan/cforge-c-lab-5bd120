@@ -1,0 +1,877 @@
+[
+  {
+    "id": 138,
+    "title": "Graph Adjacency List",
+    "slug": "graph-adjacency-list",
+    "difficulty": "medium",
+    "description": "Construct an undirected graph with $V$ vertices (labeled $0$ through $V - 1$) and $E$ edges using an **Adjacency List** representation in C.\n\nAn adjacency list consists of an array of linked lists or dynamic arrays, where the $i$-th list stores all vertices adjacent to vertex $i$. Undirected edges $(u, v)$ must be added symmetrically: $v$ is added to $u$'s list, and $u$ is added to $v$'s list.\n\nTo ensure deterministic output across different compiler implementations, sort or insert each vertex's neighbor list such that neighbors are printed in **strictly ascending order** of their vertex indices.\n\nFor each vertex $i$ from $0$ to $V - 1$, print:\n`Vertex i: v1 v2 ...`\nIf vertex $i$ is isolated and has no incident edges, print `Vertex i: EMPTY`.",
+    "input_format": "The first line contains two integers $V$ and $E$.\nThe next $E$ lines each contain two integers $u$ and $v$ representing an undirected edge between vertices $u$ and $v$.",
+    "output_format": "Print $V$ lines. For each vertex $i$ ($0 \\le i < V$), print `Vertex i: <sorted neighbors>` or `Vertex i: EMPTY`.",
+    "constraints": "1 <= V <= 1000\n0 <= E <= 10000\n0 <= u, v < V",
+    "examples": [
+      {
+        "input": "4 4\n0 1\n0 2\n1 2\n2 3\n",
+        "output": "Vertex 0: 1 2\nVertex 1: 0 2\nVertex 2: 0 1 3\nVertex 3: 2\n",
+        "explanation": "Vertex 0 connects to 1 and 2. Vertex 2 connects to 0, 1, and 3."
+      },
+      {
+        "input": "3 1\n0 2\n",
+        "output": "Vertex 0: 2\nVertex 1: EMPTY\nVertex 2: 0\n",
+        "explanation": "Vertex 1 is isolated with degree 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Construct and display adjacency list in ascending order\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int vertex;\n    struct Node *next;\n} Node;\n\nNode* insert_sorted(Node *head, int v) {\n    Node *new_node = (Node *)malloc(sizeof(Node));\n    new_node->vertex = v;\n    new_node->next = NULL;\n    \n    if (!head || v < head->vertex) {\n        new_node->next = head;\n        return new_node;\n    }\n    \n    Node *curr = head;\n    while (curr->next && curr->next->vertex < v) {\n        curr = curr->next;\n    }\n    new_node->next = curr->next;\n    curr->next = new_node;\n    return head;\n}\n\nint main(void) {\n    int v, e;\n    if (scanf(\"%d %d\", &v, &e) != 2) return 0;\n    \n    Node **adj = (Node **)calloc(v, sizeof(Node *));\n    \n    for (int i = 0; i < e; i++) {\n        int u, w;\n        scanf(\"%d %d\", &u, &w);\n        adj[u] = insert_sorted(adj[u], w);\n        adj[w] = insert_sorted(adj[w], u);\n    }\n    \n    for (int i = 0; i < v; i++) {\n        printf(\"Vertex %d:\", i);\n        if (!adj[i]) {\n            printf(\" EMPTY\\n\");\n        } else {\n            Node *curr = adj[i];\n            while (curr) {\n                printf(\" %d\", curr->vertex);\n                curr = curr->next;\n            }\n            printf(\"\\n\");\n        }\n    }\n    \n    for (int i = 0; i < v; i++) {\n        Node *curr = adj[i];\n        while (curr) {\n            Node *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    free(adj);\n    return 0;\n}\n",
+    "hints": [
+      "Allocate an array of Node* pointers of size V using calloc.",
+      "For undirected graphs, insert v into u's list AND u into v's list.",
+      "Use an insertion-sort helper when appending to linked lists to maintain ascending neighbor order.",
+      "Print ' EMPTY' if adj[i] is NULL."
+    ],
+    "explanation": "Adjacency lists require O(V + E) space, making them far more space-efficient than an O(V^2) adjacency matrix for sparse graphs. By inserting edges into sorted linked lists, neighbors are naturally maintained in ascending order with total insertion overhead bounded by O(V + E * deg(u)) = O(V + E^2) worst case.",
+    "time_complexity": "O(v + e log(deg))",
+    "space_complexity": "O(v + e)",
+    "common_mistakes": [
+      "Only adding edge u -> v and forgetting v -> u for undirected graphs.",
+      "Not handling isolated vertices (degree 0) properly.",
+      "Memory leaks by forgetting to free linked list nodes at program termination."
+    ],
+    "related_problems": [
+      "bfs-traversal",
+      "dfs-traversal"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "cisco"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4 4\n0 1\n0 2\n1 2\n2 3\n",
+        "expected_output": "Vertex 0: 1 2\nVertex 1: 0 2\nVertex 2: 0 1 3\nVertex 3: 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "4-vertex connected graph"
+      },
+      {
+        "input": "3 1\n0 2\n",
+        "expected_output": "Vertex 0: 2\nVertex 1: EMPTY\nVertex 2: 0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Graph containing an isolated vertex"
+      },
+      {
+        "input": "1 0\n",
+        "expected_output": "Vertex 0: EMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single vertex with no edges"
+      },
+      {
+        "input": "3 3\n0 1\n1 2\n0 2\n",
+        "expected_output": "Vertex 0: 1 2\nVertex 1: 0 2\nVertex 2: 0 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Complete graph K3 (triangle)"
+      },
+      {
+        "input": "4 0\n",
+        "expected_output": "Vertex 0: EMPTY\nVertex 1: EMPTY\nVertex 2: EMPTY\nVertex 3: EMPTY\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Graph with no edges"
+      }
+    ]
+  },
+  {
+    "id": 139,
+    "title": "BFS Traversal",
+    "slug": "bfs-traversal",
+    "difficulty": "hard",
+    "description": "Perform **Breadth-First Search (BFS)** on an undirected graph with $V$ vertices ($0$ through $V - 1$) and $E$ edges starting from a designated source vertex $S$.\n\nBFS explores the graph level by level using a FIFO queue. When exploring the neighbors of any vertex, always visit unvisited neighbors in **strictly ascending order** of their vertex indices.\n\nCompute and output:\n1. The exact sequence of vertices visited during the BFS traversal from source $S$.\n2. The shortest distance (in number of edges) from source $S$ to every vertex $0, 1, \\dots, V - 1$. For any vertex that is not reachable from $S$, output `-1`.",
+    "input_format": "The first line contains three integers: $V$, $E$, and $S$.\nThe next $E$ lines each contain two integers $u$ and $v$ (undirected edge between $u$ and $v$).",
+    "output_format": "Line 1: `Order: <space-separated visited vertices in traversal order>`\nLine 2: `Distances: <V space-separated shortest path distances, or -1 if unreachable>`",
+    "constraints": "1 <= V <= 5000\n0 <= E <= 20000\n0 <= S, u, v < V",
+    "examples": [
+      {
+        "input": "5 4 0\n0 1\n0 2\n1 3\n2 4\n",
+        "output": "Order: 0 1 2 3 4\nDistances: 0 1 1 2 2\n",
+        "explanation": "BFS starts at 0, visits neighbors 1 and 2 (distance 1), then their neighbors 3 and 4 (distance 2)."
+      },
+      {
+        "input": "4 2 0\n0 1\n2 3\n",
+        "output": "Order: 0 1\nDistances: 0 1 -1 -1\n",
+        "explanation": "Vertices 2 and 3 belong to a disconnected component and are unreachable from 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement BFS traversal and compute shortest path distances\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct Node {\n    int vertex;\n    struct Node *next;\n} Node;\n\nNode* insert_sorted(Node *head, int v) {\n    Node *new_node = (Node *)malloc(sizeof(Node));\n    new_node->vertex = v;\n    new_node->next = NULL;\n    if (!head || v < head->vertex) {\n        new_node->next = head;\n        return new_node;\n    }\n    Node *curr = head;\n    while (curr->next && curr->next->vertex < v) curr = curr->next;\n    new_node->next = curr->next;\n    curr->next = new_node;\n    return head;\n}\n\nint main(void) {\n    int v, e, s;\n    if (scanf(\"%d %d %d\", &v, &e, &s) != 3) return 0;\n    \n    Node **adj = (Node **)calloc(v, sizeof(Node *));\n    for (int i = 0; i < e; i++) {\n        int u, w;\n        scanf(\"%d %d\", &u, &w);\n        adj[u] = insert_sorted(adj[u], w);\n        adj[w] = insert_sorted(adj[w], u);\n    }\n    \n    int *dist = (int *)malloc(sizeof(int) * v);\n    bool *visited = (bool *)calloc(v, sizeof(bool));\n    for (int i = 0; i < v; i++) dist[i] = -1;\n    \n    int *queue = (int *)malloc(sizeof(int) * (v + 5));\n    int head = 0, tail = 0;\n    \n    int *order = (int *)malloc(sizeof(int) * (v + 5));\n    int order_count = 0;\n    \n    queue[tail++] = s;\n    visited[s] = true;\n    dist[s] = 0;\n    \n    while (head < tail) {\n        int u = queue[head++];\n        order[order_count++] = u;\n        \n        Node *curr = adj[u];\n        while (curr) {\n            int nbr = curr->vertex;\n            if (!visited[nbr]) {\n                visited[nbr] = true;\n                dist[nbr] = dist[u] + 1;\n                queue[tail++] = nbr;\n            }\n            curr = curr->next;\n        }\n    }\n    \n    printf(\"Order: \");\n    for (int i = 0; i < order_count; i++) {\n        printf(\"%d%c\", order[i], (i == order_count - 1) ? '\\n' : ' ');\n    }\n    \n    printf(\"Distances: \");\n    for (int i = 0; i < v; i++) {\n        printf(\"%d%c\", dist[i], (i == v - 1) ? '\\n' : ' ');\n    }\n    \n    free(dist);\n    free(visited);\n    free(queue);\n    free(order);\n    for (int i = 0; i < v; i++) {\n        Node *curr = adj[i];\n        while (curr) {\n            Node *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    free(adj);\n    return 0;\n}\n",
+    "hints": [
+      "Use a boolean visited array to ensure no vertex is enqueued more than once.",
+      "Initialize dist array to -1, with dist[s] = 0.",
+      "When visiting neighbor nbr, dist[nbr] = dist[curr] + 1.",
+      "Neighbors must be visited in sorted order to guarantee exact traversal match."
+    ],
+    "explanation": "BFS uses a FIFO queue to systematically explore nodes in order of increasing distance from source S. Because all edge weights in an unweighted graph are 1, the first time BFS reaches any node v, the path discovered is guaranteed to be the shortest path from S. Time complexity is O(V + E) and space complexity is O(V).",
+    "time_complexity": "O(v + e)",
+    "space_complexity": "O(v + e)",
+    "common_mistakes": [
+      "Marking a vertex as visited when popping from queue rather than when pushing, resulting in duplicate queue entries and exponential slowdown.",
+      "Not handling disconnected components where unreachable vertices must have distance -1.",
+      "Unsorted neighbor traversal producing non-deterministic visit order."
+    ],
+    "related_problems": [
+      "dfs-traversal",
+      "connected-components"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "amazon",
+      "facebook",
+      "google",
+      "uber"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5 4 0\n0 1\n0 2\n1 3\n2 4\n",
+        "expected_output": "Order: 0 1 2 3 4\nDistances: 0 1 1 2 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 5-vertex tree BFS"
+      },
+      {
+        "input": "4 2 0\n0 1\n2 3\n",
+        "expected_output": "Order: 0 1\nDistances: 0 1 -1 -1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Disconnected graph with unreachable vertices"
+      },
+      {
+        "input": "1 0 0\n",
+        "expected_output": "Order: 0\nDistances: 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single vertex graph"
+      },
+      {
+        "input": "4 4 1\n0 1\n1 2\n2 3\n3 0\n",
+        "expected_output": "Order: 1 0 2 3\nDistances: 1 0 1 2\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Cycle graph starting at vertex 1"
+      },
+      {
+        "input": "5 0 2\n",
+        "expected_output": "Order: 2\nDistances: -1 -1 0 -1 -1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Graph with no edges, start at vertex 2"
+      }
+    ]
+  },
+  {
+    "id": 140,
+    "title": "DFS Traversal",
+    "slug": "dfs-traversal",
+    "difficulty": "hard",
+    "description": "Perform Depth-First Search (**DFS**) on a **directed graph** with $V$ vertices ($0$ to $V - 1$) and $E$ edges, computing the **discovery time** and **finish time** for every vertex.\n\nMaintain a global time counter starting at 1:\n- When a vertex $u$ is first entered, record its discovery time `discovery[u] = time++`.\n- Recursively visit all unvisited outgoing neighbors of $u$ in **strictly ascending order** of vertex indices.\n- When all outgoing edges from $u$ have been explored, record its finish time `finish[u] = time++`.\n\nStart the DFS from the designated source vertex $S$. If unvisited vertices remain after the DFS call from $S$ terminates, iterate through vertices $0, 1, \\dots, V - 1$ in ascending index order and initiate a new DFS from any vertex that remains unvisited, until all vertices are explored.\n\nFor each vertex $i$ from $0$ to $V - 1$, print:\n`Vertex i: discovery=d, finish=f`",
+    "input_format": "The first line contains three integers: $V$, $E$, and $S$.\nThe next $E$ lines each contain two integers $u$ and $v$ (directed edge $u \\to v$).",
+    "output_format": "Print $V$ lines. For each vertex $i$ ($0 \\le i < V$), print `Vertex i: discovery=d, finish=f`.",
+    "constraints": "1 <= V <= 2000\n0 <= E <= 10000\n0 <= S, u, v < V",
+    "examples": [
+      {
+        "input": "4 3 0\n0 1\n0 2\n1 3\n",
+        "output": "Vertex 0: discovery=1, finish=8\nVertex 1: discovery=2, finish=5\nVertex 2: discovery=6, finish=7\nVertex 3: discovery=3, finish=4\n",
+        "explanation": "0 discovers 1 at t=2; 1 discovers 3 at t=3; 3 finishes at t=4; 1 finishes at t=5; 0 discovers 2 at t=6; 2 finishes at t=7; 0 finishes at t=8."
+      },
+      {
+        "input": "2 0 1\n",
+        "output": "Vertex 0: discovery=3, finish=4\nVertex 1: discovery=1, finish=2\n",
+        "explanation": "DFS starts at S=1 (discovery=1, finish=2), then loops to unvisited vertex 0 (discovery=3, finish=4)."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement DFS recording discovery and finish timestamps\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct Node {\n    int vertex;\n    struct Node *next;\n} Node;\n\nNode* insert_sorted(Node *head, int v) {\n    Node *new_node = (Node *)malloc(sizeof(Node));\n    new_node->vertex = v;\n    new_node->next = NULL;\n    if (!head || v < head->vertex) {\n        new_node->next = head;\n        return new_node;\n    }\n    Node *curr = head;\n    while (curr->next && curr->next->vertex < v) curr = curr->next;\n    new_node->next = curr->next;\n    curr->next = new_node;\n    return head;\n}\n\nint global_timer = 1;\n\nvoid dfs_visit(int u, Node **adj, bool *visited, int *disc, int *finish) {\n    visited[u] = true;\n    disc[u] = global_timer++;\n    \n    Node *curr = adj[u];\n    while (curr) {\n        int v = curr->vertex;\n        if (!visited[v]) {\n            dfs_visit(v, adj, visited, disc, finish);\n        }\n        curr = curr->next;\n    }\n    \n    finish[u] = global_timer++;\n}\n\nint main(void) {\n    int v, e, s;\n    if (scanf(\"%d %d %d\", &v, &e, &s) != 3) return 0;\n    \n    Node **adj = (Node **)calloc(v, sizeof(Node *));\n    for (int i = 0; i < e; i++) {\n        int from, to;\n        scanf(\"%d %d\", &from, &to);\n        adj[from] = insert_sorted(adj[from], to);\n    }\n    \n    bool *visited = (bool *)calloc(v, sizeof(bool));\n    int *disc = (int *)malloc(sizeof(int) * v);\n    int *finish = (int *)malloc(sizeof(int) * v);\n    \n    dfs_visit(s, adj, visited, disc, finish);\n    for (int i = 0; i < v; i++) {\n        if (!visited[i]) {\n            dfs_visit(i, adj, visited, disc, finish);\n        }\n    }\n    \n    for (int i = 0; i < v; i++) {\n        printf(\"Vertex %d: discovery=%d, finish=%d\\n\", i, disc[i], finish[i]);\n    }\n    \n    free(visited);\n    free(disc);\n    free(finish);\n    for (int i = 0; i < v; i++) {\n        Node *curr = adj[i];\n        while (curr) {\n            Node *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    free(adj);\n    return 0;\n}\n",
+    "hints": [
+      "Use a global timer variable initialized to 1.",
+      "Record disc[u] = global_timer++ upon entering the DFS function for vertex u.",
+      "Explore neighbors in ascending numerical order.",
+      "Record finish[u] = global_timer++ after all neighbors are processed."
+    ],
+    "explanation": "Discovery and finish times produced by DFS form well-nested intervals satisfying the Parenthesis Theorem: for any two vertices u and v, either their intervals are completely disjoint or one is contained entirely within the other. This interval structure forms the mathematical backbone of cycle detection, strongly connected components (Tarjan/Kosaraju), and topological sorting. Runtime is O(V + E).",
+    "time_complexity": "O(v + e)",
+    "space_complexity": "O(v + e)",
+    "common_mistakes": [
+      "Forgetting to continue DFS from other unvisited vertices when the graph is disconnected.",
+      "Incrementing the timer before recording discovery time, leading to 2-indexed timestamps instead of 1.",
+      "Treating directed edges as undirected."
+    ],
+    "related_problems": [
+      "cycle-detection-in-directed-graph",
+      "topological-sort"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "amazon"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "4 3 0\n0 1\n0 2\n1 3\n",
+        "expected_output": "Vertex 0: discovery=1, finish=8\nVertex 1: discovery=2, finish=5\nVertex 2: discovery=6, finish=7\nVertex 3: discovery=3, finish=4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard DAG DFS timestamps"
+      },
+      {
+        "input": "2 0 1\n",
+        "expected_output": "Vertex 0: discovery=3, finish=4\nVertex 1: discovery=1, finish=2\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Two disconnected vertices with S=1"
+      },
+      {
+        "input": "1 0 0\n",
+        "expected_output": "Vertex 0: discovery=1, finish=2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single vertex graph"
+      },
+      {
+        "input": "3 3 0\n0 1\n1 2\n2 0\n",
+        "expected_output": "Vertex 0: discovery=1, finish=6\nVertex 1: discovery=2, finish=5\nVertex 2: discovery=3, finish=4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Directed 3-cycle DFS"
+      },
+      {
+        "input": "4 2 2\n0 1\n2 3\n",
+        "expected_output": "Vertex 0: discovery=5, finish=8\nVertex 1: discovery=6, finish=7\nVertex 2: discovery=1, finish=4\nVertex 3: discovery=2, finish=3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple components starting from vertex 2"
+      }
+    ]
+  },
+  {
+    "id": 141,
+    "title": "Connected Components",
+    "slug": "connected-components",
+    "difficulty": "hard",
+    "description": "Given an undirected graph with $V$ vertices ($0$ through $V - 1$) and $E$ edges, find all **Connected Components**.\n\nA connected component is a maximal set of vertices such that every pair of vertices in the set is connected by a path.\n\nFormat requirements:\n- Line 1: `Components: C` where $C$ is the total number of connected components.\n- The following $C$ lines each list the vertices of one connected component separated by spaces.\n- Order the components by the **minimum vertex index** present in each component (e.g. the component containing vertex 0 comes first, then the component containing the smallest unvisited vertex, etc.).\n- Within each component line, vertices must be printed in **ascending numerical order**.",
+    "input_format": "The first line contains two integers $V$ and $E$.\nThe next $E$ lines each contain two integers $u$ and $v$ representing an undirected edge.",
+    "output_format": "Line 1: `Components: C`\nNext C lines: Space-separated vertices belonging to each component.",
+    "constraints": "1 <= V <= 5000\n0 <= E <= 20000\n0 <= u, v < V",
+    "examples": [
+      {
+        "input": "6 4\n0 1\n1 2\n3 4\n4 5\n",
+        "output": "Components: 2\n0 1 2\n3 4 5\n",
+        "explanation": "Vertices {0, 1, 2} form the first component; {3, 4, 5} form the second component."
+      },
+      {
+        "input": "4 1\n1 2\n",
+        "output": "Components: 3\n0\n1 2\n3\n",
+        "explanation": "Vertex 0 is isolated, {1, 2} are connected, vertex 3 is isolated."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Count connected components and print members sorted\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct Node {\n    int vertex;\n    struct Node *next;\n} Node;\n\nNode* add_edge(Node *head, int v) {\n    Node *n = (Node *)malloc(sizeof(Node));\n    n->vertex = v;\n    n->next = head;\n    return n;\n}\n\nint compare_ints(const void *a, const void *b) {\n    return (*(int *)a - *(int *)b);\n}\n\nvoid dfs(int u, Node **adj, bool *visited, int *comp, int *comp_size) {\n    visited[u] = true;\n    comp[(*comp_size)++] = u;\n    Node *curr = adj[u];\n    while (curr) {\n        if (!visited[curr->vertex]) {\n            dfs(curr->vertex, adj, visited, comp, comp_size);\n        }\n        curr = curr->next;\n    }\n}\n\nint main(void) {\n    int v, e;\n    if (scanf(\"%d %d\", &v, &e) != 2) return 0;\n    \n    Node **adj = (Node **)calloc(v, sizeof(Node *));\n    for (int i = 0; i < e; i++) {\n        int u, w;\n        scanf(\"%d %d\", &u, &w);\n        adj[u] = add_edge(adj[u], w);\n        adj[w] = add_edge(adj[w], u);\n    }\n    \n    bool *visited = (bool *)calloc(v, sizeof(bool));\n    int **components = (int **)malloc(sizeof(int *) * v);\n    int *comp_sizes = (int *)malloc(sizeof(int) * v);\n    int num_components = 0;\n    \n    for (int i = 0; i < v; i++) {\n        if (!visited[i]) {\n            int *comp = (int *)malloc(sizeof(int) * v);\n            int size = 0;\n            dfs(i, adj, visited, comp, &size);\n            qsort(comp, size, sizeof(int), compare_ints);\n            components[num_components] = comp;\n            comp_sizes[num_components] = size;\n            num_components++;\n        }\n    }\n    \n    printf(\"Components: %d\\n\", num_components);\n    for (int i = 0; i < num_components; i++) {\n        for (int j = 0; j < comp_sizes[i]; j++) {\n            printf(\"%d%c\", components[i][j], (j == comp_sizes[i] - 1) ? '\\n' : ' ');\n        }\n        free(components[i]);\n    }\n    \n    free(components);\n    free(comp_sizes);\n    free(visited);\n    for (int i = 0; i < v; i++) {\n        Node *curr = adj[i];\n        while (curr) {\n            Node *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    free(adj);\n    return 0;\n}\n",
+    "hints": [
+      "Iterate i from 0 to V - 1. If i is not visited, it is the smallest vertex in a new component.",
+      "Run DFS/BFS starting from i to discover all vertices in its component.",
+      "Sort the vertices within each component using qsort before printing.",
+      "Each vertex and edge is visited a constant number of times, keeping total runtime O(V + E)."
+    ],
+    "explanation": "Finding connected components in an undirected graph partitions the vertex set into equivalence classes under reachability. Initiating a traversal from the lowest-numbered unvisited vertex ensures components are discovered in ascending order of their minimum representative. Sorting the discovered elements within each component produces canonical output in O(V log V + E) time.",
+    "time_complexity": "O(v log v + e)",
+    "space_complexity": "O(v + e)",
+    "common_mistakes": [
+      "Failing to add edges bidirectionally (u -> v and v -> u).",
+      "Not sorting the vertices within a component before printing.",
+      "Treating isolated vertices (degree 0) as not being components; an isolated vertex is its own component of size 1."
+    ],
+    "related_problems": [
+      "bfs-traversal",
+      "disjoint-set-union-find"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "amazon",
+      "bloomberg",
+      "google"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6 4\n0 1\n1 2\n3 4\n4 5\n",
+        "expected_output": "Components: 2\n0 1 2\n3 4 5\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Two equal sized components"
+      },
+      {
+        "input": "4 1\n1 2\n",
+        "expected_output": "Components: 3\n0\n1 2\n3\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Two isolated vertices and one connected pair"
+      },
+      {
+        "input": "1 0\n",
+        "expected_output": "Components: 1\n0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single vertex graph (1 component)"
+      },
+      {
+        "input": "4 6\n0 1\n0 2\n0 3\n1 2\n1 3\n2 3\n",
+        "expected_output": "Components: 1\n0 1 2 3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Fully connected clique (1 component)"
+      },
+      {
+        "input": "5 0\n",
+        "expected_output": "Components: 5\n0\n1\n2\n3\n4\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All vertices isolated (5 components)"
+      }
+    ]
+  },
+  {
+    "id": 142,
+    "title": "Cycle Detection in Directed Graph",
+    "slug": "cycle-detection-in-directed-graph",
+    "difficulty": "very_hard",
+    "description": "Given a directed graph with $V$ vertices ($0$ to $V - 1$) and $E$ edges, determine whether it contains at least one **directed cycle**.\n\nUse the **DFS 3-color scheme**:\n- `WHITE (0)`: Vertex has not yet been discovered.\n- `GRAY (1)`: Vertex is currently being visited and resides in the active DFS call stack.\n- `BLACK (2)`: Vertex and all its reachable descendants have been fully processed and exited.\n\nA directed cycle exists if and only if during DFS from any vertex, an outgoing edge $(u, v)$ encounters a vertex $v$ whose color is currently `GRAY`. Such an edge is called a **back-edge**.\n\nIf any directed cycle is discovered, print `CYCLE DETECTED`. If all vertices are explored without encountering a back-edge, print `NO CYCLE`.",
+    "input_format": "The first line contains two integers $V$ and $E$.\nThe next $E$ lines each contain two integers $u$ and $v$ (directed edge $u \\to v$).",
+    "output_format": "Print `CYCLE DETECTED` or `NO CYCLE`.",
+    "constraints": "1 <= V <= 10^4\n0 <= E <= 50000\n0 <= u, v < V",
+    "examples": [
+      {
+        "input": "4 4\n0 1\n1 2\n2 3\n3 1\n",
+        "output": "CYCLE DETECTED\n",
+        "explanation": "Vertices 1 -> 2 -> 3 -> 1 form a directed cycle."
+      },
+      {
+        "input": "4 3\n0 1\n1 2\n2 3\n",
+        "output": "NO CYCLE\n",
+        "explanation": "Directed path with no cycles (DAG)."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\n// TODO: Implement 3-color DFS cycle detection in directed graph\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\ntypedef struct Node {\n    int vertex;\n    struct Node *next;\n} Node;\n\nNode* add_edge(Node *head, int v) {\n    Node *n = (Node *)malloc(sizeof(Node));\n    n->vertex = v;\n    n->next = head;\n    return n;\n}\n\nenum Color { WHITE = 0, GRAY = 1, BLACK = 2 };\n\nbool dfs_has_cycle(int u, Node **adj, int *color) {\n    color[u] = GRAY;\n    \n    Node *curr = adj[u];\n    while (curr) {\n        int v = curr->vertex;\n        if (color[v] == GRAY) {\n            return true;\n        }\n        if (color[v] == WHITE) {\n            if (dfs_has_cycle(v, adj, color)) return true;\n        }\n        curr = curr->next;\n    }\n    \n    color[u] = BLACK;\n    return false;\n}\n\nint main(void) {\n    int v, e;\n    if (scanf(\"%d %d\", &v, &e) != 2) return 0;\n    \n    Node **adj = (Node **)calloc(v, sizeof(Node *));\n    for (int i = 0; i < e; i++) {\n        int u, w;\n        scanf(\"%d %d\", &u, &w);\n        adj[u] = add_edge(adj[u], w);\n    }\n    \n    int *color = (int *)calloc(v, sizeof(int));\n    bool has_cycle = false;\n    \n    for (int i = 0; i < v; i++) {\n        if (color[i] == WHITE) {\n            if (dfs_has_cycle(i, adj, color)) {\n                has_cycle = true;\n                break;\n            }\n        }\n    }\n    \n    if (has_cycle) {\n        printf(\"CYCLE DETECTED\\n\");\n    } else {\n        printf(\"NO CYCLE\\n\");\n    }\n    \n    free(color);\n    for (int i = 0; i < v; i++) {\n        Node *curr = adj[i];\n        while (curr) {\n            Node *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    free(adj);\n    return 0;\n}\n",
+    "hints": [
+      "Use three states: 0 = unvisited (WHITE), 1 = visiting (GRAY), 2 = done (BLACK).",
+      "Set color[u] = GRAY upon entering DFS.",
+      "If an edge points to a GRAY node, a cycle exists because that node is already an ancestor in the active call stack.",
+      "Set color[u] = BLACK before returning from DFS."
+    ],
+    "explanation": "Unlike undirected graphs where visiting an already-visited non-parent indicates a cycle, directed graphs can have cross-edges and forward-edges that point to already-visited nodes without forming a cycle. Only back-edges pointing to nodes currently in the recursion stack (marked GRAY) represent true cycles. The 3-color scheme runs in optimal O(V + E) time.",
+    "time_complexity": "O(v + e)",
+    "space_complexity": "O(v + e)",
+    "common_mistakes": [
+      "Using a simple boolean visited array: cross edges in a DAG would be misidentified as cycles.",
+      "Forgetting to mark nodes BLACK upon finishing, falsely keeping them in the active stack.",
+      "Not iterating through all vertices to detect cycles in disconnected components."
+    ],
+    "related_problems": [
+      "topological-sort",
+      "dfs-traversal"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "google",
+      "meta"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "4 4\n0 1\n1 2\n2 3\n3 1\n",
+        "expected_output": "CYCLE DETECTED\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard directed cycle"
+      },
+      {
+        "input": "4 3\n0 1\n1 2\n2 3\n",
+        "expected_output": "NO CYCLE\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Acyclic directed path"
+      },
+      {
+        "input": "1 1\n0 0\n",
+        "expected_output": "CYCLE DETECTED\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Self-loop at vertex 0"
+      },
+      {
+        "input": "3 3\n0 1\n0 2\n1 2\n",
+        "expected_output": "NO CYCLE\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "DAG with cross edge (diamond structure)"
+      },
+      {
+        "input": "5 0\n",
+        "expected_output": "NO CYCLE\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Graph with no edges"
+      }
+    ]
+  },
+  {
+    "id": 143,
+    "title": "Topological Sort",
+    "slug": "topological-sort",
+    "difficulty": "very_hard",
+    "description": "Given a Directed Graph with $V$ vertices ($0$ through $V - 1$) and $E$ edges, determine whether it is a Directed Acyclic Graph (DAG), and if so, produce its **lexicographically smallest topological ordering**.\n\nA topological ordering is a linear permutation of vertices such that for every directed edge $u \\to v$, vertex $u$ appears before $v$.\n\nUse **Kahn's Algorithm** with a **Min-Heap (priority queue)**:\n1. Compute the in-degree of every vertex.\n2. Insert all vertices with in-degree equal to $0$ into a binary min-heap.\n3. Repeatedly extract the minimum vertex from the heap, append it to the topological sequence, and decrement the in-degree of all its outgoing neighbors. Whenever a neighbor's in-degree drops to $0$, insert it into the min-heap.\n4. If the resulting topological sequence contains fewer than $V$ vertices, the graph contains a cycle; print `CYCLE`. Otherwise, print the $V$ space-separated vertex indices.",
+    "input_format": "The first line contains two integers $V$ and $E$.\nThe next $E$ lines each contain two integers $u$ and $v$ (directed edge $u \\to v$).",
+    "output_format": "Print the $V$ space-separated vertex indices in lexicographically smallest topological order, or `CYCLE`.",
+    "constraints": "1 <= V <= 10^4\n0 <= E <= 50000\n0 <= u, v < V",
+    "examples": [
+      {
+        "input": "6 6\n5 2\n5 0\n4 0\n4 1\n2 3\n3 1\n",
+        "output": "4 5 0 2 3 1\n",
+        "explanation": "Vertices 4 and 5 both have in-degree 0; min-heap selects 4 first, producing lexicographically smallest order."
+      },
+      {
+        "input": "3 3\n0 1\n1 2\n2 0\n",
+        "output": "CYCLE\n",
+        "explanation": "Graph contains a directed cycle, so no topological sort is possible."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement Kahn's algorithm with Min-Heap for lexicographical topological sort\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\ntypedef struct Node {\n    int vertex;\n    struct Node *next;\n} Node;\n\nNode* add_edge(Node *head, int v) {\n    Node *n = (Node *)malloc(sizeof(Node));\n    n->vertex = v;\n    n->next = head;\n    return n;\n}\n\ntypedef struct {\n    int *data;\n    int size;\n} MinHeap;\n\nvoid swap(int *a, int *b) {\n    int t = *a;\n    *a = *b;\n    *b = t;\n}\n\nvoid push_heap(MinHeap *h, int val) {\n    int idx = h->size++;\n    h->data[idx] = val;\n    while (idx > 0) {\n        int p = (idx - 1) / 2;\n        if (h->data[idx] < h->data[p]) {\n            swap(&h->data[idx], &h->data[p]);\n            idx = p;\n        } else break;\n    }\n}\n\nint pop_heap(MinHeap *h) {\n    int min_val = h->data[0];\n    h->data[0] = h->data[--h->size];\n    int idx = 0;\n    while (2 * idx + 1 < h->size) {\n        int smallest = idx;\n        int l = 2 * idx + 1, r = 2 * idx + 2;\n        if (l < h->size && h->data[l] < h->data[smallest]) smallest = l;\n        if (r < h->size && h->data[r] < h->data[smallest]) smallest = r;\n        if (smallest != idx) {\n            swap(&h->data[idx], &h->data[smallest]);\n            idx = smallest;\n        } else break;\n    }\n    return min_val;\n}\n\nint main(void) {\n    int v, e;\n    if (scanf(\"%d %d\", &v, &e) != 2) return 0;\n    \n    Node **adj = (Node **)calloc(v, sizeof(Node *));\n    int *in_degree = (int *)calloc(v, sizeof(int));\n    \n    for (int i = 0; i < e; i++) {\n        int from, to;\n        scanf(\"%d %d\", &from, &to);\n        adj[from] = add_edge(adj[from], to);\n        in_degree[to]++;\n    }\n    \n    MinHeap h;\n    h.data = (int *)malloc(sizeof(int) * (v + 5));\n    h.size = 0;\n    \n    for (int i = 0; i < v; i++) {\n        if (in_degree[i] == 0) {\n            push_heap(&h, i);\n        }\n    }\n    \n    int *result = (int *)malloc(sizeof(int) * v);\n    int count = 0;\n    \n    while (h.size > 0) {\n        int u = pop_heap(&h);\n        result[count++] = u;\n        \n        Node *curr = adj[u];\n        while (curr) {\n            int nbr = curr->vertex;\n            if (--in_degree[nbr] == 0) {\n                push_heap(&h, nbr);\n            }\n            curr = curr->next;\n        }\n    }\n    \n    if (count < v) {\n        printf(\"CYCLE\\n\");\n    } else {\n        for (int i = 0; i < v; i++) {\n            printf(\"%d%c\", result[i], (i == v - 1) ? '\\n' : ' ');\n        }\n    }\n    \n    free(h.data);\n    free(result);\n    free(in_degree);\n    for (int i = 0; i < v; i++) {\n        Node *curr = adj[i];\n        while (curr) {\n            Node *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    free(adj);\n    return 0;\n}\n",
+    "hints": [
+      "Compute in-degree for all vertices during edge input.",
+      "Use a Min-Heap (priority queue) instead of a standard FIFO queue to greedily pick the smallest available vertex with in-degree 0.",
+      "When extracting vertex u, decrement in_degree for each neighbor and push any neighbor that reaches in_degree 0.",
+      "If total processed vertices count < V, the graph has a cycle."
+    ],
+    "explanation": "Kahn's algorithm repeatedly extracts sources (vertices with no dependencies). Using a priority queue guarantees that whenever multiple candidates have zero dependencies, the smallest numbered vertex is always chosen first, producing the unique lexicographically smallest topological sort in O(V log V + E) time.",
+    "time_complexity": "O(v log v + e)",
+    "space_complexity": "O(v + e)",
+    "common_mistakes": [
+      "Using a standard queue instead of a min-heap, which produces a valid topological sort but NOT the lexicographically smallest one.",
+      "Not detecting cycles when count < V.",
+      "Incrementing in-degree for 'from' instead of 'to'."
+    ],
+    "related_problems": [
+      "cycle-detection-in-directed-graph",
+      "dfs-traversal"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "google",
+      "uber"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6 6\n5 2\n5 0\n4 0\n4 1\n2 3\n3 1\n",
+        "expected_output": "4 5 0 2 3 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 6-vertex DAG with multiple roots"
+      },
+      {
+        "input": "3 3\n0 1\n1 2\n2 0\n",
+        "expected_output": "CYCLE\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "3-vertex cycle"
+      },
+      {
+        "input": "1 0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single vertex DAG"
+      },
+      {
+        "input": "4 0\n",
+        "expected_output": "0 1 2 3\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Disconnected DAG with 0 edges"
+      },
+      {
+        "input": "4 4\n0 1\n1 2\n2 3\n3 1\n",
+        "expected_output": "CYCLE\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Component with cycle and disconnected tail"
+      }
+    ]
+  },
+  {
+    "id": 144,
+    "title": "Dijkstra's Shortest Path",
+    "slug": "dijkstras-shortest-path",
+    "difficulty": "very_hard",
+    "description": "Implement **Dijkstra's Algorithm** using an adjacency list and a binary min-heap to compute the single-source shortest path distances from a source vertex $S$ to all $V$ vertices ($0$ to $V - 1$) in a directed weighted graph with non-negative edge weights.\n\nDijkstra's algorithm greedily extracts the unvisited vertex with the minimum tentative distance using a priority queue:\n1. Initialize `dist[S] = 0` and `dist[v] = INF` for all $v \\ne S$.\n2. Push pair `(0, S)` into the min-heap.\n3. While the heap is non-empty, extract pair `(d, u)`. If `d > dist[u]`, skip it (stale entry).\n4. For each outgoing edge $u \\to v$ with weight $w$: if `dist[u] + w < dist[v]`, update `dist[v] = dist[u] + w` and push `(dist[v], v)` into the heap.\n\nPrint the $V$ shortest distances separated by spaces. If a vertex is unreachable from $S$, print `INF`.",
+    "input_format": "The first line contains three integers: $V$, $E$, and $S$.\nThe next $E$ lines each contain three integers $u$, $v$, and $w$ representing a directed edge $u \\to v$ with weight $w$.",
+    "output_format": "Print $V$ space-separated values representing the shortest distances from $S$ to vertices $0, 1, \\dots, V - 1$, or `INF` if unreachable.",
+    "constraints": "1 <= V <= 10^4\n0 <= E <= 50000\n0 <= S, u, v < V\n0 <= w <= 10^6",
+    "examples": [
+      {
+        "input": "5 6 0\n0 1 4\n0 2 2\n2 1 1\n1 3 2\n2 3 5\n3 4 3\n",
+        "output": "0 3 2 5 8\n",
+        "explanation": "Shortest path to 1 is via 2 with cost 2 + 1 = 3. Shortest path to 3 is via 1 with cost 3 + 2 = 5."
+      },
+      {
+        "input": "3 1 0\n0 1 10\n",
+        "output": "0 10 INF\n",
+        "explanation": "Vertex 2 is unreachable from 0, so distance is INF."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement Dijkstra's algorithm with binary min-heap\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\n#define INF 2000000000000000LL\n\ntypedef struct Edge {\n    int to;\n    int weight;\n    struct Edge *next;\n} Edge;\n\ntypedef struct {\n    long long dist;\n    int u;\n} HeapNode;\n\ntypedef struct {\n    HeapNode *data;\n    int size;\n} MinHeap;\n\nvoid swap(HeapNode *a, HeapNode *b) {\n    HeapNode t = *a;\n    *a = *b;\n    *b = t;\n}\n\nvoid push(MinHeap *h, long long dist, int u) {\n    int idx = h->size++;\n    h->data[idx].dist = dist;\n    h->data[idx].u = u;\n    while (idx > 0) {\n        int p = (idx - 1) / 2;\n        if (h->data[idx].dist < h->data[p].dist) {\n            swap(&h->data[idx], &h->data[p]);\n            idx = p;\n        } else break;\n    }\n}\n\nHeapNode pop(MinHeap *h) {\n    HeapNode res = h->data[0];\n    h->data[0] = h->data[--h->size];\n    int idx = 0;\n    while (2 * idx + 1 < h->size) {\n        int smallest = idx;\n        int l = 2 * idx + 1, r = 2 * idx + 2;\n        if (l < h->size && h->data[l].dist < h->data[smallest].dist) smallest = l;\n        if (r < h->size && h->data[r].dist < h->data[smallest].dist) smallest = r;\n        if (smallest != idx) {\n            swap(&h->data[idx], &h->data[smallest]);\n            idx = smallest;\n        } else break;\n    }\n    return res;\n}\n\nint main(void) {\n    int v, e, s;\n    if (scanf(\"%d %d %d\", &v, &e, &s) != 3) return 0;\n    \n    Edge **adj = (Edge **)calloc(v, sizeof(Edge *));\n    for (int i = 0; i < e; i++) {\n        int from, to, w;\n        scanf(\"%d %d %d\", &from, &to, &w);\n        Edge *edge = (Edge *)malloc(sizeof(Edge));\n        edge->to = to;\n        edge->weight = w;\n        edge->next = adj[from];\n        adj[from] = edge;\n    }\n    \n    long long *dist = (long long *)malloc(sizeof(long long) * v);\n    for (int i = 0; i < v; i++) dist[i] = INF;\n    \n    MinHeap h;\n    h.data = (HeapNode *)malloc(sizeof(HeapNode) * (e * 2 + 10));\n    h.size = 0;\n    \n    dist[s] = 0;\n    push(&h, 0, s);\n    \n    while (h.size > 0) {\n        HeapNode top = pop(&h);\n        long long d = top.dist;\n        int u = top.u;\n        \n        if (d > dist[u]) continue;\n        \n        Edge *curr = adj[u];\n        while (curr) {\n            int nbr = curr->to;\n            long long new_d = d + curr->weight;\n            if (new_d < dist[nbr]) {\n                dist[nbr] = new_d;\n                push(&h, new_d, nbr);\n            }\n            curr = curr->next;\n        }\n    }\n    \n    for (int i = 0; i < v; i++) {\n        if (dist[i] == INF) {\n            printf(\"INF%c\", (i == v - 1) ? '\\n' : ' ');\n        } else {\n            printf(\"%lld%c\", dist[i], (i == v - 1) ? '\\n' : ' ');\n        }\n    }\n    \n    free(h.data);\n    free(dist);\n    for (int i = 0; i < v; i++) {\n        Edge *curr = adj[i];\n        while (curr) {\n            Edge *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    free(adj);\n    return 0;\n}\n",
+    "hints": [
+      "Use a binary min-heap storing pairs (distance, vertex).",
+      "Skip popped nodes if popped distance > dist[u] (lazy deletion).",
+      "Use 64-bit integers (long long) for distance to prevent overflow.",
+      "Print 'INF' for vertices whose distance remains INF."
+    ],
+    "explanation": "Dijkstra's algorithm with a binary min-heap runs in O((V + E) log V) time. Each vertex is popped once with its true shortest distance; subsequent stale copies in the min-heap are instantly discarded via lazy evaluation. Non-negative edge weights ensure that once a node is popped, its distance cannot be improved.",
+    "time_complexity": "O((v + e) log v)",
+    "space_complexity": "O(v + e)",
+    "common_mistakes": [
+      "Applying Dijkstra on graphs with negative edge weights, which violates the greedy choice property.",
+      "Integer overflow when adding edge weight to INF if INF is set to INT_MAX.",
+      "Not discarding stale heap entries (if d > dist[u] continue)."
+    ],
+    "related_problems": [
+      "bellman-ford-algorithm",
+      "prims-mst"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "uber",
+      "microsoft"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5 6 0\n0 1 4\n0 2 2\n2 1 1\n1 3 2\n2 3 5\n3 4 3\n",
+        "expected_output": "0 3 2 5 8\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 5-vertex weighted graph"
+      },
+      {
+        "input": "3 1 0\n0 1 10\n",
+        "expected_output": "0 10 INF\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Unreachable vertex prints INF"
+      },
+      {
+        "input": "1 0 0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single vertex graph"
+      },
+      {
+        "input": "4 4 0\n0 1 1\n1 2 2\n2 3 3\n0 3 10\n",
+        "expected_output": "0 1 3 6\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Path via intermediate nodes is cheaper than direct edge"
+      },
+      {
+        "input": "3 2 1\n1 2 5\n2 0 3\n",
+        "expected_output": "8 0 5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Source vertex is not 0"
+      }
+    ]
+  },
+  {
+    "id": 145,
+    "title": "Bellman-Ford Algorithm",
+    "slug": "bellman-ford-algorithm",
+    "difficulty": "very_hard",
+    "description": "Implement the **Bellman-Ford Algorithm** in C to find the shortest path from a source vertex $S$ to all other vertices in a directed weighted graph that may contain **negative edge weights** and to detect reachable **negative cycles**.\n\n1. Initialize `dist[S] = 0` and `dist[v] = INF` for all $v \\ne S$.\n2. Relax all $E$ edges $V - 1$ times. In each relaxation of edge $u \\to v$ with weight $w$:\n   if `dist[u] != INF` and `dist[u] + w < dist[v]`, update `dist[v] = dist[u] + w`.\n3. Run a $V$-th relaxation pass. If any edge can still be relaxed from a vertex with `dist[u] != INF`, then a **negative-weight cycle reachable from $S$** exists. In this case, print `NEGATIVE CYCLE`.\n4. Otherwise, print the $V$ shortest path distances separated by spaces (print `INF` for unreachable vertices).",
+    "input_format": "The first line contains three integers: $V$, $E$, and $S$.\nThe next $E$ lines each contain three integers: $u$, $v$, and $w$ (directed edge $u \\to v$ with weight $w$).",
+    "output_format": "Print `NEGATIVE CYCLE` if a reachable negative weight cycle is detected. Otherwise, print $V$ space-separated shortest distances (or `INF`).",
+    "constraints": "1 <= V <= 1000\n0 <= E <= 5000\n0 <= S, u, v < V\n-10^6 <= w <= 10^6",
+    "examples": [
+      {
+        "input": "4 4 0\n0 1 1\n1 2 -2\n2 3 3\n0 3 5\n",
+        "output": "0 1 -1 2\n",
+        "explanation": "Shortest distance to 2 is 1 + (-2) = -1. Shortest distance to 3 is -1 + 3 = 2."
+      },
+      {
+        "input": "3 3 0\n0 1 1\n1 2 -3\n2 0 -1\n",
+        "output": "NEGATIVE CYCLE\n",
+        "explanation": "Cycle 0 -> 1 -> 2 -> 0 has total weight 1 - 3 - 1 = -3 < 0."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement Bellman-Ford algorithm with negative cycle detection\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\n#define INF 2000000000000000LL\n\ntypedef struct {\n    int u;\n    int v;\n    int w;\n} Edge;\n\nint main(void) {\n    int v, e, s;\n    if (scanf(\"%d %d %d\", &v, &e, &s) != 3) return 0;\n    \n    Edge *edges = (Edge *)malloc(sizeof(Edge) * (e + 5));\n    for (int i = 0; i < e; i++) {\n        scanf(\"%d %d %d\", &edges[i].u, &edges[i].v, &edges[i].w);\n    }\n    \n    long long *dist = (long long *)malloc(sizeof(long long) * v);\n    for (int i = 0; i < v; i++) dist[i] = INF;\n    dist[s] = 0;\n    \n    for (int i = 1; i <= v - 1; i++) {\n        for (int j = 0; j < e; j++) {\n            int u = edges[j].u;\n            int to = edges[j].v;\n            int w = edges[j].w;\n            if (dist[u] != INF && dist[u] + w < dist[to]) {\n                dist[to] = dist[u] + w;\n            }\n        }\n    }\n    \n    bool negative_cycle = false;\n    for (int j = 0; j < e; j++) {\n        int u = edges[j].u;\n        int to = edges[j].v;\n        int w = edges[j].w;\n        if (dist[u] != INF && dist[u] + w < dist[to]) {\n            negative_cycle = true;\n            break;\n        }\n    }\n    \n    if (negative_cycle) {\n        printf(\"NEGATIVE CYCLE\\n\");\n    } else {\n        for (int i = 0; i < v; i++) {\n            if (dist[i] == INF) {\n                printf(\"INF%c\", (i == v - 1) ? '\\n' : ' ');\n            } else {\n                printf(\"%lld%c\", dist[i], (i == v - 1) ? '\\n' : ' ');\n            }\n        }\n    }\n    \n    free(edges);\n    free(dist);\n    return 0;\n}\n",
+    "hints": [
+      "Any simple shortest path in a graph with V vertices contains at most V - 1 edges.",
+      "Relax all edges V - 1 times in the outer loop.",
+      "Only relax an edge u -> v if dist[u] != INF.",
+      "If any edge can still be relaxed in the V-th pass, a negative cycle reachable from S exists."
+    ],
+    "explanation": "Because a shortest path without cycles can have at most V - 1 edges, V - 1 passes over all edges are sufficient to propagate shortest distances across the entire graph. If an edge can still be relaxed on the V-th pass, the path must contain a cycle whose total weight is strictly negative. Running time is O(V * E) and space complexity is O(V + E).",
+    "time_complexity": "O(v * e)",
+    "space_complexity": "O(v + e)",
+    "common_mistakes": [
+      "Relaxing edges when dist[u] == INF, causing artificial paths to propagate from unreachable nodes with negative weights.",
+      "Using 32-bit int: repeatedly adding large negative weights can underflow.",
+      "Failing to check that the negative cycle is reachable from source S."
+    ],
+    "related_problems": [
+      "dijkstras-shortest-path",
+      "cycle-detection-in-directed-graph"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "amazon",
+      "uber",
+      "microsoft"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "4 4 0\n0 1 1\n1 2 -2\n2 3 3\n0 3 5\n",
+        "expected_output": "0 1 -1 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Graph with negative edge without cycle"
+      },
+      {
+        "input": "3 3 0\n0 1 1\n1 2 -3\n2 0 -1\n",
+        "expected_output": "NEGATIVE CYCLE\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Graph with reachable negative weight cycle"
+      },
+      {
+        "input": "1 0 0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single vertex graph"
+      },
+      {
+        "input": "3 1 0\n0 1 5\n",
+        "expected_output": "0 5 INF\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Unreachable vertex prints INF"
+      },
+      {
+        "input": "4 4 0\n0 1 2\n1 2 3\n2 3 -4\n3 1 2\n",
+        "expected_output": "0 2 5 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Cycle with positive sum (1->2->3->1 weight 3-4+2=1 > 0)"
+      }
+    ]
+  },
+  {
+    "id": 146,
+    "title": "Prim's MST",
+    "slug": "prims-mst",
+    "difficulty": "hard",
+    "description": "Compute the total weight of the **Minimum Spanning Tree (MST)** in an undirected connected weighted graph with $V$ vertices ($0$ through $V - 1$) and $E$ edges using **Prim's Algorithm**.\n\nPrim's algorithm grows a spanning tree from an arbitrary starting vertex (use vertex 0):\n1. Maintain a boolean array `in_mst` and an array `key` where `key[v]` stores the minimum edge weight connecting vertex $v$ to the growing MST. Initialize `key[0] = 0` and `key[v] = INF` for all $v > 0$.\n2. For $V$ iterations:\n   - Pick the vertex $u$ with the minimum `key[u]` that is not yet in the MST.\n   - If the minimum `key[u]` is `INF`, the graph is disconnected; print `DISCONNECTED`.\n   - Mark `in_mst[u] = true` and add `key[u]` to total MST weight.\n   - For each adjacent neighbor $v$ of $u$ with edge weight $w$: if `!in_mst[v]` and `w < key[v]`, update `key[v] = w`.\n3. Output the total MST weight.",
+    "input_format": "The first line contains two integers $V$ and $E$.\nThe next $E$ lines each contain three integers $u$, $v$, and $w$ representing an undirected edge between $u$ and $v$ with weight $w$.",
+    "output_format": "Print the total weight of the MST, or `DISCONNECTED` if the graph cannot be spanned.",
+    "constraints": "1 <= V <= 2000\n0 <= E <= 20000\n0 <= u, v < V\n0 <= w <= 10^6",
+    "examples": [
+      {
+        "input": "5 7\n0 1 2\n0 3 6\n1 2 3\n1 3 8\n1 4 5\n2 4 7\n3 4 9\n",
+        "output": "16\n",
+        "explanation": "Edges in MST: (0,1)=2, (1,2)=3, (0,3)=6, (1,4)=5. Total weight = 16."
+      },
+      {
+        "input": "3 1\n0 1 10\n",
+        "output": "DISCONNECTED\n",
+        "explanation": "Vertex 2 cannot be reached from {0, 1}."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement Prim's algorithm for MST\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n\n#define INF 2000000000LL\n\ntypedef struct Edge {\n    int to;\n    int weight;\n    struct Edge *next;\n} Edge;\n\nint main(void) {\n    int v, e;\n    if (scanf(\"%d %d\", &v, &e) != 2) return 0;\n    \n    Edge **adj = (Edge **)calloc(v, sizeof(Edge *));\n    for (int i = 0; i < e; i++) {\n        int u, w, weight;\n        scanf(\"%d %d %d\", &u, &w, &weight);\n        Edge *e1 = (Edge *)malloc(sizeof(Edge));\n        e1->to = w;\n        e1->weight = weight;\n        e1->next = adj[u];\n        adj[u] = e1;\n        \n        Edge *e2 = (Edge *)malloc(sizeof(Edge));\n        e2->to = u;\n        e2->weight = weight;\n        e2->next = adj[w];\n        adj[w] = e2;\n    }\n    \n    long long *key = (long long *)malloc(sizeof(long long) * v);\n    bool *in_mst = (bool *)calloc(v, sizeof(bool));\n    for (int i = 0; i < v; i++) key[i] = INF;\n    key[0] = 0;\n    \n    long long total_weight = 0;\n    bool connected = true;\n    \n    for (int count = 0; count < v; count++) {\n        int u = -1;\n        long long min_key = INF;\n        \n        for (int i = 0; i < v; i++) {\n            if (!in_mst[i] && key[i] < min_key) {\n                min_key = key[i];\n                u = i;\n            }\n        }\n        \n        if (u == -1 || min_key == INF) {\n            connected = false;\n            break;\n        }\n        \n        in_mst[u] = true;\n        total_weight += min_key;\n        \n        Edge *curr = adj[u];\n        while (curr) {\n            int to = curr->to;\n            int w = curr->weight;\n            if (!in_mst[to] && w < key[to]) {\n                key[to] = w;\n            }\n            curr = curr->next;\n        }\n    }\n    \n    if (!connected) {\n        printf(\"DISCONNECTED\\n\");\n    } else {\n        printf(\"%lld\\n\", total_weight);\n    }\n    \n    free(key);\n    free(in_mst);\n    for (int i = 0; i < v; i++) {\n        Edge *curr = adj[i];\n        while (curr) {\n            Edge *tmp = curr;\n            curr = curr->next;\n            free(tmp);\n        }\n    }\n    free(adj);\n    return 0;\n}\n",
+    "hints": [
+      "Initialize key[0] = 0 and all other key[v] = INF.",
+      "In each step, find the vertex u outside MST with smallest key[u].",
+      "If min_key is INF before all V vertices are in MST, graph is disconnected.",
+      "Update key[to] = min(key[to], edge_weight) for all neighbors of u outside MST."
+    ],
+    "explanation": "Prim's algorithm builds an MST greedily by expanding a single cut. At each iteration, the minimum-weight edge crossing the cut between vertices in the MST and vertices outside the MST is guaranteed to belong to the MST by the Cut Property. Total time complexity is O(V^2 + E) with linear scanning (or O(E log V) with a binary heap).",
+    "time_complexity": "O(v^2 + e)",
+    "space_complexity": "O(v + e)",
+    "common_mistakes": [
+      "Failing to add edges symmetrically (undirected graph requirement).",
+      "Assuming the graph is always connected, causing crashes instead of printing DISCONNECTED.",
+      "Using 32-bit int for total weight which can overflow when weights are up to 10^6 and V = 2000."
+    ],
+    "related_problems": [
+      "dijkstras-shortest-path",
+      "disjoint-set-union-find"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "amazon",
+      "google",
+      "cisco"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5 7\n0 1 2\n0 3 6\n1 2 3\n1 3 8\n1 4 5\n2 4 7\n3 4 9\n",
+        "expected_output": "16\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 5-vertex MST"
+      },
+      {
+        "input": "3 1\n0 1 10\n",
+        "expected_output": "DISCONNECTED\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Disconnected graph output DISCONNECTED"
+      },
+      {
+        "input": "1 0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single vertex graph with MST weight 0"
+      },
+      {
+        "input": "4 5\n0 1 1\n1 2 2\n2 3 3\n3 0 4\n0 2 5\n",
+        "expected_output": "6\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "4-vertex graph with multiple cycles"
+      },
+      {
+        "input": "4 3\n0 1 10\n1 2 20\n2 3 30\n",
+        "expected_output": "60\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Linear chain tree (MST is the tree itself)"
+      }
+    ]
+  },
+  {
+    "id": 147,
+    "title": "Disjoint Set Union (Union-Find)",
+    "slug": "disjoint-set-union-find",
+    "difficulty": "hard",
+    "description": "Implement the **Disjoint Set Union (DSU)** data structure in C with both **Path Compression** and **Union by Rank** optimizations.\n\nDSU maintains a collection of disjoint sets partitioned over $V$ elements (labeled $0$ through $V - 1$). Initially, each element is in its own set (`parent[i] = i`, `rank[i] = 0`, total sets = $V$).\n\nSupport four operations:\n1. `union u v`: Find roots of $u$ and $v$. If in different sets, attach the tree of lower rank beneath the tree of higher rank. If ranks are equal, increment the rank of the new root. Decrement the total number of disjoint sets.\n2. `find u`: Return the representative (root) of the set containing $u$ using **path compression** (`parent[u] = find(parent[u])`). Print the root.\n3. `connected u v`: Print `YES` if `find(u) == find(v)`, otherwise `NO`.\n4. `count`: Print the current number of disjoint sets.\n\nBoth path compression and union by rank ensure that any sequence of operations runs in nearly linear $O(\\alpha(V))$ amortized time per operation, where $\\alpha$ is the Inverse Ackermann function.",
+    "input_format": "The first line contains two integers: $V$ (number of elements) and $Q$ (number of operations).\nThe next $Q$ lines each contain an operation command: `union u v`, `find u`, `connected u v`, or `count`.",
+    "output_format": "Print the result of each `find`, `connected`, and `count` operation on a new line.",
+    "constraints": "1 <= V <= 10^5\n1 <= Q <= 10^5\n0 <= u, v < V",
+    "examples": [
+      {
+        "input": "5 8\ncount\nunion 0 1\nunion 1 2\nconnected 0 2\nconnected 0 3\ncount\nfind 2\nfind 4\n",
+        "output": "5\nYES\nNO\n3\n0\n4\n",
+        "explanation": "Initially 5 sets. Uniting 0-1 and 1-2 merges {0,1,2} with root 0. 0 and 2 are connected; 0 and 3 are not. Remaining sets = 3."
+      },
+      {
+        "input": "3 3\nfind 0\nconnected 0 1\ncount\n",
+        "output": "0\nNO\n3\n",
+        "explanation": "Independent elements."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n// TODO: Implement Disjoint Set Union with Path Compression and Union by Rank\n\nint main(void) {\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *parent;\n    int *rank;\n    int count;\n} DSU;\n\nDSU* create_dsu(int n) {\n    DSU *dsu = (DSU *)malloc(sizeof(DSU));\n    dsu->parent = (int *)malloc(sizeof(int) * n);\n    dsu->rank = (int *)calloc(n, sizeof(int));\n    dsu->count = n;\n    for (int i = 0; i < n; i++) dsu->parent[i] = i;\n    return dsu;\n}\n\nint find_root(DSU *dsu, int i) {\n    if (dsu->parent[i] != i) {\n        dsu->parent[i] = find_root(dsu, dsu->parent[i]);\n    }\n    return dsu->parent[i];\n}\n\nvoid union_sets(DSU *dsu, int u, int v) {\n    int root_u = find_root(dsu, u);\n    int root_v = find_root(dsu, v);\n    if (root_u != root_v) {\n        if (dsu->rank[root_u] < dsu->rank[root_v]) {\n            dsu->parent[root_u] = root_v;\n        } else if (dsu->rank[root_u] > dsu->rank[root_v]) {\n            dsu->parent[root_v] = root_u;\n        } else {\n            dsu->parent[root_v] = root_u;\n            dsu->rank[root_u]++;\n        }\n        dsu->count--;\n    }\n}\n\nint main(void) {\n    int v, q;\n    if (scanf(\"%d %d\", &v, &q) != 2) return 0;\n    DSU *dsu = create_dsu(v);\n    \n    char cmd[32];\n    while (q--) {\n        scanf(\"%s\", cmd);\n        if (strcmp(cmd, \"union\") == 0) {\n            int x, y;\n            scanf(\"%d %d\", &x, &y);\n            union_sets(dsu, x, y);\n        } else if (strcmp(cmd, \"find\") == 0) {\n            int x;\n            scanf(\"%d\", &x);\n            printf(\"%d\\n\", find_root(dsu, x));\n        } else if (strcmp(cmd, \"connected\") == 0) {\n            int x, y;\n            scanf(\"%d %d\", &x, &y);\n            if (find_root(dsu, x) == find_root(dsu, y)) {\n                printf(\"YES\\n\");\n            } else {\n                printf(\"NO\\n\");\n            }\n        } else if (strcmp(cmd, \"count\") == 0) {\n            printf(\"%d\\n\", dsu->count);\n        }\n    }\n    \n    free(dsu->parent);\n    free(dsu->rank);\n    free(dsu);\n    return 0;\n}\n",
+    "hints": [
+      "Path compression: parent[i] = find(parent[i]) flattens the tree directly to the root.",
+      "Union by rank: attach tree with smaller rank under root of larger rank.",
+      "Only increment rank when both merged roots have equal rank.",
+      "Decrement total disjoint set count whenever a union connects two previously disjoint sets."
+    ],
+    "explanation": "DSU maintains partitions using directed trees pointing towards representative roots. Path compression flattens tree branches during find operations, pointing all visited nodes directly to the root. Union by rank prevents tree height from growing excessively by always hanging the shorter tree from the taller tree. Combining both optimizations produces an amortized time complexity of O(alpha(V)) per operation, where alpha is the inverse Ackermann function (effectively <= 4 for all practical values of V).",
+    "time_complexity": "O(alpha(v)) per op",
+    "space_complexity": "O(v)",
+    "common_mistakes": [
+      "Performing path compression without returning the updated parent pointer.",
+      "Forgetting to check if root_u == root_v before decrementing the set count.",
+      "Attaching root to non-root elements during union."
+    ],
+    "related_problems": [
+      "connected-components",
+      "prims-mst"
+    ],
+    "topic_slug": "graphs",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "facebook",
+      "microsoft"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5 8\ncount\nunion 0 1\nunion 1 2\nconnected 0 2\nconnected 0 3\ncount\nfind 2\nfind 4\n",
+        "expected_output": "5\nYES\nNO\n3\n0\n4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard DSU operations"
+      },
+      {
+        "input": "3 3\nfind 0\nconnected 0 1\ncount\n",
+        "expected_output": "0\nNO\n3\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Independent initial components"
+      },
+      {
+        "input": "4 4\nunion 0 1\nunion 2 3\nconnected 1 3\nunion 1 2\n",
+        "expected_output": "NO\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Connecting components via intermediate nodes"
+      },
+      {
+        "input": "3 4\nunion 0 1\ncount\nunion 0 1\ncount\n",
+        "expected_output": "2\n2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Redundant union does not reduce count"
+      },
+      {
+        "input": "1 2\nfind 0\ncount\n",
+        "expected_output": "0\n1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element DSU"
+      }
+    ]
+  }
+]

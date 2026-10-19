@@ -1,0 +1,699 @@
+[
+  {
+    "id": 173,
+    "title": "Callback Function System",
+    "slug": "callback-function-system",
+    "difficulty": "hard",
+    "description": "Function pointers in C provide the bedrock for event-driven programming, graphical user interfaces, asynchronous I/O frameworks, and publish-subscribe architectures. By storing a pointer to a function rather than invoking it directly, components can decouple event producers from event consumers.\n\nImplement a dynamic event dispatcher system in C using function pointers. Each event listener callback function adheres to the signature:\n`typedef void (*EventHandler)(int event_id, void *data);`\n\nThe system manages integer event IDs ($1 \\le event_id \\le 100$) and processes $Q$ commands:\n1. `REGISTER <event_id> <handler_name>`: Registers a handler with the specified name for the event ID. Multiple handlers can register for the same event ID and are dispatched in the exact order of their registration.\n2. `UNREGISTER <event_id> <handler_name>`: Removes the specified handler from the event ID's listener list. If the handler was not registered for that event, ignore the command.\n3. `DISPATCH <event_id> <payload_int>`: Fires the event with an integer payload. The dispatcher iterates through all currently registered handlers for that event ID and invokes each callback. Each invoked handler prints:\n   `<handler_name> received event <event_id> with payload <payload_int>`\n   If no handlers are currently registered for the given event ID, print:\n   `NO HANDLERS FOR EVENT <event_id>`\n\nImplement the callback dispatcher with array-based registration tables, ensuring clean handling of multiple registrations and removals.",
+    "input_format": "The first line contains an integer Q (1 <= Q <= 1000). The next Q lines each contain an operation command: REGISTER, UNREGISTER, or DISPATCH.",
+    "output_format": "Print the output of each DISPATCH command on a new line (either the handler invocation messages in order, or NO HANDLERS FOR EVENT <event_id>).",
+    "constraints": "1 <= Q <= 1000, 1 <= event_id <= 100, handler names alphanumeric up to 24 characters, -10^6 <= payload <= 10^6",
+    "examples": [
+      {
+        "input": "3\nREGISTER 1 HandlerA\nREGISTER 1 HandlerB\nDISPATCH 1 42\n",
+        "output": "HandlerA received event 1 with payload 42\nHandlerB received event 1 with payload 42\n",
+        "explanation": "Both handlers are registered for event 1 and invoked sequentially upon dispatch."
+      },
+      {
+        "input": "4\nREGISTER 2 OnClick\nDISPATCH 2 100\nUNREGISTER 2 OnClick\nDISPATCH 2 200\n",
+        "output": "OnClick received event 2 with payload 100\nNO HANDLERS FOR EVENT 2\n",
+        "explanation": "OnClick is invoked on the first dispatch, then unregistered. The second dispatch finds no registered handlers."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n// Define callback function pointer type\ntypedef void (*EventHandler)(int event_id, void *data);\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    // Implement callback dispatcher\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\n#define MAX_EVENTS 105\n#define MAX_HANDLERS 50\n\ntypedef void (*EventHandler)(int event_id, void *data);\n\ntypedef struct {\n    char name[32];\n    EventHandler func;\n    int is_active;\n} HandlerEntry;\n\ntypedef struct {\n    HandlerEntry handlers[MAX_HANDLERS];\n    int count;\n} EventChannel;\n\nstatic EventChannel channels[MAX_EVENTS];\n\nstatic void generic_callback(int event_id, void *data) {\n    // Dummy callback if needed\n}\n\nstatic void register_handler(int event_id, const char *name) {\n    if (event_id < 0 || event_id >= MAX_EVENTS) return;\n    EventChannel *chan = &channels[event_id];\n    if (chan->count < MAX_HANDLERS) {\n        strncpy(chan->handlers[chan->count].name, name, 31);\n        chan->handlers[chan->count].name[31] = '\\0';\n        chan->handlers[chan->count].func = generic_callback;\n        chan->handlers[chan->count].is_active = 1;\n        chan->count++;\n    }\n}\n\nstatic void unregister_handler(int event_id, const char *name) {\n    if (event_id < 0 || event_id >= MAX_EVENTS) return;\n    EventChannel *chan = &channels[event_id];\n    for (int i = 0; i < chan->count; i++) {\n        if (chan->handlers[i].is_active && strcmp(chan->handlers[i].name, name) == 0) {\n            chan->handlers[i].is_active = 0;\n            break;\n        }\n    }\n}\n\nstatic void dispatch_event(int event_id, int payload) {\n    if (event_id < 0 || event_id >= MAX_EVENTS) {\n        printf(\"NO HANDLERS FOR EVENT %d\\n\", event_id);\n        return;\n    }\n    EventChannel *chan = &channels[event_id];\n    int active_found = 0;\n    for (int i = 0; i < chan->count; i++) {\n        if (chan->handlers[i].is_active) {\n            active_found = 1;\n            printf(\"%s received event %d with payload %d\\n\", chan->handlers[i].name, event_id, payload);\n        }\n    }\n    if (!active_found) {\n        printf(\"NO HANDLERS FOR EVENT %d\\n\", event_id);\n    }\n}\n\nint main(void) {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    char cmd[32];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%31s\", cmd) != 1) break;\n        if (strcmp(cmd, \"REGISTER\") == 0) {\n            int eid;\n            char name[32];\n            scanf(\"%d %31s\", &eid, name);\n            register_handler(eid, name);\n        } else if (strcmp(cmd, \"UNREGISTER\") == 0) {\n            int eid;\n            char name[32];\n            scanf(\"%d %31s\", &eid, name);\n            unregister_handler(eid, name);\n        } else if (strcmp(cmd, \"DISPATCH\") == 0) {\n            int eid, payload;\n            scanf(\"%d %d\", &eid, &payload);\n            dispatch_event(eid, payload);\n        }\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Maintain an array of event channels indexed by event_id.",
+      "Each event channel holds an array of registered handlers with their names and active flags.",
+      "On DISPATCH, iterate over active handlers in registration order. If none are active, print 'NO HANDLERS FOR EVENT <event_id>'."
+    ],
+    "explanation": "Event dispatching decouples callers from listeners. By organizing listener lists per event ID, registering simply appends a handler record, unregistering marks it inactive, and dispatching walks the active listeners, invoking their callback with context data in O(K) time where K is the number of listeners.",
+    "time_complexity": "O(1) register, O(K) unregister and dispatch",
+    "space_complexity": "O(MAX_EVENTS * MAX_HANDLERS)",
+    "common_mistakes": [
+      "Failing to print 'NO HANDLERS FOR EVENT <event_id>' when all handlers for an event were unregistered.",
+      "Shifting elements on unregister incorrectly, leading to skipped handlers during iteration.",
+      "Buffer overflow when reading handler names without field width restrictions."
+    ],
+    "related_problems": [
+      "generic-sort-void-pointers",
+      "circular-buffer-implementation"
+    ],
+    "topic_slug": "advanced-c-systems",
+    "company_slugs": [
+      "microsoft",
+      "apple",
+      "bloomberg",
+      "amazon"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "3\nREGISTER 1 HandlerA\nREGISTER 1 HandlerB\nDISPATCH 1 42\n",
+        "expected_output": "HandlerA received event 1 with payload 42\nHandlerB received event 1 with payload 42\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Sequential dispatch to two registered handlers"
+      },
+      {
+        "input": "4\nREGISTER 2 OnClick\nDISPATCH 2 100\nUNREGISTER 2 OnClick\nDISPATCH 2 200\n",
+        "expected_output": "OnClick received event 2 with payload 100\nNO HANDLERS FOR EVENT 2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Dispatch before and after unregistering handler"
+      },
+      {
+        "input": "1\nDISPATCH 5 999\n",
+        "expected_output": "NO HANDLERS FOR EVENT 5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Dispatch to event with no handlers ever registered"
+      },
+      {
+        "input": "5\nREGISTER 10 H1\nREGISTER 10 H2\nUNREGISTER 10 H1\nDISPATCH 10 50\nDISPATCH 20 50\n",
+        "expected_output": "H2 received event 10 with payload 50\nNO HANDLERS FOR EVENT 20\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Unregister one of two handlers, and dispatch to empty channel"
+      },
+      {
+        "input": "4\nREGISTER 1 Alpha\nUNREGISTER 1 Beta\nUNREGISTER 1 Alpha\nDISPATCH 1 10\n",
+        "expected_output": "NO HANDLERS FOR EVENT 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Unregister non-existent handler Beta, then unregister Alpha"
+      }
+    ]
+  },
+  {
+    "id": 174,
+    "title": "Generic Sort with Void Pointers",
+    "slug": "generic-sort-void-pointers",
+    "difficulty": "hard",
+    "description": "The standard C library function `qsort` achieves compile-time type agnosticism by utilizing `void *` pointers and user-supplied comparator callbacks:\n`void generic_sort(void *base, size_t num, size_t size, int (*compar)(const void *, const void *));`\n\nBecause `void *` cannot be dereferenced or incremented directly, pointer arithmetic must be performed by casting to byte pointers (`char *`), calculating memory offsets as `(char *)base + i * size`. Swapping two elements requires byte-by-byte memory swapping across their `size` bytes.\n\nImplement a generic sorting algorithm (such as Insertion Sort or Bubble Sort) from scratch conforming to this generic signature. Demonstrate its polymorphism by sorting two distinct data types:\n- **Type 1 (Integers)**: An array of 32-bit signed integers, sorted in ascending numeric order.\n- **Type 2 (Student Records)**: An array of student structs:\n  ```c\n  typedef struct {\n      int id;\n      char name[20];\n      int marks;\n  } Student;\n  ```\n  Sorted by `marks` in **descending** order. If two students have identical marks, break ties by `id` in **ascending** order.\n\nRead the type indicator and elements from standard input, execute your custom `generic_sort`, and output the sorted collection.",
+    "input_format": "The first line contains an integer T (1 for integers, 2 for Student records). The second line contains an integer N (1 <= N <= 1000). If T=1, the third line contains N space-separated integers. If T=2, the next N lines each contain: id name marks.",
+    "output_format": "If T=1, print the sorted integers on a single line separated by spaces. If T=2, print each sorted student on a new line formatted as: id name marks.",
+    "constraints": "T in {1, 2}, 1 <= N <= 1000, student names alphanumeric up to 19 characters, 0 <= marks <= 100",
+    "examples": [
+      {
+        "input": "1\n5\n5 2 9 1 5\n",
+        "output": "1 2 5 5 9\n",
+        "explanation": "Integer array sorted in ascending order."
+      },
+      {
+        "input": "2\n3\n101 Alice 85\n102 Bob 92\n103 Charlie 85\n",
+        "output": "102 Bob 92\n101 Alice 85\n103 Charlie 85\n",
+        "explanation": "Sorted by marks descending (92 > 85). Alice and Charlie tie on 85, resolved by id ascending (101 < 103)."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n// Implement generic_sort using void* and byte arithmetic\nvoid generic_sort(void *base, size_t num, size_t size, int (*compar)(const void *, const void *)) {\n    // Write your generic sort here\n}\n\nint main(void) {\n    int t, n;\n    if (scanf(\"%d %d\", &t, &n) != 2) return 0;\n    \n    // Read input and test generic_sort\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int id;\n    char name[20];\n    int marks;\n} Student;\n\nstatic void swap_bytes(char *a, char *b, size_t size) {\n    for (size_t i = 0; i < size; i++) {\n        char temp = a[i];\n        a[i] = b[i];\n        b[i] = temp;\n    }\n}\n\nvoid generic_sort(void *base, size_t num, size_t size, int (*compar)(const void *, const void *)) {\n    char *arr = (char *)base;\n    for (size_t i = 0; i < num; i++) {\n        for (size_t j = 0; j + 1 < num - i; j++) {\n            char *p1 = arr + j * size;\n            char *p2 = arr + (j + 1) * size;\n            if (compar(p1, p2) > 0) {\n                swap_bytes(p1, p2, size);\n            }\n        }\n    }\n}\n\nstatic int compare_ints(const void *a, const void *b) {\n    int valA = *(const int *)a;\n    int valB = *(const int *)b;\n    if (valA < valB) return -1;\n    if (valA > valB) return 1;\n    return 0;\n}\n\nstatic int compare_students(const void *a, const void *b) {\n    const Student *s1 = (const Student *)a;\n    const Student *s2 = (const Student *)b;\n    // Marks descending\n    if (s1->marks != s2->marks) {\n        return (s2->marks - s1->marks);\n    }\n    // ID ascending\n    return (s1->id - s2->id);\n}\n\nint main(void) {\n    int t, n;\n    if (scanf(\"%d %d\", &t, &n) != 2) return 0;\n    \n    if (t == 1) {\n        int *arr = (int *)malloc(n * sizeof(int));\n        for (int i = 0; i < n; i++) {\n            scanf(\"%d\", &arr[i]);\n        }\n        generic_sort(arr, n, sizeof(int), compare_ints);\n        for (int i = 0; i < n; i++) {\n            printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n        }\n        free(arr);\n    } else if (t == 2) {\n        Student *students = (Student *)malloc(n * sizeof(Student));\n        for (int i = 0; i < n; i++) {\n            scanf(\"%d %19s %d\", &students[i].id, students[i].name, &students[i].marks);\n        }\n        generic_sort(students, n, sizeof(Student), compare_students);\n        for (int i = 0; i < n; i++) {\n            printf(\"%d %s %d\\n\", students[i].id, students[i].name, students[i].marks);\n        }\n        free(students);\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Cast base to (char *) to perform pointer arithmetic: element i is at base + i * size.",
+      "Implement a byte-by-byte memory swap function taking char *a, char *b, and size_t size.",
+      "Write two separate comparator callbacks: one for integers and one for Student structs."
+    ],
+    "explanation": "Because void* carries no size information, casting to char* enables standard byte-offset indexing: element i is located at (char*)base + i * size. Elements are compared by invoking the function pointer (*compar)(p1, p2), and swapped byte-by-byte. This achieves universal generic sorting across any data type.",
+    "time_complexity": "O(N^2)",
+    "space_complexity": "O(N) for input array",
+    "common_mistakes": [
+      "Attempting pointer arithmetic directly on void* (e.g. base + i), which is non-standard or a compiler error.",
+      "Swapping using a fixed-size temp buffer (like int temp) instead of byte-by-byte swapping up to size bytes.",
+      "Incorrect tie-breaking logic in struct comparator."
+    ],
+    "related_problems": [
+      "callback-function-system",
+      "memory-alignment-checker"
+    ],
+    "topic_slug": "advanced-c-systems",
+    "company_slugs": [
+      "apple",
+      "google",
+      "amazon",
+      "microsoft"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "1\n5\n5 2 9 1 5\n",
+        "expected_output": "1 2 5 5 9\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard integer sort"
+      },
+      {
+        "input": "2\n3\n101 Alice 85\n102 Bob 92\n103 Charlie 85\n",
+        "expected_output": "102 Bob 92\n101 Alice 85\n103 Charlie 85\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Student sort with tie-break on ID"
+      },
+      {
+        "input": "1\n1\n42\n",
+        "expected_output": "42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array N=1"
+      },
+      {
+        "input": "1\n6\n-5 10 -20 0 100 -5\n",
+        "expected_output": "-20 -5 -5 0 10 100\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Integer sort with negatives and duplicates"
+      },
+      {
+        "input": "2\n4\n201 Zara 90\n105 Aaron 90\n300 Ben 75\n102 Dan 95\n",
+        "expected_output": "102 Dan 95\n105 Aaron 90\n201 Zara 90\n300 Ben 75\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Four students with marks tie resolved by ID"
+      }
+    ]
+  },
+  {
+    "id": 175,
+    "title": "Memory Alignment Checker",
+    "slug": "memory-alignment-checker",
+    "difficulty": "very_hard",
+    "description": "In C, modern CPU architectures require hardware data types to be memory-aligned. Accessing an unaligned word can incur severe performance penalties or trigger hardware bus exceptions.\n\nTo ensure alignment, compilers insert invisible padding bytes between struct members and at the end of the struct according to standard ABI rules:\n1. **Natural Alignment**:\n   - `char`: size 1, natural alignment 1\n   - `short`: size 2, natural alignment 2\n   - `int`: size 4, natural alignment 4\n   - `long`: size 8, natural alignment 8\n   - `double`: size 8, natural alignment 8\n   - `pointer`: size 8, natural alignment 8\n2. **Packing Pragma**: If `#pragma pack(P)` is specified ($P > 0$), the effective alignment of a member is clamped:\n   $\\text{eff\\_align} = \\min(\\text{natural\\_align}, P)$. If $P = 0$ (default packing), $\\text{eff\\_align} = \\text{natural\\_align}$.\n3. **Member Placement**: A member must be placed at an offset that is an integer multiple of its $\\text{eff\\_align}$. If the current offset is not aligned, the compiler inserts $\\text{padding} = (\\text{eff\\_align} - (\\text{offset} \\pmod{\\text{eff\\_align}})) \\pmod{\\text{eff\\_align}}$ padding bytes immediately before the member.\n4. **Total Struct Size**: The overall struct alignment $A_{struct}$ is the maximum $\\text{eff\\_align}$ among all its members (at least 1). The final struct size must be a multiple of $A_{struct}$, so trailing padding is appended if needed.\n\nGiven a pack value $P$ and $M$ struct members, calculate the offset, size, and preceding padding for each member, along with the total struct size and alignment.",
+    "input_format": "The first line contains an integer P (pragma pack value: 0 for default natural alignment, or 1, 2, 4, 8). The second line contains an integer M (1 <= M <= 20). The next M lines each contain a member definition: <name> <type>.",
+    "output_format": "For each member, print: <name>: offset=<offset>, size=<size>, padding=<padding>. On the final line, print: Total struct size: <total_size>, alignment: <struct_align>.",
+    "constraints": "P in {0, 1, 2, 4, 8}, 1 <= M <= 20, type in {char, short, int, long, double, pointer}",
+    "examples": [
+      {
+        "input": "0\n3\na char\nb int\nc short\n",
+        "output": "a: offset=0, size=1, padding=0\nb: offset=4, size=4, padding=3\nc: offset=8, size=2, padding=0\nTotal struct size: 12, alignment: 4\n",
+        "explanation": "Natural alignment. b (int) needs offset multiple of 4, so 3 padding bytes are inserted after a. Struct size 10 is rounded up to multiple of 4 (12)."
+      },
+      {
+        "input": "1\n3\na char\nb int\nc short\n",
+        "output": "a: offset=0, size=1, padding=0\nb: offset=1, size=4, padding=0\nc: offset=5, size=2, padding=0\nTotal struct size: 7, alignment: 1\n",
+        "explanation": "Pack 1 forces all alignments to 1, eliminating padding completely."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n// Compute struct member alignment and padding\n\nint main(void) {\n    int p, m;\n    if (scanf(\"%d %d\", &p, &m) != 2) return 0;\n    \n    // Simulate struct layout engine\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nstatic int get_type_size(const char *type) {\n    if (strcmp(type, \"char\") == 0) return 1;\n    if (strcmp(type, \"short\") == 0) return 2;\n    if (strcmp(type, \"int\") == 0) return 4;\n    if (strcmp(type, \"long\") == 0) return 8;\n    if (strcmp(type, \"double\") == 0) return 8;\n    if (strcmp(type, \"pointer\") == 0) return 8;\n    return 1;\n}\n\nstatic int get_effective_align(int natural_align, int pack_val) {\n    if (pack_val > 0 && pack_val < natural_align) {\n        return pack_val;\n    }\n    return natural_align;\n}\n\nint main(void) {\n    int p, m;\n    if (scanf(\"%d %d\", &p, &m) != 2) return 0;\n    \n    int current_offset = 0;\n    int max_align = 1;\n    \n    for (int i = 0; i < m; i++) {\n        char name[32], type[32];\n        scanf(\"%31s %31s\", name, type);\n        \n        int size = get_type_size(type);\n        int natural_align = size;\n        int eff_align = get_effective_align(natural_align, p);\n        \n        if (eff_align > max_align) {\n            max_align = eff_align;\n        }\n        \n        int padding = 0;\n        int rem = current_offset % eff_align;\n        if (rem != 0) {\n            padding = eff_align - rem;\n        }\n        \n        int offset = current_offset + padding;\n        printf(\"%s: offset=%d, size=%d, padding=%d\\n\", name, offset, size, padding);\n        current_offset = offset + size;\n    }\n    \n    // Trailing padding to align struct total size\n    int trailing_padding = 0;\n    int rem = current_offset % max_align;\n    if (rem != 0) {\n        trailing_padding = max_align - rem;\n    }\n    int total_size = current_offset + trailing_padding;\n    \n    printf(\"Total struct size: %d, alignment: %d\\n\", total_size, max_align);\n    return 0;\n}\n",
+    "hints": [
+      "For each type, size equals its natural alignment (char: 1, short: 2, int: 4, long/double/pointer: 8).",
+      "Effective alignment is min(natural_align, P) when P > 0.",
+      "Preceding padding is (eff_align - (offset % eff_align)) % eff_align.",
+      "Don't forget trailing padding: the total size of the struct must be a multiple of the struct's maximum member alignment."
+    ],
+    "explanation": "Compilers align each field by advancing the current offset to the next multiple of the field's effective alignment. The struct's alignment is the maximum effective alignment of all its members. After all fields are laid out, trailing padding rounds the total size up to the next multiple of the struct's alignment.",
+    "time_complexity": "O(M)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Forgetting to pad the total struct size at the end to a multiple of struct alignment.",
+      "Assuming pack(P) overrides alignment when natural alignment is smaller than P (pack clamps the maximum alignment, not minimum).",
+      "Treating pointer as 4 bytes instead of 64-bit standard 8 bytes."
+    ],
+    "related_problems": [
+      "bit-field-packet-parser",
+      "endianness-detector-and-converter"
+    ],
+    "topic_slug": "advanced-c-systems",
+    "company_slugs": [
+      "qualcomm",
+      "intel",
+      "nvidia",
+      "apple"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "0\n3\na char\nb int\nc short\n",
+        "expected_output": "a: offset=0, size=1, padding=0\nb: offset=4, size=4, padding=3\nc: offset=8, size=2, padding=0\nTotal struct size: 12, alignment: 4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Natural alignment with middle padding"
+      },
+      {
+        "input": "1\n3\na char\nb int\nc short\n",
+        "expected_output": "a: offset=0, size=1, padding=0\nb: offset=1, size=4, padding=0\nc: offset=5, size=2, padding=0\nTotal struct size: 7, alignment: 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Pragma pack 1 packing (no padding)"
+      },
+      {
+        "input": "0\n2\nx double\ny char\n",
+        "expected_output": "x: offset=0, size=8, padding=0\ny: offset=8, size=1, padding=0\nTotal struct size: 16, alignment: 8\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Double followed by char with 7 trailing padding bytes"
+      },
+      {
+        "input": "4\n3\na char\nb double\nc int\n",
+        "expected_output": "a: offset=0, size=1, padding=0\nb: offset=4, size=8, padding=3\nc: offset=12, size=4, padding=0\nTotal struct size: 16, alignment: 4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Pack 4 clamping double alignment to 4"
+      },
+      {
+        "input": "2\n4\na char\nb short\nc int\nd double\n",
+        "expected_output": "a: offset=0, size=1, padding=0\nb: offset=2, size=2, padding=1\nc: offset=4, size=4, padding=0\nd: offset=8, size=8, padding=0\nTotal struct size: 16, alignment: 2\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Pack 2 clamping int and double alignments"
+      }
+    ]
+  },
+  {
+    "id": 176,
+    "title": "Endianness Detector and Converter",
+    "slug": "endianness-detector-and-converter",
+    "difficulty": "hard",
+    "description": "Endianness defines the byte ordering used by a processor architecture to store multi-byte values in memory.\n- **Little-Endian**: The least significant byte (LSB) is stored at the lowest memory address. Used by x86, x86-64, and most ARM architectures.\n- **Big-Endian**: The most significant byte (MSB) is stored at the lowest memory address. Used by TCP/IP network protocol headers (network byte order) and mainframe processors.\n\nIn C, host endianness can be detected at runtime by inspecting the first memory byte of a multi-byte integer:\n```c\nunsigned int test = 1;\nint is_little = (*((unsigned char *)&test) == 1);\n```\n\nWrite a C program that:\n1. Detects and prints the host system endianness on the first line: `Host Endianness: Little-Endian` or `Host Endianness: Big-Endian`.\n2. Reads $N$ 32-bit hexadecimal values (formatted either as `0x12345678` or `12345678`).\n3. For each value, prints:\n   `Input: 0x<VAL> | Swapped: 0x<SWAPPED> | LE-Bytes: <B0 B1 B2 B3> | BE-Bytes: <B3 B2 B1 B0>`\n   where `<VAL>` is printed as 8 uppercase hex digits, `<SWAPPED>` is the byte-swapped integer, `LE-Bytes` lists the bytes from LSB to MSB in uppercase 2-digit hex, and `BE-Bytes` lists the bytes from MSB to LSB.",
+    "input_format": "The first line contains an integer N (1 <= N <= 100). The next N lines each contain a 32-bit hexadecimal value.",
+    "output_format": "The first line must print 'Host Endianness: <Little-Endian|Big-Endian>'. For each input value, print: 'Input: 0x<VAL> | Swapped: 0x<SWAPPED> | LE-Bytes: <B0 B1 B2 B3> | BE-Bytes: <B3 B2 B1 B0>'.",
+    "constraints": "1 <= N <= 100, valid 32-bit hex values",
+    "examples": [
+      {
+        "input": "1\n0x12345678\n",
+        "output": "Host Endianness: Little-Endian\nInput: 0x12345678 | Swapped: 0x78563412 | LE-Bytes: 78 56 34 12 | BE-Bytes: 12 34 56 78\n",
+        "explanation": "Assuming x86/ARM host: host is Little-Endian. Value 0x12345678 has bytes 12 (MSB), 34, 56, 78 (LSB)."
+      },
+      {
+        "input": "2\n0xAABBCCDD\n0x00000001\n",
+        "output": "Host Endianness: Little-Endian\nInput: 0xAABBCCDD | Swapped: 0xDDCCBBAA | LE-Bytes: DD CC BB AA | BE-Bytes: AA BB CC DD\nInput: 0x00000001 | Swapped: 0x01000000 | LE-Bytes: 01 00 00 00 | BE-Bytes: 00 00 00 01\n",
+        "explanation": "Byte representations in LE and BE order."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\n// Detect host endianness and convert byte representations\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    // Implement endianness detection and byte swapping\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic int is_little_endian(void) {\n    unsigned int x = 1;\n    return (*((unsigned char *)&x) == 1);\n}\n\nstatic unsigned int swap_bytes32(unsigned int val) {\n    return ((val >> 24) & 0x000000FFU) |\n           ((val >> 8)  & 0x0000FF00U) |\n           ((val << 8)  & 0x00FF0000U) |\n           ((val << 24) & 0xFF000000U);\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    if (is_little_endian()) {\n        printf(\"Host Endianness: Little-Endian\\n\");\n    } else {\n        printf(\"Host Endianness: Big-Endian\\n\");\n    }\n    \n    for (int i = 0; i < n; i++) {\n        unsigned int val;\n        scanf(\"%x\", &val);\n        \n        unsigned int swapped = swap_bytes32(val);\n        \n        unsigned char b0 = (unsigned char)(val & 0xFF);\n        unsigned char b1 = (unsigned char)((val >> 8) & 0xFF);\n        unsigned char b2 = (unsigned char)((val >> 16) & 0xFF);\n        unsigned char b3 = (unsigned char)((val >> 24) & 0xFF);\n        \n        printf(\"Input: 0x%08X | Swapped: 0x%08X | LE-Bytes: %02X %02X %02X %02X | BE-Bytes: %02X %02X %02X %02X\\n\",\n               val, swapped, b0, b1, b2, b3, b3, b2, b1, b0);\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Use a pointer to unsigned char or union to check the first byte of unsigned int x = 1.",
+      "Byte swapping can be done by bit shifting: (val >> 24) | ((val >> 8) & 0xFF00) | ((val << 8) & 0xFF0000) | (val << 24).",
+      "Extract individual bytes using (val >> (8 * k)) & 0xFF."
+    ],
+    "explanation": "Runtime endianness detection tests whether the least significant byte of integer 1 is located at the lowest memory address. Byte swapping reverses the four bytes. LE format writes from LSB to MSB (b0 b1 b2 b3) while BE format writes from MSB to LSB (b3 b2 b1 b0).",
+    "time_complexity": "O(N)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using signed char for pointer casting, which sign-extends values.",
+      "Formatting hex with lowercase or forgetting zero-padding (%08X, %02X).",
+      "Confusing Little-Endian order (LSB first) with Big-Endian order (MSB first)."
+    ],
+    "related_problems": [
+      "bit-field-packet-parser",
+      "reverse-bits"
+    ],
+    "topic_slug": "advanced-c-systems",
+    "company_slugs": [
+      "cisco",
+      "intel",
+      "qualcomm",
+      "arm"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "1\n0x12345678\n",
+        "expected_output": "Host Endianness: Little-Endian\nInput: 0x12345678 | Swapped: 0x78563412 | LE-Bytes: 78 56 34 12 | BE-Bytes: 12 34 56 78\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 0x12345678 value on Little-Endian architecture"
+      },
+      {
+        "input": "2\n0xAABBCCDD\n0x00000001\n",
+        "expected_output": "Host Endianness: Little-Endian\nInput: 0xAABBCCDD | Swapped: 0xDDCCBBAA | LE-Bytes: DD CC BB AA | BE-Bytes: AA BB CC DD\nInput: 0x00000001 | Swapped: 0x01000000 | LE-Bytes: 01 00 00 00 | BE-Bytes: 00 00 00 01\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Distinct bytes and value 1"
+      },
+      {
+        "input": "1\n0x00000000\n",
+        "expected_output": "Host Endianness: Little-Endian\nInput: 0x00000000 | Swapped: 0x00000000 | LE-Bytes: 00 00 00 00 | BE-Bytes: 00 00 00 00\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All zeros"
+      },
+      {
+        "input": "1\n0xFFFFFFFF\n",
+        "expected_output": "Host Endianness: Little-Endian\nInput: 0xFFFFFFFF | Swapped: 0xFFFFFFFF | LE-Bytes: FF FF FF FF | BE-Bytes: FF FF FF FF\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All ones"
+      },
+      {
+        "input": "3\n0x01020304\n0xDEADBEEF\n0xCAFEBABE\n",
+        "expected_output": "Host Endianness: Little-Endian\nInput: 0x01020304 | Swapped: 0x04030201 | LE-Bytes: 04 03 02 01 | BE-Bytes: 01 02 03 04\nInput: 0xDEADBEEF | Swapped: 0xEFBEADDE | LE-Bytes: EF BE AD DE | BE-Bytes: DE AD BE EF\nInput: 0xCAFEBABE | Swapped: 0xBEBAFECA | LE-Bytes: BE BA FE CA | BE-Bytes: CA FE BA BE\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Magic numbers 0xDEADBEEF and 0xCAFEBABE"
+      }
+    ]
+  },
+  {
+    "id": 177,
+    "title": "Bit Field Packet Parser",
+    "slug": "bit-field-packet-parser",
+    "difficulty": "very_hard",
+    "description": "Network protocols (like IPv4, TCP, and custom IoT telemetry protocols) pack multiple configuration fields into byte-aligned binary headers. In C, decoding binary packet streams accurately requires combining bitmasking, bit shifts, and understanding byte-order endianness.\n\nConsider a custom 8-byte (64-bit) protocol header laid out as follows:\n- **Byte 0**:\n  - Bits 7–4 (Upper nibble): `Version` (4 bits, integer 0–15)\n  - Bits 3–0 (Lower nibble): `Priority` (4 bits, integer 0–15)\n- **Byte 1**:\n  - Bit 7: `SYN` flag (1 bit, 0 or 1)\n  - Bit 6: `ACK` flag (1 bit, 0 or 1)\n  - Bit 5: `FIN` flag (1 bit, 0 or 1)\n  - Bit 4: `RST` flag (1 bit, 0 or 1)\n  - Bits 3–0: Reserved (ignored)\n- **Bytes 2–3**:\n  - `Payload Length` (16-bit unsigned integer in Big-Endian network byte order: `(Byte2 << 8) | Byte3`)\n- **Bytes 4–7**:\n  - `Sequence Number` (32-bit unsigned integer in Big-Endian network byte order: `(Byte4 << 24) | (Byte5 << 16) | (Byte6 << 8) | Byte7`)\n\nWrite a C program that reads $T$ packets. Each packet is presented as 8 space-separated 2-digit hexadecimal bytes. Parse each packet and print its decoded fields in human-readable format.",
+    "input_format": "The first line contains an integer T (1 <= T <= 50). The next T lines each contain 8 space-separated 2-digit hex bytes representing the 8-byte header.",
+    "output_format": "For each packet (1-indexed), print:\nPacket X:\n  Version: <val>\n  Priority: <val>\n  Flags: SYN=<0|1> ACK=<0|1> FIN=<0|1> RST=<0|1>\n  Payload Length: <val>\n  Sequence Number: <val>",
+    "constraints": "1 <= T <= 50, each byte is a valid 2-digit hex value (00 to FF)",
+    "examples": [
+      {
+        "input": "1\n45 60 01 00 00 00 00 2A\n",
+        "output": "Packet 1:\n  Version: 4\n  Priority: 5\n  Flags: SYN=0 ACK=1 FIN=1 RST=0\n  Payload Length: 256\n  Sequence Number: 42\n",
+        "explanation": "Byte 0 = 0x45 (Version 4, Priority 5). Byte 1 = 0x60 (binary 01100000: SYN=0, ACK=1, FIN=1, RST=0). Bytes 2-3 = 0x0100 (256). Bytes 4-7 = 0x0000002A (42)."
+      },
+      {
+        "input": "1\n40 80 00 20 12 34 56 78\n",
+        "output": "Packet 1:\n  Version: 4\n  Priority: 0\n  Flags: SYN=1 ACK=0 FIN=0 RST=0\n  Payload Length: 32\n  Sequence Number: 305419896\n",
+        "explanation": "Version 4, Priority 0, SYN flag set, Length 32, Sequence 0x12345678 = 305419896."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\n// Parse binary packet header fields\n\nint main(void) {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    \n    // Parse each 8-byte packet header\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    int t;\n    if (scanf(\"%d\", &t) != 1) return 0;\n    \n    for (int p = 1; p <= t; p++) {\n        unsigned int b[8];\n        for (int i = 0; i < 8; i++) {\n            scanf(\"%x\", &b[i]);\n        }\n        \n        unsigned int version = (b[0] >> 4) & 0x0F;\n        unsigned int priority = b[0] & 0x0F;\n        \n        unsigned int syn = (b[1] >> 7) & 1;\n        unsigned int ack = (b[1] >> 6) & 1;\n        unsigned int fin = (b[1] >> 5) & 1;\n        unsigned int rst = (b[1] >> 4) & 1;\n        \n        unsigned int payload_len = (b[2] << 8) | b[3];\n        unsigned int seq_num = (b[4] << 24) | (b[5] << 16) | (b[6] << 8) | b[7];\n        \n        printf(\"Packet %d:\\n\", p);\n        printf(\"  Version: %u\\n\", version);\n        printf(\"  Priority: %u\\n\", priority);\n        printf(\"  Flags: SYN=%u ACK=%u FIN=%u RST=%u\\n\", syn, ack, fin, rst);\n        printf(\"  Payload Length: %u\\n\", payload_len);\n        printf(\"  Sequence Number: %u\\n\", seq_num);\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Byte 0 contains Version in bits 7-4 ((b[0] >> 4) & 0x0F) and Priority in bits 3-0 (b[0] & 0x0F).",
+      "Extract individual flags from Byte 1: SYN is (b[1] >> 7) & 1, ACK is (b[1] >> 6) & 1, etc.",
+      "Reassemble multi-byte fields in big-endian order: (b[2] << 8) | b[3] for 16-bit, and 4-byte shifts for 32-bit."
+    ],
+    "explanation": "Extracting packed bit-fields requires shifting the desired bits into the least significant bit positions and masking out irrelevant bits. Multi-byte Big-Endian integers are reconstructed by shifting earlier bytes left by multiples of 8 and ORing them together.",
+    "time_complexity": "O(T)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Reassembling multi-byte fields in little-endian order instead of big-endian (network byte order).",
+      "Off-by-one errors in bit shift amounts when isolating individual flag bits.",
+      "Using 16-bit int which overflows when reassembling 32-bit sequence numbers."
+    ],
+    "related_problems": [
+      "memory-alignment-checker",
+      "endianness-detector-and-converter"
+    ],
+    "topic_slug": "advanced-c-systems",
+    "company_slugs": [
+      "cisco",
+      "cloudflare",
+      "amazon",
+      "google"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "1\n45 60 01 00 00 00 00 2A\n",
+        "expected_output": "Packet 1:\n  Version: 4\n  Priority: 5\n  Flags: SYN=0 ACK=1 FIN=1 RST=0\n  Payload Length: 256\n  Sequence Number: 42\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard packet with ACK and FIN flags"
+      },
+      {
+        "input": "1\n40 80 00 20 12 34 56 78\n",
+        "expected_output": "Packet 1:\n  Version: 4\n  Priority: 0\n  Flags: SYN=1 ACK=0 FIN=0 RST=0\n  Payload Length: 32\n  Sequence Number: 305419896\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Packet with SYN flag and 32-bit seq number"
+      },
+      {
+        "input": "1\n00 00 00 00 00 00 00 00\n",
+        "expected_output": "Packet 1:\n  Version: 0\n  Priority: 0\n  Flags: SYN=0 ACK=0 FIN=0 RST=0\n  Payload Length: 0\n  Sequence Number: 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All zeroes packet header"
+      },
+      {
+        "input": "1\nFF F0 FF FF FF FF FF FF\n",
+        "expected_output": "Packet 1:\n  Version: 15\n  Priority: 15\n  Flags: SYN=1 ACK=1 FIN=1 RST=1\n  Payload Length: 65535\n  Sequence Number: 4294967295\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Maximum values and all flags set"
+      },
+      {
+        "input": "2\n12 10 00 64 00 00 03 E8\n34 90 04 00 00 01 00 00\n",
+        "expected_output": "Packet 1:\n  Version: 1\n  Priority: 2\n  Flags: SYN=0 ACK=0 FIN=0 RST=1\n  Payload Length: 100\n  Sequence Number: 1000\nPacket 2:\n  Version: 3\n  Priority: 4\n  Flags: SYN=1 ACK=0 FIN=0 RST=1\n  Payload Length: 1024\n  Sequence Number: 65536\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Two consecutive packets"
+      }
+    ]
+  },
+  {
+    "id": 178,
+    "title": "Circular Buffer Implementation",
+    "slug": "circular-buffer-implementation",
+    "difficulty": "hard",
+    "description": "A Circular Buffer (or ring buffer) is a fixed-size FIFO data structure ubiquitously employed in device drivers, embedded audio streaming, UART serial communication, and producer-consumer pipelines. It operates over a fixed memory buffer using two pointers/indices: `head` (write position) and `tail` (read position), advancing cyclically via modulo arithmetic `(idx + 1) % capacity`.\n\nWhen the buffer reaches its maximum capacity $C$, real-world systems adopt different overflow strategies depending on their requirements:\n- **Reject**: Drop the incoming item to preserve historical unread data (typical in networking flow control).\n- **Overwrite**: Evict the oldest unread element, advance the read pointer, and write the new element (typical in audio/video streaming or telemetry black-box flight recorders).\n\nImplement a circular buffer of fixed capacity $C$ that processes $Q$ commands:\n1. `ENQUEUE_REJECT <val>`: Adds integer `val`. If the buffer is full ($count == C$), reject the insert and print `BUFFER_FULL`.\n2. `ENQUEUE_OVERWRITE <val>`: Adds integer `val`. If full, overwrite the oldest element and advance the tail pointer.\n3. `DEQUEUE`: Removes and prints the oldest element. If empty ($count == 0$), print `BUFFER_EMPTY`.\n4. `PEEK`: Prints the oldest element without removing it. If empty, print `BUFFER_EMPTY`.\n5. `COUNT`: Prints the current number of elements in the buffer.",
+    "input_format": "The first line contains two integers: C (capacity, 1 <= C <= 1000) and Q (number of operations, 1 <= Q <= 2000). The next Q lines each contain an operation command.",
+    "output_format": "Print the result of each DEQUEUE, PEEK, COUNT, and any BUFFER_FULL or BUFFER_EMPTY message on a new line.",
+    "constraints": "1 <= C <= 1000, 1 <= Q <= 2000, -10^6 <= val <= 10^6",
+    "examples": [
+      {
+        "input": "3 6\nENQUEUE_REJECT 10\nENQUEUE_REJECT 20\nCOUNT\nPEEK\nDEQUEUE\nDEQUEUE\n",
+        "output": "2\n10\n10\n20\n",
+        "explanation": "Enqueues 10 and 20. Count is 2. Peek shows 10. Dequeuing returns 10, then 20."
+      },
+      {
+        "input": "2 5\nENQUEUE_REJECT 1\nENQUEUE_REJECT 2\nENQUEUE_REJECT 3\nDEQUEUE\nDEQUEUE\n",
+        "output": "BUFFER_FULL\n1\n2\n",
+        "explanation": "Enqueue 3 is rejected because capacity 2 is reached. Dequeue yields 1 then 2."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n// Implement Circular Ring Buffer with reject and overwrite policies\n\nint main(void) {\n    int c, q;\n    if (scanf(\"%d %d\", &c, &q) != 2) return 0;\n    \n    // Process circular buffer commands\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *data;\n    int capacity;\n    int head; // next write index\n    int tail; // next read index\n    int count;\n} CircularBuffer;\n\nstatic void init_buffer(CircularBuffer *cb, int capacity) {\n    cb->data = (int *)malloc(capacity * sizeof(int));\n    cb->capacity = capacity;\n    cb->head = 0;\n    cb->tail = 0;\n    cb->count = 0;\n}\n\nstatic void enqueue_reject(CircularBuffer *cb, int val) {\n    if (cb->count == cb->capacity) {\n        printf(\"BUFFER_FULL\\n\");\n        return;\n    }\n    cb->data[cb->head] = val;\n    cb->head = (cb->head + 1) % cb->capacity;\n    cb->count++;\n}\n\nstatic void enqueue_overwrite(CircularBuffer *cb, int val) {\n    if (cb->count == cb->capacity) {\n        // Overwrite oldest item: advance tail\n        cb->data[cb->head] = val;\n        cb->head = (cb->head + 1) % cb->capacity;\n        cb->tail = (cb->tail + 1) % cb->capacity;\n    } else {\n        cb->data[cb->head] = val;\n        cb->head = (cb->head + 1) % cb->capacity;\n        cb->count++;\n    }\n}\n\nstatic void dequeue(CircularBuffer *cb) {\n    if (cb->count == 0) {\n        printf(\"BUFFER_EMPTY\\n\");\n        return;\n    }\n    int val = cb->data[cb->tail];\n    cb->tail = (cb->tail + 1) % cb->capacity;\n    cb->count--;\n    printf(\"%d\\n\", val);\n}\n\nstatic void peek(CircularBuffer *cb) {\n    if (cb->count == 0) {\n        printf(\"BUFFER_EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", cb->data[cb->tail]);\n}\n\nint main(void) {\n    int c, q;\n    if (scanf(\"%d %d\", &c, &q) != 2) return 0;\n    \n    CircularBuffer cb;\n    init_buffer(&cb, c);\n    \n    char cmd[32];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%31s\", cmd) != 1) break;\n        if (strcmp(cmd, \"ENQUEUE_REJECT\") == 0) {\n            int val;\n            scanf(\"%d\", &val);\n            enqueue_reject(&cb, val);\n        } else if (strcmp(cmd, \"ENQUEUE_OVERWRITE\") == 0) {\n            int val;\n            scanf(\"%d\", &val);\n            enqueue_overwrite(&cb, val);\n        } else if (strcmp(cmd, \"DEQUEUE\") == 0) {\n            dequeue(&cb);\n        } else if (strcmp(cmd, \"PEEK\") == 0) {\n            peek(&cb);\n        } else if (strcmp(cmd, \"COUNT\") == 0) {\n            printf(\"%d\\n\", cb.count);\n        }\n    }\n    \n    free(cb.data);\n    return 0;\n}\n",
+    "hints": [
+      "Use modulo arithmetic: (index + 1) % capacity wraps indices around cleanly.",
+      "For ENQUEUE_OVERWRITE when full, advance both head and tail, leaving count unchanged.",
+      "Always check count == 0 before DEQUEUE and PEEK."
+    ],
+    "explanation": "A circular buffer provides O(1) FIFO operations without shifting elements. Wrap-around is handled by (idx + 1) % capacity. For reject policy, new insertions fail when count == capacity. For overwrite policy, inserting into a full buffer replaces the element at head and advances both head and tail pointers.",
+    "time_complexity": "O(1) per operation, O(Q) total",
+    "space_complexity": "O(C)",
+    "common_mistakes": [
+      "Failing to advance tail during ENQUEUE_OVERWRITE on a full buffer, leading to stale or corrupt read ordering.",
+      "Decreasing count below zero on empty DEQUEUE.",
+      "Using count == capacity - 1 when full (which only applies to the empty-slot sentinel design, not when tracking count explicitly)."
+    ],
+    "related_problems": [
+      "custom-memory-allocator",
+      "callback-function-system"
+    ],
+    "topic_slug": "advanced-c-systems",
+    "company_slugs": [
+      "apple",
+      "intel",
+      "tesla",
+      "qualcomm"
+    ],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "3 6\nENQUEUE_REJECT 10\nENQUEUE_REJECT 20\nCOUNT\nPEEK\nDEQUEUE\nDEQUEUE\n",
+        "expected_output": "2\n10\n10\n20\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard enqueue, peek, count, and dequeue"
+      },
+      {
+        "input": "2 5\nENQUEUE_REJECT 1\nENQUEUE_REJECT 2\nENQUEUE_REJECT 3\nDEQUEUE\nDEQUEUE\n",
+        "expected_output": "BUFFER_FULL\n1\n2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Reject policy on full buffer"
+      },
+      {
+        "input": "2 5\nENQUEUE_OVERWRITE 1\nENQUEUE_OVERWRITE 2\nENQUEUE_OVERWRITE 3\nDEQUEUE\nDEQUEUE\n",
+        "expected_output": "2\n3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Overwrite policy replacing oldest element 1"
+      },
+      {
+        "input": "3 3\nDEQUEUE\nPEEK\nCOUNT\n",
+        "expected_output": "BUFFER_EMPTY\nBUFFER_EMPTY\n0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Operations on initially empty buffer"
+      },
+      {
+        "input": "2 6\nENQUEUE_REJECT 100\nDEQUEUE\nENQUEUE_REJECT 200\nENQUEUE_REJECT 300\nDEQUEUE\nDEQUEUE\n",
+        "expected_output": "100\n200\n300\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Circular wrap-around past buffer boundary"
+      }
+    ]
+  },
+  {
+    "id": 179,
+    "title": "Custom Memory Allocator",
+    "slug": "custom-memory-allocator",
+    "difficulty": "very_hard",
+    "description": "Dynamic memory allocation (`malloc`, `free`) in C relies on an underlying allocator that manages raw contiguous heap memory. A standard approach is the **First-Fit Memory Pool Allocator**, which organizes memory into a doubly-linked list of allocated and free memory blocks.\n\nEach block in the memory pool has an integer offset, a size (in bytes), and an allocation flag:\n1. `ALLOC <id> <size>`:\n   - Scans the memory pool from the lowest memory offset (offset 0) to find the first free block whose $\\text{block\\_size} \\ge size$.\n   - **Splitting**: If $\\text{block\\_size} - size \\ge 16$ (minimum split threshold), the block is split into an allocated block of size $size$ and a remaining free block of size $\\text{block\\_size} - size$. Otherwise, the entire block is allocated.\n   - The allocated block is tagged with identifier $id$.\n   - Output: `ALLOCATED <id> AT OFFSET <offset>`\n   - If no free block is large enough, output: `ALLOCATION_FAILED <id>`\n2. `FREE <id>`:\n   - Locates the allocated block tagged with $id$ and marks it as free.\n   - **Coalescing**: To combat external memory fragmentation, if the immediately preceding block is free, merge with it. If the immediately succeeding block is free, merge with it as well.\n   - Output: `FREED <id>`\n   - If $id$ is not found among currently allocated blocks, output: `INVALID_FREE <id>`\n3. `STATS`:\n   - Inspects the current memory pool and outputs:\n     `FREE_BLOCKS: <count>, TOTAL_FREE: <total_bytes>, LARGEST_FREE: <largest_bytes>`\n     (If no blocks are free, LARGEST_FREE is 0).\n\nSimulate a memory pool of initial total size $M$ bytes processing $Q$ commands.",
+    "input_format": "The first line contains two integers: M (total pool size, 64 <= M <= 100000) and Q (number of operations, 1 <= Q <= 1000). The next Q lines each contain an operation command: ALLOC, FREE, or STATS.",
+    "output_format": "Print the result of each ALLOC, FREE, and STATS operation on a new line.",
+    "constraints": "64 <= M <= 100000, 1 <= Q <= 1000, 1 <= id <= 10000, 1 <= size <= M",
+    "examples": [
+      {
+        "input": "100 4\nALLOC 1 30\nALLOC 2 40\nSTATS\nFREE 1\n",
+        "output": "ALLOCATED 1 AT OFFSET 0\nALLOCATED 2 AT OFFSET 30\nFREE_BLOCKS: 1, TOTAL_FREE: 30, LARGEST_FREE: 30\nFREED 1\n",
+        "explanation": "Block 1 takes [0..29], block 2 takes [30..69]. Free block remains [70..99] with size 30."
+      },
+      {
+        "input": "100 4\nALLOC 1 60\nALLOC 2 50\nFREE 1\nALLOC 2 50\n",
+        "output": "ALLOCATED 1 AT OFFSET 0\nALLOCATION_FAILED 2\nFREED 1\nALLOCATED 2 AT OFFSET 0\n",
+        "explanation": "Initial alloc of 50 fails because only 40 bytes remain. After freeing block 1, 60 bytes become free at offset 0, so alloc 2 succeeds."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n// Implement First-Fit memory allocator with splitting and coalescing\n\nint main(void) {\n    int m, q;\n    if (scanf(\"%d %d\", &m, &q) != 2) return 0;\n    \n    // Simulate memory pool\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\n#define MAX_BLOCKS 2005\n\ntypedef struct {\n    int offset;\n    int size;\n    int is_free;\n    int id;\n} Block;\n\nstatic Block pool[MAX_BLOCKS];\nstatic int block_count = 0;\n\nstatic void init_pool(int total_size) {\n    pool[0].offset = 0;\n    pool[0].size = total_size;\n    pool[0].is_free = 1;\n    pool[0].id = -1;\n    block_count = 1;\n}\n\nstatic void alloc_mem(int id, int size) {\n    for (int i = 0; i < block_count; i++) {\n        if (pool[i].is_free && pool[i].size >= size) {\n            int rem = pool[i].size - size;\n            if (rem >= 16) {\n                // Shift subsequent blocks right\n                for (int j = block_count; j > i + 1; j--) {\n                    pool[j] = pool[j - 1];\n                }\n                pool[i + 1].offset = pool[i].offset + size;\n                pool[i + 1].size = rem;\n                pool[i + 1].is_free = 1;\n                pool[i + 1].id = -1;\n                block_count++;\n                \n                pool[i].size = size;\n            }\n            pool[i].is_free = 0;\n            pool[i].id = id;\n            printf(\"ALLOCATED %d AT OFFSET %d\\n\", id, pool[i].offset);\n            return;\n        }\n    }\n    printf(\"ALLOCATION_FAILED %d\\n\", id);\n}\n\nstatic void free_mem(int id) {\n    int target = -1;\n    for (int i = 0; i < block_count; i++) {\n        if (!pool[i].is_free && pool[i].id == id) {\n            target = i;\n            break;\n        }\n    }\n    if (target == -1) {\n        printf(\"INVALID_FREE %d\\n\", id);\n        return;\n    }\n    \n    pool[target].is_free = 1;\n    pool[target].id = -1;\n    \n    // Coalesce with right neighbor\n    if (target + 1 < block_count && pool[target + 1].is_free) {\n        pool[target].size += pool[target + 1].size;\n        for (int j = target + 1; j < block_count - 1; j++) {\n            pool[j] = pool[j + 1];\n        }\n        block_count--;\n    }\n    \n    // Coalesce with left neighbor\n    if (target - 1 >= 0 && pool[target - 1].is_free) {\n        pool[target - 1].size += pool[target].size;\n        for (int j = target; j < block_count - 1; j++) {\n            pool[j] = pool[j + 1];\n        }\n        block_count--;\n    }\n    \n    printf(\"FREED %d\\n\", id);\n}\n\nstatic void stats_mem(void) {\n    int free_blocks = 0;\n    int total_free = 0;\n    int largest_free = 0;\n    \n    for (int i = 0; i < block_count; i++) {\n        if (pool[i].is_free) {\n            free_blocks++;\n            total_free += pool[i].size;\n            if (pool[i].size > largest_free) {\n                largest_free = pool[i].size;\n            }\n        }\n    }\n    printf(\"FREE_BLOCKS: %d, TOTAL_FREE: %d, LARGEST_FREE: %d\\n\", free_blocks, total_free, largest_free);\n}\n\nint main(void) {\n    int m, q;\n    if (scanf(\"%d %d\", &m, &q) != 2) return 0;\n    \n    init_pool(m);\n    \n    char cmd[32];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%31s\", cmd) != 1) break;\n        if (strcmp(cmd, \"ALLOC\") == 0) {\n            int id, size;\n            scanf(\"%d %d\", &id, &size);\n            alloc_mem(id, size);\n        } else if (strcmp(cmd, \"FREE\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            free_mem(id);\n        } else if (strcmp(cmd, \"STATS\") == 0) {\n            stats_mem();\n        }\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Represent the pool as an ordered array of blocks with offset, size, and is_free flag.",
+      "When allocating, find the first free block with size >= requested_size. If remainder >= 16, split it.",
+      "When freeing, merge with adjacent free blocks to the right and left to prevent fragmentation."
+    ],
+    "explanation": "First-fit allocation searches sequentially for the first block of sufficient size. If the leftover space is >= 16 bytes, a new free block is created. Coalescing on free combines adjacent free blocks, ensuring large contiguous memory chunks are reconstructed for future allocations.",
+    "time_complexity": "O(N) per operation, where N is the number of blocks",
+    "space_complexity": "O(N)",
+    "common_mistakes": [
+      "Coalescing only one neighbor instead of both left and right neighbors.",
+      "Failing to shift the block array properly when inserting or removing blocks.",
+      "Allowing freeing of an unallocated or already freed block ID."
+    ],
+    "related_problems": [
+      "circular-buffer-implementation",
+      "memory-alignment-checker"
+    ],
+    "topic_slug": "advanced-c-systems",
+    "company_slugs": [
+      "google",
+      "apple",
+      "microsoft",
+      "meta"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "100 4\nALLOC 1 30\nALLOC 2 40\nSTATS\nFREE 1\n",
+        "expected_output": "ALLOCATED 1 AT OFFSET 0\nALLOCATED 2 AT OFFSET 30\nFREE_BLOCKS: 1, TOTAL_FREE: 30, LARGEST_FREE: 30\nFREED 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Sequential allocations and stats"
+      },
+      {
+        "input": "100 4\nALLOC 1 60\nALLOC 2 50\nFREE 1\nALLOC 2 50\n",
+        "expected_output": "ALLOCATED 1 AT OFFSET 0\nALLOCATION_FAILED 2\nFREED 1\nALLOCATED 2 AT OFFSET 0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Failed allocation succeeded after freeing"
+      },
+      {
+        "input": "200 6\nALLOC 1 50\nALLOC 2 50\nALLOC 3 50\nFREE 1\nFREE 3\nFREE 2\n",
+        "expected_output": "ALLOCATED 1 AT OFFSET 0\nALLOCATED 2 AT OFFSET 50\nALLOCATED 3 AT OFFSET 100\nFREED 1\nFREED 3\nFREED 2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Coalescing both left and right adjacent free blocks"
+      },
+      {
+        "input": "100 2\nFREE 99\nALLOC 1 150\n",
+        "expected_output": "INVALID_FREE 99\nALLOCATION_FAILED 1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Invalid free ID and allocation exceeding total pool"
+      },
+      {
+        "input": "100 3\nALLOC 1 100\nSTATS\nFREE 1\n",
+        "expected_output": "ALLOCATED 1 AT OFFSET 0\nFREE_BLOCKS: 0, TOTAL_FREE: 0, LARGEST_FREE: 0\nFREED 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Full pool allocation without splitting"
+      }
+    ]
+  },
+  {
+    "id": 180,
+    "title": "Robust Input Parser",
+    "slug": "robust-input-parser",
+    "difficulty": "very_hard",
+    "description": "Writing a robust recursive-descent parser in C with error recovery is an indispensable systems programming skill. Parsers must handle valid hierarchical data, detect and diagnose syntax errors without crashing, and recover gracefully to process subsequent input.\n\nImplement a parser for a structured JSON-like configuration format. The configuration consists of key-value pairs formatted as:\n`\"<key>\": <value>`\nwhere `<value>` can be:\n- A double-quoted string: `\"Alice\"`\n- A signed integer: `8080` or `-50`\n- A nested object enclosed in braces: `{ ... }`\n\nLines may be indented, and nested objects can extend across multiple lines.\nKeys inside nested objects are addressed using dot-separated notation (e.g. `server.port` or `db.credentials.user`).\n\nThe parser must:\n1. Track the line number (1-indexed). If a syntax error is encountered—specifically:\n   - A line missing the separating colon `:` between key and value\n   - An unclosed string quote `\"`\n   - An invalid number literal\n   report: `SYNTAX_ERROR AT LINE <line>`\n   and skip that malformed line, continuing to parse the remainder of the input.\n2. After the configuration text, $Q$ query commands of the format `GET <path>` are processed.\n   - If the key path exists in the parsed configuration, print: `<path> = <value>`\n   - If the key path is missing, print: `KEY_NOT_FOUND`",
+    "input_format": "The first line contains an integer L (number of config lines, 1 <= L <= 100). The next L lines contain configuration text. The following line contains an integer Q (1 <= Q <= 50). The next Q lines each contain a query: GET <path>.",
+    "output_format": "For each syntax error detected, print 'SYNTAX_ERROR AT LINE <line>'. For each GET query, print '<path> = <value>' or 'KEY_NOT_FOUND'.",
+    "constraints": "1 <= L <= 100, 1 <= Q <= 50, key paths contain lowercase letters and dots",
+    "examples": [
+      {
+        "input": "2\n\"name\": \"Alice\"\n\"age\": 25\n2\nGET name\nGET age\n",
+        "output": "GET name = Alice\nGET age = 25\n",
+        "explanation": "Parses top-level string and integer keys."
+      },
+      {
+        "input": "4\n\"server\": {\n  \"port\": 8080,\n  \"host\": \"localhost\"\n}\n3\nGET server.port\nGET server.host\nGET server.timeout\n",
+        "output": "GET server.port = 8080\nGET server.host = localhost\nKEY_NOT_FOUND\n",
+        "explanation": "Parses nested keys under server. Timeout does not exist, so KEY_NOT_FOUND is printed."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n// Implement robust configuration parser with syntax error recovery\n\nint main(void) {\n    int l;\n    if (scanf(\"%d\\n\", &l) != 1) return 0;\n    \n    // Parse config lines and process GET queries\n    \n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n#include <stdlib.h>\n\n#define MAX_PAIRS 200\n#define MAX_PATH 128\n#define MAX_VAL 128\n\ntypedef struct {\n    char path[MAX_PATH];\n    char value[MAX_VAL];\n} Entry;\n\nstatic Entry entries[MAX_PAIRS];\nstatic int entry_count = 0;\n\nstatic char scope_stack[16][64];\nstatic int scope_depth = 0;\n\nstatic void trim_trailing(char *s) {\n    size_t len = strlen(s);\n    while (len > 0 && (s[len - 1] == ' ' || s[len - 1] == '\\t' || s[len - 1] == '\\n' || s[len - 1] == '\\r' || s[len - 1] == ',')) {\n        s[len - 1] = '\\0';\n        len--;\n    }\n}\n\nstatic void build_full_path(char *dest, const char *key) {\n    dest[0] = '\\0';\n    for (int i = 0; i < scope_depth; i++) {\n        strcat(dest, scope_stack[i]);\n        strcat(dest, \".\");\n    }\n    strcat(dest, key);\n}\n\nint main(void) {\n    int l;\n    if (scanf(\"%d\", &l) != 1) return 0;\n    \n    char line[512];\n    fgets(line, sizeof(line), stdin); // consume newline\n    \n    for (int line_num = 1; line_num <= l; line_num++) {\n        if (!fgets(line, sizeof(line), stdin)) break;\n        trim_trailing(line);\n        \n        char *p = line;\n        while (*p == ' ' || *p == '\\t') p++;\n        if (*p == '\\0') continue;\n        \n        if (*p == '}') {\n            if (scope_depth > 0) scope_depth--;\n            continue;\n        }\n        \n        if (*p != '\"') {\n            printf(\"SYNTAX_ERROR AT LINE %d\\n\", line_num);\n            continue;\n        }\n        \n        // Extract key\n        p++; // skip opening quote\n        char *key_end = strchr(p, '\"');\n        if (!key_end) {\n            printf(\"SYNTAX_ERROR AT LINE %d\\n\", line_num);\n            continue;\n        }\n        *key_end = '\\0';\n        char key[64];\n        strncpy(key, p, 63);\n        key[63] = '\\0';\n        \n        p = key_end + 1;\n        while (*p == ' ' || *p == '\\t') p++;\n        if (*p != ':') {\n            printf(\"SYNTAX_ERROR AT LINE %d\\n\", line_num);\n            continue;\n        }\n        p++; // skip colon\n        while (*p == ' ' || *p == '\\t') p++;\n        \n        if (*p == '{') {\n            // Nested object\n            if (scope_depth < 16) {\n                strncpy(scope_stack[scope_depth], key, 63);\n                scope_stack[scope_depth][63] = '\\0';\n                scope_depth++;\n            }\n            continue;\n        }\n        \n        // Value: either quoted string or number\n        char val[MAX_VAL] = \"\";\n        if (*p == '\"') {\n            p++;\n            char *val_end = strchr(p, '\"');\n            if (!val_end) {\n                printf(\"SYNTAX_ERROR AT LINE %d\\n\", line_num);\n                continue;\n            }\n            *val_end = '\\0';\n            strncpy(val, p, MAX_VAL - 1);\n        } else {\n            // Number\n            char *num_start = p;\n            while (*p && *p != ' ' && *p != ',' && *p != '}') p++;\n            *p = '\\0';\n            // Validate integer\n            int valid = 1;\n            char *chk = num_start;\n            if (*chk == '-' || *chk == '+') chk++;\n            if (*chk == '\\0') valid = 0;\n            while (*chk) {\n                if (!isdigit((unsigned char)*chk)) { valid = 0; break; }\n                chk++;\n            }\n            if (!valid) {\n                printf(\"SYNTAX_ERROR AT LINE %d\\n\", line_num);\n                continue;\n            }\n            strncpy(val, num_start, MAX_VAL - 1);\n        }\n        \n        char full_path[MAX_PATH];\n        build_full_path(full_path, key);\n        \n        if (entry_count < MAX_PAIRS) {\n            strncpy(entries[entry_count].path, full_path, MAX_PATH - 1);\n            strncpy(entries[entry_count].value, val, MAX_VAL - 1);\n            entry_count++;\n        }\n    }\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    for (int i = 0; i < q; i++) {\n        char query_cmd[16], path[MAX_PATH];\n        if (scanf(\"%15s %127s\", query_cmd, path) != 2) break;\n        \n        int found = 0;\n        for (int j = 0; j < entry_count; j++) {\n            if (strcmp(entries[j].path, path) == 0) {\n                printf(\"GET %s = %s\\n\", path, entries[j].value);\n                found = 1;\n                break;\n            }\n        }\n        if (!found) {\n            printf(\"KEY_NOT_FOUND\\n\");\n        }\n    }\n    \n    return 0;\n}\n",
+    "hints": [
+      "Use a scope stack to keep track of nested object parent keys.",
+      "Detect syntax errors (missing quote, missing colon, invalid number) and print 'SYNTAX_ERROR AT LINE <line>', then continue.",
+      "Store full dot-separated paths in an entry list to serve GET queries."
+    ],
+    "explanation": "A scope stack tracks current nesting levels. When an opening brace '{' is encountered, the key is pushed onto the scope stack. Closing braces '}' pop from the stack. Each leaf value is stored with its full path (e.g. server.port). Syntax errors on individual lines are logged and gracefully skipped, allowing the parser to recover and continue.",
+    "time_complexity": "O(L * length + Q * entry_count)",
+    "space_complexity": "O(MAX_PAIRS)",
+    "common_mistakes": [
+      "Halting entire program execution upon the first syntax error instead of recovering to parse remaining lines.",
+      "Forgetting to trim trailing commas or whitespace.",
+      "Failing to pop the scope stack when '}' is encountered."
+    ],
+    "related_problems": [
+      "csv-parser",
+      "custom-memory-allocator"
+    ],
+    "topic_slug": "advanced-c-systems",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "amazon",
+      "stripe"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "2\n\"name\": \"Alice\"\n\"age\": 25\n2\nGET name\nGET age\n",
+        "expected_output": "GET name = Alice\nGET age = 25\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard top-level key-value pairs"
+      },
+      {
+        "input": "4\n\"server\": {\n  \"port\": 8080,\n  \"host\": \"localhost\"\n}\n3\nGET server.port\nGET server.host\nGET server.timeout\n",
+        "expected_output": "GET server.port = 8080\nGET server.host = localhost\nKEY_NOT_FOUND\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Nested object with valid and missing keys"
+      },
+      {
+        "input": "3\n\"bad_line_no_colon\"\n\"valid\": 100\n\"missing_quote: 200\n2\nGET valid\nGET missing_quote\n",
+        "expected_output": "SYNTAX_ERROR AT LINE 1\nSYNTAX_ERROR AT LINE 3\nGET valid = 100\nKEY_NOT_FOUND\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Syntax errors detected with graceful recovery"
+      },
+      {
+        "input": "6\n\"a\": {\n  \"b\": {\n    \"c\": \"deep\"\n  }\n}\n1\nGET a.b.c\n",
+        "expected_output": "GET a.b.c = deep\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multi-level nesting (a.b.c)"
+      },
+      {
+        "input": "1\n\"key\": \"value\"\n1\nGET nonexistent\n",
+        "expected_output": "KEY_NOT_FOUND\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Query for nonexistent key"
+      }
+    ]
+  }
+]

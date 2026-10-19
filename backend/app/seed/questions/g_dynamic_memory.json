@@ -1,0 +1,699 @@
+[
+  {
+    "id": 68,
+    "title": "Dynamic Array Implementation",
+    "slug": "dynamic-array-implementation",
+    "difficulty": "medium",
+    "description": "### Problem Statement\nA **dynamic array** is a fundamental data structure in C that overcomes the fixed-size limitation of traditional static arrays by allocating storage on the heap and resizing dynamically at runtime. In this problem, you will implement a resilient dynamic array that stores integer elements with automated growth and shrinkage policies.\n\n#### Internal Mechanics & Sizing Rules:\n1. **Initial State:** The array must start with an initial capacity of `2` elements and a size of `0`.\n2. **Growth Policy:** When inserting an element via `push`, if the array is full (`size == capacity`), the capacity must double (`capacity = capacity * 2`) using `realloc` before inserting the new element.\n3. **Shrinkage Policy:** When removing an element via `pop`, if the array is not empty, decrement the size. If after deletion `size > 0` and `size <= capacity / 4`, the array must shrink its capacity to `capacity / 2`, provided `capacity / 2 >= 2` (the capacity must never drop below the initial minimum capacity of `2`).\n4. **Boundary Checks:** All index-based queries must validate indices against the active bounds `[0, size - 1]`.\n\n#### Supported Operations:\n- `push <val>`: Append the integer `<val>` to the end of the array.\n- `pop`: Remove the last element and print its value. If the array is empty (`size == 0`), print `EMPTY`.\n- `get <idx>`: Print the integer at 0-based index `<idx>`. If `<idx> < 0` or `<idx> >= size`, print `OUT_OF_BOUNDS`.\n- `size`: Print the current number of elements and the current capacity separated by a single space: `<size> <capacity>`.\n\nEnsure that any allocated heap memory is safely freed before program termination.",
+    "input_format": "The first line contains an integer Q representing the number of queries.\nThe next Q lines contain commands: 'push <val>', 'pop', 'get <idx>', or 'size'.",
+    "output_format": "Print the output of each command that generates a response ('pop', 'get', 'size') on a new line.",
+    "constraints": "1 <= Q <= 1000\n-10^9 <= val <= 10^9\n-1000 <= idx <= 2000\nInitial and minimum capacity = 2",
+    "examples": [
+      {
+        "input": "7\npush 10\npush 20\nsize\npush 30\nsize\nget 1\npop\n",
+        "output": "2 2\n3 4\n20\n30\n",
+        "explanation": "Initial capacity is 2. After pushing 10 and 20, size is 2 and capacity is 2. Pushing 30 triggers a doubling of capacity to 4. Getting index 1 retrieves 20. Popping removes 30."
+      },
+      {
+        "input": "6\npop\nget 0\npush 42\nget 0\npop\npop\n",
+        "output": "EMPTY\nOUT_OF_BOUNDS\n42\n42\nEMPTY\n",
+        "explanation": "Popping from an empty array prints EMPTY. Accessing index 0 when empty prints OUT_OF_BOUNDS. Pushing 42 makes it accessible."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *data;\n    int size;\n    int capacity;\n} DynamicArray;\n\nvoid init_array(DynamicArray *arr) {\n    // TODO: Initialize array with initial capacity of 2\n}\n\nvoid push(DynamicArray *arr, int val) {\n    // TODO: Append val. If size == capacity, double capacity using realloc\n}\n\nvoid pop(DynamicArray *arr) {\n    // TODO: Remove last element. If empty, print EMPTY.\n    // Else print value and shrink to capacity / 2 if size > 0 && size <= capacity / 4 && capacity / 2 >= 2\n}\n\nvoid get(DynamicArray *arr, int idx) {\n    // TODO: Print element at idx or OUT_OF_BOUNDS\n}\n\nvoid print_size(DynamicArray *arr) {\n    // TODO: Print \"<size> <capacity>\"\n}\n\nvoid free_array(DynamicArray *arr) {\n    // TODO: Clean up allocated memory\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n\n    DynamicArray arr;\n    init_array(&arr);\n\n    char op[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", op) != 1) break;\n        if (strcmp(op, \"push\") == 0) {\n            int val;\n            scanf(\"%d\", &val);\n            push(&arr, val);\n        } else if (strcmp(op, \"pop\") == 0) {\n            pop(&arr);\n        } else if (strcmp(op, \"get\") == 0) {\n            int idx;\n            scanf(\"%d\", &idx);\n            get(&arr, idx);\n        } else if (strcmp(op, \"size\") == 0) {\n            print_size(&arr);\n        }\n    }\n\n    free_array(&arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *data;\n    int size;\n    int capacity;\n} DynamicArray;\n\nvoid init_array(DynamicArray *arr) {\n    arr->capacity = 2;\n    arr->size = 0;\n    arr->data = (int *)malloc(arr->capacity * sizeof(int));\n}\n\nvoid push(DynamicArray *arr, int val) {\n    if (arr->size == arr->capacity) {\n        arr->capacity *= 2;\n        int *new_data = (int *)realloc(arr->data, arr->capacity * sizeof(int));\n        if (new_data != NULL) {\n            arr->data = new_data;\n        }\n    }\n    arr->data[arr->size++] = val;\n}\n\nvoid pop(DynamicArray *arr) {\n    if (arr->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    int val = arr->data[--arr->size];\n    printf(\"%d\\n\", val);\n    if (arr->size > 0 && arr->size <= arr->capacity / 4 && arr->capacity / 2 >= 2) {\n        arr->capacity /= 2;\n        int *new_data = (int *)realloc(arr->data, arr->capacity * sizeof(int));\n        if (new_data != NULL) {\n            arr->data = new_data;\n        }\n    }\n}\n\nvoid get(DynamicArray *arr, int idx) {\n    if (idx < 0 || idx >= arr->size) {\n        printf(\"OUT_OF_BOUNDS\\n\");\n    } else {\n        printf(\"%d\\n\", arr->data[idx]);\n    }\n}\n\nvoid print_size(DynamicArray *arr) {\n    printf(\"%d %d\\n\", arr->size, arr->capacity);\n}\n\nvoid free_array(DynamicArray *arr) {\n    if (arr->data != NULL) {\n        free(arr->data);\n        arr->data = NULL;\n    }\n    arr->size = 0;\n    arr->capacity = 0;\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n\n    DynamicArray arr;\n    init_array(&arr);\n\n    char op[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", op) != 1) break;\n        if (strcmp(op, \"push\") == 0) {\n            int val;\n            scanf(\"%d\", &val);\n            push(&arr, val);\n        } else if (strcmp(op, \"pop\") == 0) {\n            pop(&arr);\n        } else if (strcmp(op, \"get\") == 0) {\n            int idx;\n            scanf(\"%d\", &idx);\n            get(&arr, idx);\n        } else if (strcmp(op, \"size\") == 0) {\n            print_size(&arr);\n        }\n    }\n\n    free_array(&arr);\n    return 0;\n}\n",
+    "hints": [
+      "Store elements in a heap-allocated buffer pointed to by int *data.",
+      "Use realloc when size reaches capacity, doubling the capacity parameter.",
+      "Check that you do not shrink the capacity below 2, and ensure pop updates size before testing the shrink condition.",
+      "Always store the return value of realloc in a temporary pointer before assigning back to prevent memory leak on failure."
+    ],
+    "explanation": "A dynamic array uses an amortized O(1) append strategy by doubling its memory footprint whenever it fills up. Symmetrical shrinking when size <= capacity / 4 prevents thrashing (alternating doubling and halving upon single push/pop calls). Memory is allocated using malloc, resized with realloc, and released with free.",
+    "time_complexity": "O(1) amortized for push and pop, O(1) worst-case for get and size",
+    "space_complexity": "O(n) auxiliary memory on heap",
+    "common_mistakes": [
+      "Shrinking capacity when size == capacity / 2 instead of capacity / 4, causing O(N) thrashing.",
+      "Allowing capacity to shrink below the minimum initial capacity of 2.",
+      "Forgetting that 0 is a valid index, or missing negative index checks."
+    ],
+    "related_problems": [
+      "dynamic-stack-with-growth",
+      "safe-realloc-wrapper"
+    ],
+    "topic_slug": "dynamic-memory",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "microsoft"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7\npush 10\npush 20\nsize\npush 30\nsize\nget 1\npop\n",
+        "expected_output": "2 2\n3 4\n20\n30\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard push, size checking, get and pop"
+      },
+      {
+        "input": "6\npop\nget 0\npush 42\nget 0\npop\npop\n",
+        "expected_output": "EMPTY\nOUT_OF_BOUNDS\n42\n42\nEMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty array operations and boundary conditions"
+      },
+      {
+        "input": "11\npush 1\npush 2\npush 3\npush 4\npush 5\npush 6\npush 7\npush 8\npush 9\nsize\nget 8\n",
+        "expected_output": "9 16\n9\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Repeated growth across multiple capacity doublings (2 -> 4 -> 8 -> 16)"
+      },
+      {
+        "input": "16\npush 1\npush 2\npush 3\npush 4\npush 5\npush 6\npush 7\npush 8\nsize\npop\npop\npop\npop\npop\npop\nsize\n",
+        "expected_output": "8 8\n8\n7\n6\n5\n4\n3\n2 4\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Array shrinkage when size drops to capacity / 4"
+      },
+      {
+        "input": "8\npush 100\npush 200\nget -1\nget 2\nget 1\npop\npop\nsize\n",
+        "expected_output": "OUT_OF_BOUNDS\nOUT_OF_BOUNDS\n200\n200\n100\n0 2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Negative index and exact boundary index checks"
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "title": "Dynamic Matrix Operations",
+    "slug": "dynamic-matrix-operations",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nMultidimensional data in C is frequently represented using dynamically allocated arrays of pointers (`int**`). This allows runtime flexibility where dimensions do not need to be known at compile time. However, proper memory management is essential: each row must be allocated independently, and every allocated row along with the master pointer array must be explicitly freed to prevent memory leaks.\n\nIn this problem, you will implement dynamic matrix creation, multiplication, and clean deallocation.\n\n#### Specifications:\n1. Read dimensions $R_1$ and $C_1$ for Matrix $A$, then dynamically allocate and populate Matrix $A$ ($R_1$ rows, each containing $C_1$ integers).\n2. Read dimensions $R_2$ and $C_2$ for Matrix $B$, then dynamically allocate and populate Matrix $B$ ($R_2$ rows, each containing $C_2$ integers).\n3. Validate multiplication compatibility:\n   - Matrix multiplication $A \\times B$ is only defined if the number of columns of $A$ equals the number of rows of $B$ ($C_1 == R_2$).\n   - If $C_1 \\neq R_2$, print `INVALID` and terminate cleanly after freeing both matrices.\n4. If valid, dynamically allocate a result matrix $C$ of dimensions $R_1 \\times C_2$.\n5. Compute the matrix product:\n   $$C[i][j] = \\sum_{k=0}^{C_1 - 1} A[i][k] \\times B[k][j]$$\n6. Print the result matrix $C$ row by row, with single space-separated integers on each row.\n7. Deallocate all allocated rows and pointer arrays for $A$, $B$, and $C$.",
+    "input_format": "The first line contains R1 and C1.\nThe next R1 lines each contain C1 space-separated integers for Matrix A.\nThe next line contains R2 and C2.\nThe next R2 lines each contain C2 space-separated integers for Matrix B.",
+    "output_format": "If dimensions are incompatible (C1 != R2), print 'INVALID'.\nOtherwise, print R1 lines each containing C2 space-separated integers for Matrix C.",
+    "constraints": "1 <= R1, C1, R2, C2 <= 100\n-1000 <= matrix elements <= 1000",
+    "examples": [
+      {
+        "input": "2 3\n1 2 3\n4 5 6\n3 2\n7 8\n9 1\n2 3\n",
+        "output": "31 19\n85 55\n",
+        "explanation": "Matrix A is 2x3, Matrix B is 3x2. Since C1 == R2 == 3, multiplication is valid. Product row 0: [1*7 + 2*9 + 3*2 = 31, 1*8 + 2*1 + 3*3 = 19]. Row 1: [4*7 + 5*9 + 6*2 = 85, 4*8 + 5*1 + 6*3 = 55]."
+      },
+      {
+        "input": "2 2\n1 2\n3 4\n3 2\n1 0\n0 1\n1 1\n",
+        "output": "INVALID\n",
+        "explanation": "Matrix A has 2 columns, but Matrix B has 3 rows. Multiplication is undefined, so output is INVALID."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint** allocate_matrix(int rows, int cols) {\n    // TODO: Allocate array of row pointers, then allocate each row\n    return NULL;\n}\n\nvoid free_matrix(int **mat, int rows) {\n    // TODO: Free each row, then free the master pointer\n}\n\nint main() {\n    int r1, c1;\n    if (scanf(\"%d %d\", &r1, &c1) != 2) return 0;\n    \n    // TODO: Read matrix A\n    \n    int r2, c2;\n    if (scanf(\"%d %d\", &r2, &c2) != 2) return 0;\n    \n    // TODO: Read matrix B\n    \n    // TODO: Check compatibility, compute product C = A x B, print output, and free all memory\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint** allocate_matrix(int rows, int cols) {\n    int **mat = (int **)malloc(rows * sizeof(int *));\n    if (!mat) return NULL;\n    for (int i = 0; i < rows; i++) {\n        mat[i] = (int *)malloc(cols * sizeof(int));\n    }\n    return mat;\n}\n\nvoid free_matrix(int **mat, int rows) {\n    if (!mat) return;\n    for (int i = 0; i < rows; i++) {\n        if (mat[i]) free(mat[i]);\n    }\n    free(mat);\n}\n\nint main() {\n    int r1, c1;\n    if (scanf(\"%d %d\", &r1, &c1) != 2) return 0;\n    \n    int **A = allocate_matrix(r1, c1);\n    for (int i = 0; i < r1; i++) {\n        for (int j = 0; j < c1; j++) {\n            scanf(\"%d\", &A[i][j]);\n        }\n    }\n    \n    int r2, c2;\n    if (scanf(\"%d %d\", &r2, &c2) != 2) {\n        free_matrix(A, r1);\n        return 0;\n    }\n    \n    int **B = allocate_matrix(r2, c2);\n    for (int i = 0; i < r2; i++) {\n        for (int j = 0; j < c2; j++) {\n            scanf(\"%d\", &B[i][j]);\n        }\n    }\n    \n    if (c1 != r2) {\n        printf(\"INVALID\\n\");\n        free_matrix(A, r1);\n        free_matrix(B, r2);\n        return 0;\n    }\n    \n    int **C = allocate_matrix(r1, c2);\n    for (int i = 0; i < r1; i++) {\n        for (int j = 0; j < c2; j++) {\n            long long sum = 0;\n            for (int k = 0; k < c1; k++) {\n                sum += (long long)A[i][k] * B[k][j];\n            }\n            C[i][j] = (int)sum;\n        }\n    }\n    \n    for (int i = 0; i < r1; i++) {\n        for (int j = 0; j < c2; j++) {\n            printf(\"%d%s\", C[i][j], (j == c2 - 1) ? \"\" : \" \");\n        }\n        printf(\"\\n\");\n    }\n    \n    free_matrix(A, r1);\n    free_matrix(B, r2);\n    free_matrix(C, r1);\n    return 0;\n}\n",
+    "hints": [
+      "Allocate an array of row pointers first: int **mat = malloc(rows * sizeof(int *));",
+      "For each row i, allocate cols integers: mat[i] = malloc(cols * sizeof(int));",
+      "Freeing must occur in reverse order: free each row pointer mat[i] first, then free the master pointer mat.",
+      "Be sure to free A and B even when printing INVALID."
+    ],
+    "explanation": "To allocate a 2D matrix dynamically, allocate an array of pointers to rows, then allocate each row contiguous memory block. Matrix multiplication requires matching inner dimensions (C1 == R2) and computes the dot product of each row of A with each column of B. Proper deallocation frees each individual row before freeing the top-level pointer array.",
+    "time_complexity": "O(R1 * C1 * C2) for matrix multiplication, O(R * C) for allocation/deallocation",
+    "space_complexity": "O(R1 * C1 + R2 * C2 + R1 * C2) auxiliary memory on the heap",
+    "common_mistakes": [
+      "Freeing mat before freeing mat[i], leaving orphaned memory leaks on each row.",
+      "Prematurely returning on dimension mismatch without freeing the already-allocated matrices.",
+      "Mixing up rows and columns during memory allocation loops."
+    ],
+    "related_problems": [
+      "dynamic-2d-jagged-array",
+      "dynamic-array-implementation"
+    ],
+    "topic_slug": "dynamic-memory",
+    "company_slugs": [
+      "nvidia",
+      "intel",
+      "qualcomm"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "2 3\n1 2 3\n4 5 6\n3 2\n7 8\n9 1\n2 3\n",
+        "expected_output": "31 19\n85 55\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 2x3 and 3x2 matrix multiplication"
+      },
+      {
+        "input": "2 2\n1 2\n3 4\n3 2\n1 0\n0 1\n1 1\n",
+        "expected_output": "INVALID\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Incompatible matrix dimensions (2x2 with 3x2)"
+      },
+      {
+        "input": "1 1\n7\n1 1\n6\n",
+        "expected_output": "42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element 1x1 multiplication"
+      },
+      {
+        "input": "3 1\n2\n-3\n4\n1 3\n5 0 -2\n",
+        "expected_output": "10 0 -4\n-15 0 6\n20 0 -8\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Column vector (3x1) multiplied by row vector (1x3)"
+      },
+      {
+        "input": "2 2\n0 0\n0 0\n2 2\n10 20\n30 40\n",
+        "expected_output": "0 0\n0 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Zero matrix multiplication"
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "title": "Dynamic String Builder",
+    "slug": "dynamic-string-builder",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nStandard string concatenation in C using `strcat` repeatedly traverses the string to find the null terminator, leading to quadratic $O(N^2)$ running times. Furthermore, fixed-size buffers easily risk memory corruption through buffer overflow. A `StringBuilder` pattern solves these bottlenecks by maintaining a dynamically resized character buffer along with explicit length and capacity tracking.\n\nImplement a dynamic `StringBuilder` in C with the following specifications:\n\n#### Sizing & Capacity Rules:\n1. **Initial State:** Initial capacity is `8` bytes. The builder starts holding an empty null-terminated string `\"\"` of length `0`.\n2. **Expansion Policy:** Whenever appending or inserting characters causes `length + added_length + 1 > capacity`, repeatedly double the capacity (`capacity *= 2`) until it is strictly greater than or equal to `length + added_length + 1`. The internal buffer is resized using `realloc`.\n3. The string buffer must **always** remain properly null-terminated after every mutating operation.\n\n#### Commands:\n- `APPEND <str>`: Append string `<str>` to the end of the current buffer.\n- `INSERT <idx> <str>`: Insert string `<str>` starting at 0-based character offset `<idx>`.\n  - If `<idx> < 0` or `<idx> > length`, print `OUT_OF_BOUNDS` and do not alter the buffer.\n  - Otherwise, shift existing characters to make space, insert `<str>`, and update length.\n- `DELETE <start> <len>`: Delete `<len>` characters starting at 0-based index `<start>`.\n  - If `<start> < 0` or `<start> >= length` or `<len> <= 0`, print `OUT_OF_BOUNDS`.\n  - If `<start> + <len> > length`, delete characters from `<start>` through the end of the string.\n  - Shift remaining tail characters forward and update length.\n- `PRINT`: Output the current string followed by a newline (if empty, output a blank line).\n- `INFO`: Print `LEN: <length> CAP: <capacity>`.\n\nEnsure all dynamically allocated memory is cleanly deallocated before termination.",
+    "input_format": "The first line contains an integer N representing the number of commands.\nThe next N lines each contain a command: APPEND <str>, INSERT <idx> <str>, DELETE <start> <len>, PRINT, or INFO.",
+    "output_format": "Print the output for each command generating a response on a new line.",
+    "constraints": "1 <= N <= 500\n1 <= length(str) <= 100\n-100 <= idx, start, len <= 1000",
+    "examples": [
+      {
+        "input": "7\nAPPEND Hello\nINFO\nAPPEND World\nINFO\nPRINT\nINSERT 5 _\nPRINT\n",
+        "output": "LEN: 5 CAP: 8\nLEN: 10 CAP: 16\nHelloWorld\nHello_World\n",
+        "explanation": "Appending 'Hello' fits in initial capacity 8. Appending 'World' requires 11 bytes (including '\\0'), doubling capacity to 16. Inserting '_' at index 5 yields 'Hello_World'."
+      },
+      {
+        "input": "6\nINSERT 1 Fail\nDELETE 0 1\nAPPEND Test\nDELETE 1 2\nPRINT\nINFO\n",
+        "output": "OUT_OF_BOUNDS\nOUT_OF_BOUNDS\nTt\nLEN: 2 CAP: 8\n",
+        "explanation": "Inserting at index 1 of an empty string is out of bounds. Deleting from empty string fails. Appending 'Test' then deleting 2 characters from index 1 removes 'es', leaving 'Tt'."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    char *buffer;\n    int length;\n    int capacity;\n} StringBuilder;\n\nvoid sb_init(StringBuilder *sb) {\n    // TODO: Initialize buffer with capacity 8 and length 0\n}\n\nvoid sb_append(StringBuilder *sb, const char *str) {\n    // TODO: Append str, resizing buffer by doubling capacity as needed\n}\n\nvoid sb_insert(StringBuilder *sb, int idx, const char *str) {\n    // TODO: Insert str at idx. Print OUT_OF_BOUNDS if idx < 0 || idx > length\n}\n\nvoid sb_delete(StringBuilder *sb, int start, int len) {\n    // TODO: Delete len chars from start. Print OUT_OF_BOUNDS if invalid\n}\n\nvoid sb_print(StringBuilder *sb) {\n    // TODO: Print buffer\n}\n\nvoid sb_info(StringBuilder *sb) {\n    // TODO: Print \"LEN: <length> CAP: <capacity>\"\n}\n\nvoid sb_free(StringBuilder *sb) {\n    // TODO: Free memory\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    StringBuilder sb;\n    sb_init(&sb);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"APPEND\") == 0) {\n            char str[128];\n            scanf(\"%s\", str);\n            sb_append(&sb, str);\n        } else if (strcmp(cmd, \"INSERT\") == 0) {\n            int idx;\n            char str[128];\n            scanf(\"%d %s\", &idx, str);\n            sb_insert(&sb, idx, str);\n        } else if (strcmp(cmd, \"DELETE\") == 0) {\n            int start, len;\n            scanf(\"%d %d\", &start, &len);\n            sb_delete(&sb, start, len);\n        } else if (strcmp(cmd, \"PRINT\") == 0) {\n            sb_print(&sb);\n        } else if (strcmp(cmd, \"INFO\") == 0) {\n            sb_info(&sb);\n        }\n    }\n    \n    sb_free(&sb);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    char *buffer;\n    int length;\n    int capacity;\n} StringBuilder;\n\nvoid sb_init(StringBuilder *sb) {\n    sb->capacity = 8;\n    sb->length = 0;\n    sb->buffer = (char *)malloc(sb->capacity * sizeof(char));\n    sb->buffer[0] = '\\0';\n}\n\nvoid sb_ensure_capacity(StringBuilder *sb, int needed) {\n    if (needed > sb->capacity) {\n        while (sb->capacity < needed) {\n            sb->capacity *= 2;\n        }\n        sb->buffer = (char *)realloc(sb->buffer, sb->capacity * sizeof(char));\n    }\n}\n\nvoid sb_append(StringBuilder *sb, const char *str) {\n    int add_len = (int)strlen(str);\n    sb_ensure_capacity(sb, sb->length + add_len + 1);\n    memcpy(sb->buffer + sb->length, str, add_len);\n    sb->length += add_len;\n    sb->buffer[sb->length] = '\\0';\n}\n\nvoid sb_insert(StringBuilder *sb, int idx, const char *str) {\n    if (idx < 0 || idx > sb->length) {\n        printf(\"OUT_OF_BOUNDS\\n\");\n        return;\n    }\n    int add_len = (int)strlen(str);\n    sb_ensure_capacity(sb, sb->length + add_len + 1);\n    memmove(sb->buffer + idx + add_len, sb->buffer + idx, sb->length - idx + 1);\n    memcpy(sb->buffer + idx, str, add_len);\n    sb->length += add_len;\n}\n\nvoid sb_delete(StringBuilder *sb, int start, int len) {\n    if (start < 0 || start >= sb->length || len <= 0) {\n        printf(\"OUT_OF_BOUNDS\\n\");\n        return;\n    }\n    int del_count = len;\n    if (start + del_count > sb->length) {\n        del_count = sb->length - start;\n    }\n    memmove(sb->buffer + start, sb->buffer + start + del_count, sb->length - (start + del_count) + 1);\n    sb->length -= del_count;\n}\n\nvoid sb_print(StringBuilder *sb) {\n    printf(\"%s\\n\", sb->buffer);\n}\n\nvoid sb_info(StringBuilder *sb) {\n    printf(\"LEN: %d CAP: %d\\n\", sb->length, sb->capacity);\n}\n\nvoid sb_free(StringBuilder *sb) {\n    if (sb->buffer) {\n        free(sb->buffer);\n        sb->buffer = NULL;\n    }\n    sb->length = 0;\n    sb->capacity = 0;\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    StringBuilder sb;\n    sb_init(&sb);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"APPEND\") == 0) {\n            char str[128];\n            scanf(\"%s\", str);\n            sb_append(&sb, str);\n        } else if (strcmp(cmd, \"INSERT\") == 0) {\n            int idx;\n            char str[128];\n            scanf(\"%d %s\", &idx, str);\n            sb_insert(&sb, idx, str);\n        } else if (strcmp(cmd, \"DELETE\") == 0) {\n            int start, len;\n            scanf(\"%d %d\", &start, &len);\n            sb_delete(&sb, start, len);\n        } else if (strcmp(cmd, \"PRINT\") == 0) {\n            sb_print(&sb);\n        } else if (strcmp(cmd, \"INFO\") == 0) {\n            sb_info(&sb);\n        }\n    }\n    \n    sb_free(&sb);\n    return 0;\n}\n",
+    "hints": [
+      "Use memmove rather than memcpy when shifting overlapping memory regions during insertion and deletion.",
+      "Always include +1 for the null terminator byte when computing needed capacity.",
+      "Double the capacity in a while loop (capacity *= 2) until capacity >= needed.",
+      "Ensure the string is null-terminated after every delete and insert operation."
+    ],
+    "explanation": "A dynamic string builder manages an underlying char array that doubles in size when capacity is exceeded. Using memmove allows overlapping memory moves during character insertions and deletions, while explicit length tracking enables O(1) appends and eliminates repeated strlen() scans.",
+    "time_complexity": "O(1) amortized append, O(N) for insert and delete, O(1) for info",
+    "space_complexity": "O(capacity) auxiliary heap memory",
+    "common_mistakes": [
+      "Using memcpy on overlapping memory regions, causing undefined behavior during insertion or deletion.",
+      "Forgetting the null terminator byte '\\0' when checking capacity constraints.",
+      "Failing to handle deletions where start + len exceeds the current string length."
+    ],
+    "related_problems": [
+      "dynamic-array-implementation",
+      "safe-realloc-wrapper"
+    ],
+    "topic_slug": "dynamic-memory",
+    "company_slugs": [
+      "google",
+      "microsoft",
+      "meta"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7\nAPPEND Hello\nINFO\nAPPEND World\nINFO\nPRINT\nINSERT 5 _\nPRINT\n",
+        "expected_output": "LEN: 5 CAP: 8\nLEN: 10 CAP: 16\nHelloWorld\nHello_World\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard append, doubling capacity, and middle insertion"
+      },
+      {
+        "input": "6\nINSERT 1 Fail\nDELETE 0 1\nAPPEND Test\nDELETE 1 2\nPRINT\nINFO\n",
+        "expected_output": "OUT_OF_BOUNDS\nOUT_OF_BOUNDS\nTt\nLEN: 2 CAP: 8\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Error handling on empty buffer and partial deletion"
+      },
+      {
+        "input": "8\nAPPEND A\nAPPEND B\nAPPEND C\nAPPEND D\nAPPEND E\nAPPEND F\nAPPEND G\nINFO\n",
+        "expected_output": "LEN: 7 CAP: 8\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Appending exactly up to capacity - 1 without triggering resize"
+      },
+      {
+        "input": "7\nAPPEND Supercalifragilisticexpialidocious\nINFO\nDELETE 5 100\nPRINT\nINFO\nINSERT 5 Star\nPRINT\n",
+        "expected_output": "LEN: 34 CAP: 64\nSuper\nLEN: 5 CAP: 64\nSuperStar\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Large string triggering multiple doublings and clamped delete"
+      },
+      {
+        "input": "6\nINSERT 0 Prefix\nPRINT\nINSERT 6 Suffix\nPRINT\nDELETE 0 12\nPRINT\n",
+        "expected_output": "Prefix\nPrefixSuffix\n\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Insert at head, insert at tail, and complete deletion to empty"
+      }
+    ]
+  },
+  {
+    "id": 71,
+    "title": "Memory Pool Allocator",
+    "slug": "memory-pool-allocator",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nIn real-time and embedded systems, relying on generic `malloc` and `free` can cause unacceptable latency spikes and heap fragmentation. A **Memory Pool Allocator** (or Fixed-Size Block Allocator) pre-allocates a contiguous memory buffer and partitions it into fixed-size chunks (blocks). Allocations and deallocations can then run in deterministic $O(1)$ time without fragmentation.\n\nIn this problem, you will implement a fixed-size block memory pool allocator in C.\n\n#### System Architecture:\n1. **Pool Initialization:**\n   - Total pool size is $P$ bytes, and each block has size $B$ bytes.\n   - The total number of manageable blocks is $M = \\lfloor P / B \\rfloor$. Blocks are indexed $0, 1, \\dots, M - 1$.\n   - A block tracking array marks whether each block is currently `FREE` (0) or `USED` (1). Initially, all $M$ blocks are free.\n2. **Deterministic Allocation Strategy:**\n   - To ensure consistent behavior, when an allocation request is made, find the **lowest available free block index** $0 \\le i < M$.\n   - If a free block exists, mark it as `USED` and print its block index $i$.\n   - If all $M$ blocks are currently allocated, print `-1`.\n3. **Supported Commands:**\n   - `ALLOC`: Allocate one block according to the deterministic strategy. Print the allocated block index, or `-1` if exhausted.\n   - `FREE <idx>`: Release block `<idx>`.\n     - If `<idx> < 0` or `<idx> >= M` or block `<idx>` is already free, print `INVALID`.\n     - Otherwise, mark the block as free and print `FREED <idx>`.\n   - `STATS`: Print `USED: <u> FREE: <f>` where `<u>` is the count of currently allocated blocks and `<f>` is the count of available free blocks ($M - u$).\n   - `RESET`: Mark all $M$ blocks as free and print `RESET_OK`.\n\nEnsure all dynamically allocated metadata structures are freed upon program completion.",
+    "input_format": "The first line contains two integers P and B (pool size and block size in bytes).\nThe second line contains an integer Q (number of operations).\nThe next Q lines contain commands: ALLOC, FREE <idx>, STATS, or RESET.",
+    "output_format": "Print the response for each command on a new line.",
+    "constraints": "1 <= B <= 10000\n0 <= P <= 100000\n1 <= Q <= 1000\n-100 <= idx <= 100000",
+    "examples": [
+      {
+        "input": "64 16\n8\nALLOC\nALLOC\nSTATS\nFREE 0\nSTATS\nALLOC\nALLOC\nALLOC\n",
+        "output": "0\n1\nUSED: 2 FREE: 2\nFREED 0\nUSED: 1 FREE: 3\n0\n2\n3\n",
+        "explanation": "64 bytes / 16 bytes = 4 blocks (0, 1, 2, 3). ALLOC returns 0 then 1. After freeing 0, the next ALLOC picks the lowest free index, which is 0."
+      },
+      {
+        "input": "32 16\n6\nALLOC\nALLOC\nALLOC\nFREE 5\nFREE 1\nFREE 1\n",
+        "output": "0\n1\n-1\nINVALID\nFREED 1\nINVALID\n",
+        "explanation": "32 / 16 = 2 blocks (0, 1). Third ALLOC yields -1. FREE 5 is out of bounds (INVALID). Freeing 1 twice triggers INVALID on the second attempt (double free detection)."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int total_blocks;\n    int *used;\n    int used_count;\n} MemoryPool;\n\nvoid pool_init(MemoryPool *pool, int pool_size, int block_size) {\n    // TODO: Calculate total_blocks = pool_size / block_size and initialize tracker\n}\n\nvoid pool_alloc(MemoryPool *pool) {\n    // TODO: Allocate lowest free block index, print index or -1\n}\n\nvoid pool_free(MemoryPool *pool, int idx) {\n    // TODO: Free block at idx. Print INVALID if out of bounds or already free, else FREED <idx>\n}\n\nvoid pool_stats(MemoryPool *pool) {\n    // TODO: Print \"USED: <u> FREE: <f>\"\n}\n\nvoid pool_reset(MemoryPool *pool) {\n    // TODO: Free all blocks, print RESET_OK\n}\n\nvoid pool_destroy(MemoryPool *pool) {\n    // TODO: Clean up memory\n}\n\nint main() {\n    int p, b;\n    if (scanf(\"%d %d\", &p, &b) != 2) return 0;\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    MemoryPool pool;\n    pool_init(&pool, p, b);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"ALLOC\") == 0) {\n            pool_alloc(&pool);\n        } else if (strcmp(cmd, \"FREE\") == 0) {\n            int idx;\n            scanf(\"%d\", &idx);\n            pool_free(&pool, idx);\n        } else if (strcmp(cmd, \"STATS\") == 0) {\n            pool_stats(&pool);\n        } else if (strcmp(cmd, \"RESET\") == 0) {\n            pool_reset(&pool);\n        }\n    }\n    \n    pool_destroy(&pool);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int total_blocks;\n    int *used;\n    int used_count;\n} MemoryPool;\n\nvoid pool_init(MemoryPool *pool, int pool_size, int block_size) {\n    pool->total_blocks = pool_size / block_size;\n    pool->used_count = 0;\n    pool->used = (int *)calloc(pool->total_blocks, sizeof(int));\n}\n\nvoid pool_alloc(MemoryPool *pool) {\n    if (pool->used_count >= pool->total_blocks) {\n        printf(\"-1\\n\");\n        return;\n    }\n    for (int i = 0; i < pool->total_blocks; i++) {\n        if (!pool->used[i]) {\n            pool->used[i] = 1;\n            pool->used_count++;\n            printf(\"%d\\n\", i);\n            return;\n        }\n    }\n    printf(\"-1\\n\");\n}\n\nvoid pool_free(MemoryPool *pool, int idx) {\n    if (idx < 0 || idx >= pool->total_blocks || !pool->used[idx]) {\n        printf(\"INVALID\\n\");\n        return;\n    }\n    pool->used[idx] = 0;\n    pool->used_count--;\n    printf(\"FREED %d\\n\", idx);\n}\n\nvoid pool_stats(MemoryPool *pool) {\n    printf(\"USED: %d FREE: %d\\n\", pool->used_count, pool->total_blocks - pool->used_count);\n}\n\nvoid pool_reset(MemoryPool *pool) {\n    memset(pool->used, 0, pool->total_blocks * sizeof(int));\n    pool->used_count = 0;\n    printf(\"RESET_OK\\n\");\n}\n\nvoid pool_destroy(MemoryPool *pool) {\n    if (pool->used) {\n        free(pool->used);\n        pool->used = NULL;\n    }\n    pool->total_blocks = 0;\n    pool->used_count = 0;\n}\n\nint main() {\n    int p, b;\n    if (scanf(\"%d %d\", &p, &b) != 2) return 0;\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    MemoryPool pool;\n    pool_init(&pool, p, b);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"ALLOC\") == 0) {\n            pool_alloc(&pool);\n        } else if (strcmp(cmd, \"FREE\") == 0) {\n            int idx;\n            scanf(\"%d\", &idx);\n            pool_free(&pool, idx);\n        } else if (strcmp(cmd, \"STATS\") == 0) {\n            pool_stats(&pool);\n        } else if (strcmp(cmd, \"RESET\") == 0) {\n            pool_reset(&pool);\n        }\n    }\n    \n    pool_destroy(&pool);\n    return 0;\n}\n",
+    "hints": [
+      "Compute the number of blocks as M = P / B using integer division.",
+      "Use an array of integers or booleans initialized to 0 to keep track of allocation state.",
+      "Always search for the first 0 in the tracking array for deterministic allocations.",
+      "Validate both bounds (0 <= idx < M) and active state (!used[idx]) in FREE."
+    ],
+    "explanation": "Memory pools eliminate external fragmentation and provide deterministic O(1) allocation bounds. In hardware and operating system kernels (e.g. Linux slab allocator), memory pools pre-divide large memory pages into fixed-size chunks, maintaining a bitmap or freelist to track available entries.",
+    "time_complexity": "O(M) search for lowest free block in ALLOC, O(1) for FREE, STATS, and RESET",
+    "space_complexity": "O(M) heap memory for block metadata",
+    "common_mistakes": [
+      "Allowing double-frees by not checking if the block was already free.",
+      "Failing to handle the edge case where P < B, resulting in 0 total blocks.",
+      "Off-by-one errors in checking idx >= total_blocks."
+    ],
+    "related_problems": [
+      "memory-leak-detector-simulation",
+      "safe-realloc-wrapper"
+    ],
+    "topic_slug": "dynamic-memory",
+    "company_slugs": [
+      "qualcomm",
+      "intel",
+      "apple",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "64 16\n8\nALLOC\nALLOC\nSTATS\nFREE 0\nSTATS\nALLOC\nALLOC\nALLOC\n",
+        "expected_output": "0\n1\nUSED: 2 FREE: 2\nFREED 0\nUSED: 1 FREE: 3\n0\n2\n3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Basic allocation, freeing, stats, and re-allocation of lowest index"
+      },
+      {
+        "input": "32 16\n6\nALLOC\nALLOC\nALLOC\nFREE 5\nFREE 1\nFREE 1\n",
+        "expected_output": "0\n1\n-1\nINVALID\nFREED 1\nINVALID\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Exhaustion (-1), out of bounds free, and double free handling"
+      },
+      {
+        "input": "100 20\n7\nALLOC\nALLOC\nALLOC\nRESET\nSTATS\nALLOC\nSTATS\n",
+        "expected_output": "0\n1\n2\nRESET_OK\nUSED: 0 FREE: 5\n0\nUSED: 1 FREE: 4\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Pool reset clears all allocated blocks"
+      },
+      {
+        "input": "15 16\n2\nALLOC\nSTATS\n",
+        "expected_output": "-1\nUSED: 0 FREE: 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Zero block pool when pool_size < block_size"
+      },
+      {
+        "input": "50 10\n9\nALLOC\nALLOC\nALLOC\nALLOC\nALLOC\nALLOC\nFREE 2\nALLOC\nSTATS\n",
+        "expected_output": "0\n1\n2\n3\n4\n-1\nFREED 2\n2\nUSED: 5 FREE: 0\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Full allocation, freeing middle block, and re-allocating it"
+      }
+    ]
+  },
+  {
+    "id": 72,
+    "title": "Safe Realloc Wrapper",
+    "slug": "safe-realloc-wrapper",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nA notorious bug pattern in C code is assigning the return value of `realloc` directly back to the original pointer:\n```c\nptr = realloc(ptr, new_size);\n```\nIf the system cannot satisfy the request, `realloc` returns `NULL`. As a consequence, `ptr` is overwritten with `NULL`, and the original memory block is permanently orphaned on the heap without being freed, causing a memory leak. The safe pattern requires using an intermediate pointer and validating before overwriting:\n```c\nvoid *temp = realloc(ptr, new_size);\nif (temp == NULL && new_size > 0) {\n    /* Handle error; ptr is still valid and unchanged */\n} else {\n    ptr = temp;\n}\n```\n\nIn this problem, you will implement a safe dynamic memory manager with an enforced memory budget ceiling `MAX_MEM` (in bytes).\n\n#### Rules:\n1. Initialize the managed buffer to `NULL` with current size `0`.\n2. `RESIZE <new_size>`:\n   - If `<new_size> < 0` or `<new_size> > MAX_MEM`, the resize fails: print `RESIZE_FAILED`. The existing buffer and all its current byte values must remain **completely intact and unchanged**.\n   - If `<new_size> == 0`: Free the existing buffer, set pointer to `NULL`, set size to `0`, and print `BUFFER_FREED`.\n   - If valid ($0 < \\text{new\\_size} \\le MAX\\_MEM$), safely reallocate the buffer. If the buffer expanded, zero-initialize the newly added bytes. Set current size to `<new_size>` and print `RESIZED <new_size>`.\n3. `SET <offset> <val>`:\n   - Write unsigned 8-bit value `<val>` ($0 \\le val \\le 255$) into `buffer[offset]`.\n   - If `<offset> < 0` or `<offset> >= current_size`, print `OUT_OF_BOUNDS`.\n   - Otherwise, update the byte and print `OK`.\n4. `GET <offset>`:\n   - Print the byte value at `<offset>` as an integer.\n   - If `<offset> < 0` or `<offset> >= current_size`, print `OUT_OF_BOUNDS`.\n5. `DUMP`:\n   - If `current_size == 0`, print `EMPTY`.\n   - Otherwise, print all bytes from index `0` to `current_size - 1` separated by single spaces.\n\nEnsure the buffer is freed before program termination.",
+    "input_format": "The first line contains MAX_MEM.\nThe second line contains Q (number of operations).\nThe next Q lines contain commands: RESIZE <new_size>, SET <offset> <val>, GET <offset>, or DUMP.",
+    "output_format": "Print the response for each command on a separate line.",
+    "constraints": "1 <= MAX_MEM <= 65536\n1 <= Q <= 500\n-1000 <= new_size <= 100000\n-100 <= offset <= 100000\n0 <= val <= 255",
+    "examples": [
+      {
+        "input": "16\n8\nRESIZE 4\nSET 0 65\nSET 1 66\nDUMP\nRESIZE 20\nDUMP\nGET 1\nRESIZE 0\n",
+        "output": "RESIZED 4\nOK\nOK\n65 66 0 0\nRESIZE_FAILED\n65 66 0 0\n66\nBUFFER_FREED\n",
+        "explanation": "Buffer is allocated to 4 bytes and populated with 65 and 66. A resize to 20 exceeds MAX_MEM (16) and fails, leaving the buffer and existing data completely untouched."
+      },
+      {
+        "input": "10\n6\nDUMP\nGET 0\nSET 0 10\nRESIZE -5\nRESIZE 5\nDUMP\n",
+        "output": "EMPTY\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\nRESIZE_FAILED\nRESIZED 5\n0 0 0 0 0\n",
+        "explanation": "Querying empty buffer gives EMPTY or OUT_OF_BOUNDS. Negative resize is rejected. Expanding to 5 zeros all 5 bytes."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    unsigned char *buffer;\n    int size;\n    int max_mem;\n} SafeBuffer;\n\nvoid sb_init(SafeBuffer *sb, int max_mem) {\n    // TODO: Initialize buffer\n}\n\nvoid sb_resize(SafeBuffer *sb, int new_size) {\n    // TODO: Safely resize buffer. Preserve data on failure!\n}\n\nvoid sb_set(SafeBuffer *sb, int offset, int val) {\n    // TODO: Write val at offset\n}\n\nvoid sb_get(SafeBuffer *sb, int offset) {\n    // TODO: Read byte at offset\n}\n\nvoid sb_dump(SafeBuffer *sb) {\n    // TODO: Print all bytes or EMPTY\n}\n\nvoid sb_destroy(SafeBuffer *sb) {\n    // TODO: Free buffer\n}\n\nint main() {\n    int max_mem;\n    if (scanf(\"%d\", &max_mem) != 1) return 0;\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    SafeBuffer sb;\n    sb_init(&sb, max_mem);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"RESIZE\") == 0) {\n            int new_size;\n            scanf(\"%d\", &new_size);\n            sb_resize(&sb, new_size);\n        } else if (strcmp(cmd, \"SET\") == 0) {\n            int offset, val;\n            scanf(\"%d %d\", &offset, &val);\n            sb_set(&sb, offset, val);\n        } else if (strcmp(cmd, \"GET\") == 0) {\n            int offset;\n            scanf(\"%d\", &offset);\n            sb_get(&sb, offset);\n        } else if (strcmp(cmd, \"DUMP\") == 0) {\n            sb_dump(&sb);\n        }\n    }\n    \n    sb_destroy(&sb);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    unsigned char *buffer;\n    int size;\n    int max_mem;\n} SafeBuffer;\n\nvoid sb_init(SafeBuffer *sb, int max_mem) {\n    sb->buffer = NULL;\n    sb->size = 0;\n    sb->max_mem = max_mem;\n}\n\nvoid sb_resize(SafeBuffer *sb, int new_size) {\n    if (new_size < 0 || new_size > sb->max_mem) {\n        printf(\"RESIZE_FAILED\\n\");\n        return;\n    }\n    if (new_size == 0) {\n        if (sb->buffer) {\n            free(sb->buffer);\n            sb->buffer = NULL;\n        }\n        sb->size = 0;\n        printf(\"BUFFER_FREED\\n\");\n        return;\n    }\n    unsigned char *temp = (unsigned char *)realloc(sb->buffer, new_size * sizeof(unsigned char));\n    if (temp == NULL) {\n        printf(\"RESIZE_FAILED\\n\");\n        return;\n    }\n    sb->buffer = temp;\n    if (new_size > sb->size) {\n        memset(sb->buffer + sb->size, 0, new_size - sb->size);\n    }\n    sb->size = new_size;\n    printf(\"RESIZED %d\\n\", new_size);\n}\n\nvoid sb_set(SafeBuffer *sb, int offset, int val) {\n    if (offset < 0 || offset >= sb->size) {\n        printf(\"OUT_OF_BOUNDS\\n\");\n        return;\n    }\n    sb->buffer[offset] = (unsigned char)(val & 0xFF);\n    printf(\"OK\\n\");\n}\n\nvoid sb_get(SafeBuffer *sb, int offset) {\n    if (offset < 0 || offset >= sb->size) {\n        printf(\"OUT_OF_BOUNDS\\n\");\n        return;\n    }\n    printf(\"%u\\n\", (unsigned int)sb->buffer[offset]);\n}\n\nvoid sb_dump(SafeBuffer *sb) {\n    if (sb->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    for (int i = 0; i < sb->size; i++) {\n        printf(\"%u%s\", (unsigned int)sb->buffer[i], (i == sb->size - 1) ? \"\" : \" \");\n    }\n    printf(\"\\n\");\n}\n\nvoid sb_destroy(SafeBuffer *sb) {\n    if (sb->buffer) {\n        free(sb->buffer);\n        sb->buffer = NULL;\n    }\n    sb->size = 0;\n}\n\nint main() {\n    int max_mem;\n    if (scanf(\"%d\", &max_mem) != 1) return 0;\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    SafeBuffer sb;\n    sb_init(&sb, max_mem);\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"RESIZE\") == 0) {\n            int new_size;\n            scanf(\"%d\", &new_size);\n            sb_resize(&sb, new_size);\n        } else if (strcmp(cmd, \"SET\") == 0) {\n            int offset, val;\n            scanf(\"%d %d\", &offset, &val);\n            sb_set(&sb, offset, val);\n        } else if (strcmp(cmd, \"GET\") == 0) {\n            int offset;\n            scanf(\"%d\", &offset);\n            sb_get(&sb, offset);\n        } else if (strcmp(cmd, \"DUMP\") == 0) {\n            sb_dump(&sb);\n        }\n    }\n    \n    sb_destroy(&sb);\n    return 0;\n}\n",
+    "hints": [
+      "Never assign realloc return value directly to your data pointer: void *tmp = realloc(ptr, sz);",
+      "Check limits before calling realloc: if new_size > MAX_MEM, fail immediately without touching ptr.",
+      "When expanding the buffer, use memset(buffer + old_size, 0, new_size - old_size) to zero newly added bytes.",
+      "Handling new_size == 0 requires freeing the buffer and setting the pointer to NULL."
+    ],
+    "explanation": "Safe dynamic memory reallocation requires atomic state updates. By performing bounds and resource limit checks prior to calling realloc, and using a temporary pointer to receive realloc's return value, a program guarantees that memory exhaustion or validation failure leaves the existing heap block valid and leak-free.",
+    "time_complexity": "O(1) for GET/SET, O(N) for RESIZE (when copying bytes) and DUMP",
+    "space_complexity": "O(MAX_MEM) heap memory",
+    "common_mistakes": [
+      "Overwriting buffer pointer with NULL when realloc fails, creating an untracked memory leak.",
+      "Failing to zero-initialize newly expanded bytes beyond the old size.",
+      "Allowing negative sizes or sizes exceeding MAX_MEM to proceed to realloc."
+    ],
+    "related_problems": [
+      "dynamic-array-implementation",
+      "memory-pool-allocator"
+    ],
+    "topic_slug": "dynamic-memory",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "google"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "16\n8\nRESIZE 4\nSET 0 65\nSET 1 66\nDUMP\nRESIZE 20\nDUMP\nGET 1\nRESIZE 0\n",
+        "expected_output": "RESIZED 4\nOK\nOK\n65 66 0 0\nRESIZE_FAILED\n65 66 0 0\n66\nBUFFER_FREED\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Resize, set bytes, fail over-budget resize while preserving data, and free"
+      },
+      {
+        "input": "10\n6\nDUMP\nGET 0\nSET 0 10\nRESIZE -5\nRESIZE 5\nDUMP\n",
+        "expected_output": "EMPTY\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\nRESIZE_FAILED\nRESIZED 5\n0 0 0 0 0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on uninitialized buffer and negative resize"
+      },
+      {
+        "input": "100\n7\nRESIZE 3\nSET 0 10\nSET 1 20\nSET 2 30\nRESIZE 5\nDUMP\nGET 4\n",
+        "expected_output": "RESIZED 3\nOK\nOK\nOK\nRESIZED 5\n10 20 30 0 0\n0\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Buffer expansion zero-initializes new trailing bytes"
+      },
+      {
+        "input": "50\n6\nRESIZE 5\nSET 0 1\nSET 1 2\nRESIZE 2\nDUMP\nGET 3\n",
+        "expected_output": "RESIZED 5\nOK\nOK\nRESIZED 2\n1 2\nOUT_OF_BOUNDS\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Buffer shrinkage preserves existing prefix and truncates remainder"
+      },
+      {
+        "input": "10\n6\nRESIZE 10\nRESIZE 0\nDUMP\nRESIZE 10\nDUMP\nRESIZE 0\n",
+        "expected_output": "RESIZED 10\nBUFFER_FREED\nEMPTY\nRESIZED 10\n0 0 0 0 0 0 0 0 0 0\nBUFFER_FREED\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Repeated resize to 0 and re-allocation to maximum capacity"
+      }
+    ]
+  },
+  {
+    "id": 73,
+    "title": "Dynamic Stack with Growth",
+    "slug": "dynamic-stack-with-growth",
+    "difficulty": "medium",
+    "description": "### Problem Statement\nStatic array stacks risk stack overflow when the number of elements exceeds compile-time bounds, while linked-list stacks incur overhead of $8$ to $16$ bytes of pointer metadata per element. A **Dynamic Array Stack** strikes the optimal balance by maintaining a contiguous heap array that dynamically grows as elements are pushed.\n\nImplement a dynamic integer stack with the following specifications:\n\n#### Internal State & Resizing Rules:\n1. **Initial State:** The stack starts with capacity `2` and size `0`.\n2. **Growth Policy:** When `PUSH <val>` is invoked on a stack that is currently full (`size == capacity`):\n   - The capacity must double (`capacity = capacity * 2`) using `realloc`.\n   - Print `GROW <new_capacity>` on a new line.\n   - Then append `<val>` and increment size.\n   - (If the stack was not full, push `<val>` silently without printing anything).\n3. **Operations:**\n   - `PUSH <val>`: Push `<val>` onto the stack, growing capacity as needed.\n   - `POP`: Remove and print the top element. If the stack is empty (`size == 0`), print `UNDERFLOW`.\n   - `PEEK`: Print the top element without removing it. If the stack is empty, print `EMPTY`.\n   - `STATUS`: Print `SIZE: <s> CAP: <c>` where `<s>` is current size and `<c>` is current capacity.\n\nEnsure the underlying array is deallocated when execution finishes.",
+    "input_format": "The first line contains N, the number of commands.\nThe next N lines each contain a command: PUSH <val>, POP, PEEK, or STATUS.",
+    "output_format": "Print the output for commands generating responses on separate lines.",
+    "constraints": "1 <= N <= 1000\n-10^9 <= val <= 10^9\nInitial capacity = 2",
+    "examples": [
+      {
+        "input": "8\nPUSH 10\nPUSH 20\nSTATUS\nPUSH 30\nPEEK\nPOP\nPOP\nSTATUS\n",
+        "output": "SIZE: 2 CAP: 2\nGROW 4\n30\n30\n20\nSIZE: 1 CAP: 4\n",
+        "explanation": "Initial capacity is 2. After pushing 10 and 20, size is 2. Pushing 30 triggers a doubling of capacity to 4, printing GROW 4. Peeking shows 30; popping outputs 30 and 20."
+      },
+      {
+        "input": "5\nPOP\nPEEK\nSTATUS\nPUSH 99\nPEEK\n",
+        "output": "UNDERFLOW\nEMPTY\nSIZE: 0 CAP: 2\n99\n",
+        "explanation": "Popping from an empty stack gives UNDERFLOW, while peeking gives EMPTY. Pushing 99 works silently."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *data;\n    int size;\n    int capacity;\n} DynamicStack;\n\nvoid stack_init(DynamicStack *st) {\n    // TODO: Initialize with capacity 2\n}\n\nvoid stack_push(DynamicStack *st, int val) {\n    // TODO: If size == capacity, double capacity, print \"GROW <new_capacity>\", then push val\n}\n\nvoid stack_pop(DynamicStack *st) {\n    // TODO: Pop and print top element, or print UNDERFLOW\n}\n\nvoid stack_peek(DynamicStack *st) {\n    // TODO: Print top element, or print EMPTY\n}\n\nvoid stack_status(DynamicStack *st) {\n    // TODO: Print \"SIZE: <s> CAP: <c>\"\n}\n\nvoid stack_destroy(DynamicStack *st) {\n    // TODO: Free memory\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    DynamicStack st;\n    stack_init(&st);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"PUSH\") == 0) {\n            int val;\n            scanf(\"%d\", &val);\n            stack_push(&st, val);\n        } else if (strcmp(cmd, \"POP\") == 0) {\n            stack_pop(&st);\n        } else if (strcmp(cmd, \"PEEK\") == 0) {\n            stack_peek(&st);\n        } else if (strcmp(cmd, \"STATUS\") == 0) {\n            stack_status(&st);\n        }\n    }\n    \n    stack_destroy(&st);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int *data;\n    int size;\n    int capacity;\n} DynamicStack;\n\nvoid stack_init(DynamicStack *st) {\n    st->capacity = 2;\n    st->size = 0;\n    st->data = (int *)malloc(st->capacity * sizeof(int));\n}\n\nvoid stack_push(DynamicStack *st, int val) {\n    if (st->size == st->capacity) {\n        st->capacity *= 2;\n        int *new_data = (int *)realloc(st->data, st->capacity * sizeof(int));\n        if (new_data) {\n            st->data = new_data;\n        }\n        printf(\"GROW %d\\n\", st->capacity);\n    }\n    st->data[st->size++] = val;\n}\n\nvoid stack_pop(DynamicStack *st) {\n    if (st->size == 0) {\n        printf(\"UNDERFLOW\\n\");\n        return;\n    }\n    printf(\"%d\\n\", st->data[--st->size]);\n}\n\nvoid stack_peek(DynamicStack *st) {\n    if (st->size == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    printf(\"%d\\n\", st->data[st->size - 1]);\n}\n\nvoid stack_status(DynamicStack *st) {\n    printf(\"SIZE: %d CAP: %d\\n\", st->size, st->capacity);\n}\n\nvoid stack_destroy(DynamicStack *st) {\n    if (st->data) {\n        free(st->data);\n        st->data = NULL;\n    }\n    st->size = 0;\n    st->capacity = 0;\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    DynamicStack st;\n    stack_init(&st);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"PUSH\") == 0) {\n            int val;\n            scanf(\"%d\", &val);\n            stack_push(&st, val);\n        } else if (strcmp(cmd, \"POP\") == 0) {\n            stack_pop(&st);\n        } else if (strcmp(cmd, \"PEEK\") == 0) {\n            stack_peek(&st);\n        } else if (strcmp(cmd, \"STATUS\") == 0) {\n            stack_status(&st);\n        }\n    }\n    \n    stack_destroy(&st);\n    return 0;\n}\n",
+    "hints": [
+      "Use int *data allocated via malloc(capacity * sizeof(int)).",
+      "Check size == capacity before pushing; double capacity with realloc and print 'GROW <new_cap>'.",
+      "Decrement size first when popping, e.g. return data[--size].",
+      "Check size == 0 in POP and PEEK before accessing data to prevent out-of-bounds reads."
+    ],
+    "explanation": "A dynamic stack utilizes geometric progression (doubling capacity) to achieve amortized O(1) push operations while dynamically supporting arbitrarily large input sequences. Pop and peek operate in strict O(1) worst-case time by directly indexing the top of the buffer.",
+    "time_complexity": "O(1) amortized for PUSH, O(1) worst-case for POP, PEEK, and STATUS",
+    "space_complexity": "O(N) auxiliary space on the heap",
+    "common_mistakes": [
+      "Printing GROW on every push rather than only when size == capacity.",
+      "Off-by-one errors in PEEK (e.g. data[size] instead of data[size - 1]).",
+      "Forgetting to update capacity variable after calling realloc."
+    ],
+    "related_problems": [
+      "dynamic-array-implementation",
+      "stack-using-array"
+    ],
+    "topic_slug": "dynamic-memory",
+    "company_slugs": [
+      "amazon",
+      "bloomberg",
+      "cisco"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "8\nPUSH 10\nPUSH 20\nSTATUS\nPUSH 30\nPEEK\nPOP\nPOP\nSTATUS\n",
+        "expected_output": "SIZE: 2 CAP: 2\nGROW 4\n30\n30\n20\nSIZE: 1 CAP: 4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard push up to capacity, growth event, peek and pop"
+      },
+      {
+        "input": "5\nPOP\nPEEK\nSTATUS\nPUSH 99\nPEEK\n",
+        "expected_output": "UNDERFLOW\nEMPTY\nSIZE: 0 CAP: 2\n99\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on empty stack and single push"
+      },
+      {
+        "input": "11\nPUSH 1\nPUSH 2\nPUSH 3\nPUSH 4\nPUSH 5\nSTATUS\nPOP\nPOP\nPOP\nPOP\nPOP\n",
+        "expected_output": "GROW 4\nGROW 8\nSIZE: 5 CAP: 8\n5\n4\n3\n2\n1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple growth stages (2 -> 4 -> 8) and draining all elements"
+      },
+      {
+        "input": "6\nPOP\nPOP\nPUSH 7\nPOP\nPOP\nSTATUS\n",
+        "expected_output": "UNDERFLOW\nUNDERFLOW\n7\nUNDERFLOW\nSIZE: 0 CAP: 2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Repeated underflow attempts before and after push"
+      },
+      {
+        "input": "9\nPUSH 100\nPUSH 200\nPUSH 300\nPUSH 400\nPUSH 500\nPUSH 600\nPUSH 700\nPUSH 800\nPUSH 900\n",
+        "expected_output": "GROW 4\nGROW 8\nGROW 16\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Rapid succession of push operations triggering multiple doublings"
+      }
+    ]
+  },
+  {
+    "id": 74,
+    "title": "Memory Leak Detector Simulation",
+    "slug": "memory-leak-detector-simulation",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nDebugging tools like **Valgrind**, **AddressSanitizer (ASan)**, and custom game engine allocators track every allocated heap block using metadata wrappers. When an allocation occurs, the address, requested byte count, and source location are recorded in an internal registry. When freed, the registry entry is deleted. At program exit, an audit of this registry exposes all unreleased allocations (memory leaks) and double-free anomalies.\n\nImplement a memory leak detector simulation that tracks dynamic allocations by unique integer identifiers.\n\n#### System Specifications:\n1. **Active Registry:**\n   - Maintain an active registry of allocated blocks. Each block is identified by an integer `<id>` and has a size in `<bytes>`.\n2. **Commands:**\n   - `ALLOC <id> <bytes>`:\n     - If `<bytes> <= 0`, print `ERROR_INVALID_SIZE`.\n     - Else if `<id>` is already present in the active registry, print `ERROR_DUPLICATE_ID <id>`.\n     - Otherwise, add `<id>` and `<bytes>` to the active registry and print `ALLOCATED <id> <bytes>`.\n   - `FREE <id>`:\n     - If `<id>` is not present in the active registry, print `ERROR_DOUBLE_OR_INVALID_FREE <id>`.\n     - Otherwise, remove `<id>` from the registry and print `FREED <id>`.\n   - `ACTIVE`:\n     - Print `ACTIVE_COUNT: <c> ACTIVE_BYTES: <b>` where `<c>` is the number of active blocks and `<b>` is the total sum of allocated bytes across all active blocks.\n   - `AUDIT`:\n     - If the active registry is completely empty (`<c> == 0`), print `AUDIT_CLEAN: NO LEAKS`.\n     - Otherwise, print two lines:\n       1. `AUDIT_LEAK: <b> BYTES IN <c> BLOCKS`\n       2. The space-separated list of leaked `<id>`s in **ascending numerical order**.",
+    "input_format": "The first line contains integer N (number of commands).\nThe following N lines contain commands: ALLOC <id> <bytes>, FREE <id>, ACTIVE, or AUDIT.",
+    "output_format": "Print the response for each command on separate lines as specified.",
+    "constraints": "1 <= N <= 1000\n1 <= id <= 10^6\n-10^6 <= bytes <= 10^8",
+    "examples": [
+      {
+        "input": "8\nALLOC 101 256\nALLOC 102 512\nACTIVE\nFREE 101\nACTIVE\nALLOC 103 128\nAUDIT\nFREE 102\n",
+        "output": "ALLOCATED 101 256\nALLOCATED 102 512\nACTIVE_COUNT: 2 ACTIVE_BYTES: 768\nFREED 101\nACTIVE_COUNT: 1 ACTIVE_BYTES: 512\nALLOCATED 103 128\nAUDIT_LEAK: 640 BYTES IN 2 BLOCKS\n102 103\nFREED 102\n",
+        "explanation": "Two blocks (101, 102) are allocated. Block 101 is freed. Block 103 is allocated. At AUDIT, blocks 102 and 103 remain unfreed totaling 640 bytes, printed in ascending ID order."
+      },
+      {
+        "input": "7\nALLOC 1 100\nALLOC 1 200\nALLOC 2 -50\nFREE 5\nFREE 1\nFREE 1\nAUDIT\n",
+        "output": "ALLOCATED 1 100\nERROR_DUPLICATE_ID 1\nERROR_INVALID_SIZE\nERROR_DOUBLE_OR_INVALID_FREE 5\nFREED 1\nERROR_DOUBLE_OR_INVALID_FREE 1\nAUDIT_CLEAN: NO LEAKS\n",
+        "explanation": "Duplicate ID allocation and negative sizes are rejected. Attempting to free non-existent ID 5 and double-freeing ID 1 produce errors. Finally, no leaks remain."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int id;\n    int bytes;\n} BlockEntry;\n\ntypedef struct {\n    BlockEntry *blocks;\n    int count;\n    int capacity;\n} LeakDetector;\n\nvoid detector_init(LeakDetector *ld) {\n    // TODO: Initialize dynamic array for tracking blocks\n}\n\nvoid detector_alloc(LeakDetector *ld, int id, int bytes) {\n    // TODO: Validate and register allocation\n}\n\nvoid detector_free(LeakDetector *ld, int id) {\n    // TODO: Validate and remove allocation\n}\n\nvoid detector_active(LeakDetector *ld) {\n    // TODO: Print ACTIVE_COUNT and ACTIVE_BYTES\n}\n\nvoid detector_audit(LeakDetector *ld) {\n    // TODO: Perform leak audit; print NO LEAKS or sorted leaked IDs\n}\n\nvoid detector_destroy(LeakDetector *ld) {\n    // TODO: Free memory\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    LeakDetector ld;\n    detector_init(&ld);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"ALLOC\") == 0) {\n            int id, bytes;\n            scanf(\"%d %d\", &id, &bytes);\n            detector_alloc(&ld, id, bytes);\n        } else if (strcmp(cmd, \"FREE\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            detector_free(&ld, id);\n        } else if (strcmp(cmd, \"ACTIVE\") == 0) {\n            detector_active(&ld);\n        } else if (strcmp(cmd, \"AUDIT\") == 0) {\n            detector_audit(&ld);\n        }\n    }\n    \n    detector_destroy(&ld);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int id;\n    int bytes;\n} BlockEntry;\n\ntypedef struct {\n    BlockEntry *blocks;\n    int count;\n    int capacity;\n} LeakDetector;\n\nvoid detector_init(LeakDetector *ld) {\n    ld->capacity = 16;\n    ld->count = 0;\n    ld->blocks = (BlockEntry *)malloc(ld->capacity * sizeof(BlockEntry));\n}\n\nint find_block(LeakDetector *ld, int id) {\n    for (int i = 0; i < ld->count; i++) {\n        if (ld->blocks[i].id == id) return i;\n    }\n    return -1;\n}\n\nvoid detector_alloc(LeakDetector *ld, int id, int bytes) {\n    if (bytes <= 0) {\n        printf(\"ERROR_INVALID_SIZE\\n\");\n        return;\n    }\n    if (find_block(ld, id) != -1) {\n        printf(\"ERROR_DUPLICATE_ID %d\\n\", id);\n        return;\n    }\n    if (ld->count == ld->capacity) {\n        ld->capacity *= 2;\n        ld->blocks = (BlockEntry *)realloc(ld->blocks, ld->capacity * sizeof(BlockEntry));\n    }\n    ld->blocks[ld->count].id = id;\n    ld->blocks[ld->count].bytes = bytes;\n    ld->count++;\n    printf(\"ALLOCATED %d %d\\n\", id, bytes);\n}\n\nvoid detector_free(LeakDetector *ld, int id) {\n    int idx = find_block(ld, id);\n    if (idx == -1) {\n        printf(\"ERROR_DOUBLE_OR_INVALID_FREE %d\\n\", id);\n        return;\n    }\n    for (int i = idx; i < ld->count - 1; i++) {\n        ld->blocks[i] = ld->blocks[i + 1];\n    }\n    ld->count--;\n    printf(\"FREED %d\\n\", id);\n}\n\nvoid detector_active(LeakDetector *ld) {\n    long long total_bytes = 0;\n    for (int i = 0; i < ld->count; i++) {\n        total_bytes += ld->blocks[i].bytes;\n    }\n    printf(\"ACTIVE_COUNT: %d ACTIVE_BYTES: %lld\\n\", ld->count, total_bytes);\n}\n\nint cmp_int(const void *a, const void *b) {\n    int x = *(const int *)a;\n    int y = *(const int *)b;\n    return (x > y) - (x < y);\n}\n\nvoid detector_audit(LeakDetector *ld) {\n    if (ld->count == 0) {\n        printf(\"AUDIT_CLEAN: NO LEAKS\\n\");\n        return;\n    }\n    long long total_bytes = 0;\n    int *ids = (int *)malloc(ld->count * sizeof(int));\n    for (int i = 0; i < ld->count; i++) {\n        total_bytes += ld->blocks[i].bytes;\n        ids[i] = ld->blocks[i].id;\n    }\n    qsort(ids, ld->count, sizeof(int), cmp_int);\n    printf(\"AUDIT_LEAK: %lld BYTES IN %d BLOCKS\\n\", total_bytes, ld->count);\n    for (int i = 0; i < ld->count; i++) {\n        printf(\"%d%s\", ids[i], (i == ld->count - 1) ? \"\" : \" \");\n    }\n    printf(\"\\n\");\n    free(ids);\n}\n\nvoid detector_destroy(LeakDetector *ld) {\n    if (ld->blocks) {\n        free(ld->blocks);\n        ld->blocks = NULL;\n    }\n    ld->count = 0;\n    ld->capacity = 0;\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    LeakDetector ld;\n    detector_init(&ld);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"ALLOC\") == 0) {\n            int id, bytes;\n            scanf(\"%d %d\", &id, &bytes);\n            detector_alloc(&ld, id, bytes);\n        } else if (strcmp(cmd, \"FREE\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            detector_free(&ld, id);\n        } else if (strcmp(cmd, \"ACTIVE\") == 0) {\n            detector_active(&ld);\n        } else if (strcmp(cmd, \"AUDIT\") == 0) {\n            detector_audit(&ld);\n        }\n    }\n    \n    detector_destroy(&ld);\n    return 0;\n}\n",
+    "hints": [
+      "Store active allocations in a dynamically resizable array of struct { int id; int bytes; }.",
+      "Before inserting, scan to verify id is not already present, and verify bytes > 0.",
+      "When freeing, shift subsequent elements left to maintain a dense array.",
+      "For AUDIT, copy active IDs to a temporary array and sort them with qsort before printing."
+    ],
+    "explanation": "Memory leak sanitizers intercept allocation primitives to maintain bookkeeping data. Tracking size and ID enables precise accounting of leaked bytes and blocks. Removing freed blocks immediately ensures that subsequent frees to the same ID are recognized as double-free violations.",
+    "time_complexity": "O(N) search and removal per operation, O(K log K) for sorting during AUDIT where K <= N",
+    "space_complexity": "O(N) auxiliary memory for tracking active allocations",
+    "common_mistakes": [
+      "Not sorting the leaked IDs in ascending order during AUDIT.",
+      "Allowing reallocation of an already active ID without raising an error.",
+      "Integer overflow when accumulating total active bytes (use long long)."
+    ],
+    "related_problems": [
+      "memory-pool-allocator",
+      "safe-realloc-wrapper"
+    ],
+    "topic_slug": "dynamic-memory",
+    "company_slugs": [
+      "google",
+      "apple",
+      "meta"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "8\nALLOC 101 256\nALLOC 102 512\nACTIVE\nFREE 101\nACTIVE\nALLOC 103 128\nAUDIT\nFREE 102\n",
+        "expected_output": "ALLOCATED 101 256\nALLOCATED 102 512\nACTIVE_COUNT: 2 ACTIVE_BYTES: 768\nFREED 101\nACTIVE_COUNT: 1 ACTIVE_BYTES: 512\nALLOCATED 103 128\nAUDIT_LEAK: 640 BYTES IN 2 BLOCKS\n102 103\nFREED 102\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard alloc, free, active query, and leak audit with sorted output"
+      },
+      {
+        "input": "7\nALLOC 1 100\nALLOC 1 200\nALLOC 2 -50\nFREE 5\nFREE 1\nFREE 1\nAUDIT\n",
+        "expected_output": "ALLOCATED 1 100\nERROR_DUPLICATE_ID 1\nERROR_INVALID_SIZE\nERROR_DOUBLE_OR_INVALID_FREE 5\nFREED 1\nERROR_DOUBLE_OR_INVALID_FREE 1\nAUDIT_CLEAN: NO LEAKS\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Validation checks for duplicate ID, invalid size, non-existent free, and double free"
+      },
+      {
+        "input": "6\nALLOC 500 1024\nALLOC 200 2048\nALLOC 800 512\nALLOC 100 256\nAUDIT\nACTIVE\n",
+        "expected_output": "ALLOCATED 500 1024\nALLOCATED 200 2048\nALLOCATED 800 512\nALLOCATED 100 256\nAUDIT_LEAK: 3840 BYTES IN 4 BLOCKS\n100 200 500 800\nACTIVE_COUNT: 4 ACTIVE_BYTES: 3840\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Multiple leaked blocks sorted in strictly ascending order"
+      },
+      {
+        "input": "4\nAUDIT\nACTIVE\nFREE 99\nAUDIT\n",
+        "expected_output": "AUDIT_CLEAN: NO LEAKS\nACTIVE_COUNT: 0 ACTIVE_BYTES: 0\nERROR_DOUBLE_OR_INVALID_FREE 99\nAUDIT_CLEAN: NO LEAKS\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Audit and queries on completely clean/empty detector"
+      },
+      {
+        "input": "7\nALLOC 10 100\nALLOC 20 200\nFREE 10\nFREE 20\nALLOC 10 300\nACTIVE\nAUDIT\n",
+        "expected_output": "ALLOCATED 10 100\nALLOCATED 20 200\nFREED 10\nFREED 20\nALLOCATED 10 300\nACTIVE_COUNT: 1 ACTIVE_BYTES: 300\nAUDIT_LEAK: 300 BYTES IN 1 BLOCKS\n10\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Re-allocating a previously freed ID with different size"
+      }
+    ]
+  },
+  {
+    "id": 75,
+    "title": "Dynamic 2D Jagged Array",
+    "slug": "dynamic-2d-jagged-array",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nA **jagged array** (or ragged array) is an array of arrays where each individual row can have a distinct length. Unlike a rectangular matrix which allocates a fixed number of columns for every row, a jagged array allocates only the exact number of elements required for each row. In C, a jagged array is implemented as a pointer to pointers (`int**`), where `arr[i]` points to an independently allocated contiguous block of `int`s of size $K_i$.\n\nIn this problem, you will construct a dynamic jagged array and execute analytic queries on it.\n\n#### Structure & Inputs:\n1. You are given $R$, the total number of rows.\n2. For each row $i$ ($0 \\le i < R$):\n   - You are given $K_i$, the number of columns in row $i$.\n   - Followed by $K_i$ space-separated integers.\n   - Allocate `row[i]` with exact size $K_i \\times \\text{sizeof(int)}$. If $K_i == 0$, `row[i]` can be set to `NULL`.\n3. You are then given $Q$, the number of queries to execute:\n   - `GET <r> <c>`: Print the element at row `<r>` and column `<c>`.\n     - If `<r> < 0` or `<r> >= R` or `<c> < 0` or `<c> >= K_r`, print `OUT_OF_BOUNDS`.\n     - Otherwise, print `arr[r][c]`.\n   - `ROW_SUM <r>`: Print the sum of all elements in row `<r>`.\n     - If `<r> < 0` or `<r> >= R`, print `OUT_OF_BOUNDS`.\n     - If $K_r == 0$, print `0`.\n   - `ROW_MIN <r>`: Print the minimum value in row `<r>`.\n     - If `<r> < 0` or `<r> >= R` or $K_r == 0$, print `OUT_OF_BOUNDS`.\n   - `ROW_MAX <r>`: Print the maximum value in row `<r>`.\n     - If `<r> < 0` or `<r> >= R` or $K_r == 0$, print `OUT_OF_BOUNDS`.\n\nEnsure all allocated memory (each row and the row pointer table) is freed upon completion.",
+    "input_format": "The first line contains R (number of rows).\nThe next R lines each contain K_i followed by K_i space-separated integers.\nThe next line contains Q (number of queries).\nThe following Q lines contain commands: GET <r> <c>, ROW_SUM <r>, ROW_MIN <r>, or ROW_MAX <r>.",
+    "output_format": "Print the response for each query on a new line.",
+    "constraints": "1 <= R <= 200\n0 <= K_i <= 500\n1 <= Q <= 1000\n-10^6 <= elements <= 10^6",
+    "examples": [
+      {
+        "input": "3\n2 10 20\n4 5 1 9 3\n1 99\n5\nGET 0 1\nGET 1 2\nROW_SUM 1\nROW_MIN 1\nROW_MAX 1\n",
+        "output": "20\n9\n18\n1\n9\n",
+        "explanation": "Row 0 has 2 items [10, 20]. Row 1 has 4 items [5, 1, 9, 3]. Row 2 has 1 item [99]. Query GET 0 1 returns 20. GET 1 2 returns 9. ROW_SUM 1 is 5+1+9+3 = 18. Min is 1 and Max is 9."
+      },
+      {
+        "input": "2\n0\n3 100 200 300\n6\nGET 0 0\nROW_SUM 0\nROW_MIN 0\nROW_MAX 0\nGET 1 5\nGET 2 0\n",
+        "output": "OUT_OF_BOUNDS\n0\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\n",
+        "explanation": "Row 0 has 0 items. Accessing it is OUT_OF_BOUNDS for GET, ROW_MIN, ROW_MAX, while ROW_SUM is 0. Accessing index 5 in row 1 or row 2 is OUT_OF_BOUNDS."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int **rows;\n    int *row_sizes;\n    int num_rows;\n} JaggedArray;\n\nvoid jagged_init(JaggedArray *ja, int num_rows) {\n    // TODO: Allocate rows and row_sizes arrays\n}\n\nvoid jagged_get(JaggedArray *ja, int r, int c) {\n    // TODO: Print element at (r, c) or OUT_OF_BOUNDS\n}\n\nvoid jagged_sum(JaggedArray *ja, int r) {\n    // TODO: Print sum of row r or OUT_OF_BOUNDS\n}\n\nvoid jagged_min(JaggedArray *ja, int r) {\n    // TODO: Print min of row r or OUT_OF_BOUNDS\n}\n\nvoid jagged_max(JaggedArray *ja, int r) {\n    // TODO: Print max of row r or OUT_OF_BOUNDS\n}\n\nvoid jagged_destroy(JaggedArray *ja) {\n    // TODO: Free all rows and arrays\n}\n\nint main() {\n    int r;\n    if (scanf(\"%d\", &r) != 1) return 0;\n    \n    JaggedArray ja;\n    jagged_init(&ja, r);\n    \n    for (int i = 0; i < r; i++) {\n        int k;\n        scanf(\"%d\", &k);\n        ja.row_sizes[i] = k;\n        if (k > 0) {\n            ja.rows[i] = (int *)malloc(k * sizeof(int));\n            for (int j = 0; j < k; j++) {\n                scanf(\"%d\", &ja.rows[i][j]);\n            }\n        } else {\n            ja.rows[i] = NULL;\n        }\n    }\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"GET\") == 0) {\n            int row, col;\n            scanf(\"%d %d\", &row, &col);\n            jagged_get(&ja, row, col);\n        } else if (strcmp(cmd, \"ROW_SUM\") == 0) {\n            int row;\n            scanf(\"%d\", &row);\n            jagged_sum(&ja, row);\n        } else if (strcmp(cmd, \"ROW_MIN\") == 0) {\n            int row;\n            scanf(\"%d\", &row);\n            jagged_min(&ja, row);\n        } else if (strcmp(cmd, \"ROW_MAX\") == 0) {\n            int row;\n            scanf(\"%d\", &row);\n            jagged_max(&ja, row);\n        }\n    }\n    \n    jagged_destroy(&ja);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    int **rows;\n    int *row_sizes;\n    int num_rows;\n} JaggedArray;\n\nvoid jagged_init(JaggedArray *ja, int num_rows) {\n    ja->num_rows = num_rows;\n    ja->rows = (int **)malloc(num_rows * sizeof(int *));\n    ja->row_sizes = (int *)malloc(num_rows * sizeof(int));\n}\n\nvoid jagged_get(JaggedArray *ja, int r, int c) {\n    if (r < 0 || r >= ja->num_rows || c < 0 || c >= ja->row_sizes[r]) {\n        printf(\"OUT_OF_BOUNDS\\n\");\n        return;\n    }\n    printf(\"%d\\n\", ja->rows[r][c]);\n}\n\nvoid jagged_sum(JaggedArray *ja, int r) {\n    if (r < 0 || r >= ja->num_rows) {\n        printf(\"OUT_OF_BOUNDS\\n\");\n        return;\n    }\n    long long sum = 0;\n    for (int j = 0; j < ja->row_sizes[r]; j++) {\n        sum += ja->rows[r][j];\n    }\n    printf(\"%lld\\n\", sum);\n}\n\nvoid jagged_min(JaggedArray *ja, int r) {\n    if (r < 0 || r >= ja->num_rows || ja->row_sizes[r] == 0) {\n        printf(\"OUT_OF_BOUNDS\\n\");\n        return;\n    }\n    int min_val = ja->rows[r][0];\n    for (int j = 1; j < ja->row_sizes[r]; j++) {\n        if (ja->rows[r][j] < min_val) {\n            min_val = ja->rows[r][j];\n        }\n    }\n    printf(\"%d\\n\", min_val);\n}\n\nvoid jagged_max(JaggedArray *ja, int r) {\n    if (r < 0 || r >= ja->num_rows || ja->row_sizes[r] == 0) {\n        printf(\"OUT_OF_BOUNDS\\n\");\n        return;\n    }\n    int max_val = ja->rows[r][0];\n    for (int j = 1; j < ja->row_sizes[r]; j++) {\n        if (ja->rows[r][j] > max_val) {\n            max_val = ja->rows[r][j];\n        }\n    }\n    printf(\"%d\\n\", max_val);\n}\n\nvoid jagged_destroy(JaggedArray *ja) {\n    if (ja->rows) {\n        for (int i = 0; i < ja->num_rows; i++) {\n            if (ja->rows[i]) {\n                free(ja->rows[i]);\n            }\n        }\n        free(ja->rows);\n        ja->rows = NULL;\n    }\n    if (ja->row_sizes) {\n        free(ja->row_sizes);\n        ja->row_sizes = NULL;\n    }\n    ja->num_rows = 0;\n}\n\nint main() {\n    int r;\n    if (scanf(\"%d\", &r) != 1) return 0;\n    \n    JaggedArray ja;\n    jagged_init(&ja, r);\n    \n    for (int i = 0; i < r; i++) {\n        int k;\n        scanf(\"%d\", &k);\n        ja.row_sizes[i] = k;\n        if (k > 0) {\n            ja.rows[i] = (int *)malloc(k * sizeof(int));\n            for (int j = 0; j < k; j++) {\n                scanf(\"%d\", &ja.rows[i][j]);\n            }\n        } else {\n            ja.rows[i] = NULL;\n        }\n    }\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"GET\") == 0) {\n            int row, col;\n            scanf(\"%d %d\", &row, &col);\n            jagged_get(&ja, row, col);\n        } else if (strcmp(cmd, \"ROW_SUM\") == 0) {\n            int row;\n            scanf(\"%d\", &row);\n            jagged_sum(&ja, row);\n        } else if (strcmp(cmd, \"ROW_MIN\") == 0) {\n            int row;\n            scanf(\"%d\", &row);\n            jagged_min(&ja, row);\n        } else if (strcmp(cmd, \"ROW_MAX\") == 0) {\n            int row;\n            scanf(\"%d\", &row);\n            jagged_max(&ja, row);\n        }\n    }\n    \n    jagged_destroy(&ja);\n    return 0;\n}\n",
+    "hints": [
+      "Allocate the master pointer array: int **rows = malloc(R * sizeof(int *));",
+      "Store row sizes in a separate array: int *row_sizes = malloc(R * sizeof(int));",
+      "For each row i with K_i > 0, allocate rows[i] = malloc(K_i * sizeof(int)); if K_i == 0, rows[i] = NULL.",
+      "When freeing, only free rows[i] if rows[i] != NULL, then free the master pointer array."
+    ],
+    "explanation": "A jagged array saves memory over fixed rectangular matrices by tailoring each row's allocation to its exact element count. Pointers to each row are stored in an array of pointers. Deallocation requires iterating over every row to free each individually allocated array before releasing the top-level pointer array.",
+    "time_complexity": "O(1) for GET, O(K_r) for ROW_SUM, ROW_MIN, ROW_MAX",
+    "space_complexity": "O(R + sum(K_i)) auxiliary heap memory",
+    "common_mistakes": [
+      "Failing to store K_i for bounds checking during queries, causing segmentation faults on out-of-range columns.",
+      "Not handling K_i == 0 where ROW_MIN and ROW_MAX are undefined (OUT_OF_BOUNDS).",
+      "Memory leaks caused by forgetting to free each individual rows[i]."
+    ],
+    "related_problems": [
+      "dynamic-matrix-operations",
+      "dynamic-array-implementation"
+    ],
+    "topic_slug": "dynamic-memory",
+    "company_slugs": [
+      "microsoft",
+      "amazon",
+      "qualcomm"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3\n2 10 20\n4 5 1 9 3\n1 99\n5\nGET 0 1\nGET 1 2\nROW_SUM 1\nROW_MIN 1\nROW_MAX 1\n",
+        "expected_output": "20\n9\n18\n1\n9\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard queries on 3 rows with varying column counts (2, 4, 1)"
+      },
+      {
+        "input": "2\n0\n3 100 200 300\n6\nGET 0 0\nROW_SUM 0\nROW_MIN 0\nROW_MAX 0\nGET 1 5\nGET 2 0\n",
+        "expected_output": "OUT_OF_BOUNDS\n0\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty row (K=0) handling and out of bounds column/row queries"
+      },
+      {
+        "input": "4\n1 -10\n2 -5 -20\n3 0 0 0\n1 50\n4\nROW_SUM 0\nROW_MIN 1\nROW_MAX 1\nROW_SUM 2\n",
+        "expected_output": "-10\n-20\n-5\n0\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Negative numbers and zero rows"
+      },
+      {
+        "input": "1\n5 1 2 3 4 5\n4\nGET -1 0\nGET 0 -1\nROW_SUM -2\nROW_MAX 5\n",
+        "expected_output": "OUT_OF_BOUNDS\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Negative row and column indices"
+      },
+      {
+        "input": "2\n1 42\n1 42\n4\nGET 0 0\nROW_SUM 0\nROW_MIN 0\nROW_MAX 0\n",
+        "expected_output": "42\n42\n42\n42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single-element rows testing min, max, sum, and get equality"
+      }
+    ]
+  }
+]

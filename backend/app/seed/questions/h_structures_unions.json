@@ -1,0 +1,700 @@
+[
+  {
+    "id": 76,
+    "title": "Student Record System",
+    "slug": "student-record-system",
+    "difficulty": "medium",
+    "description": "### Problem Statement\nStructures in C (`struct`) allow programmers to group logically related variables of different types into a single composite entity. Managing arrays of structures is a cornerstone of data processing in systems programming. In this problem, you will implement a Student Record Management system supporting CRUD (Create, Read, Update, Delete) operations on an array of `Student` structures.\n\n#### Structure Definition:\n```c\ntypedef struct {\n    int id;\n    char name[32];\n    float gpa;\n} Student;\n```\n\n#### Supported Operations:\n1. `ADD <id> <name> <gpa>`:\n   - Check if a student with `<id>` already exists in the system.\n   - If already present, print `ALREADY_EXISTS`.\n   - Otherwise, append the new student to the records and print `ADDED`.\n2. `FIND <id>`:\n   - Search for a student by `<id>`.\n   - If found, print `<name> <gpa>` where GPA is formatted to 2 decimal places (`%.2f`).\n   - If not found, print `NOT_FOUND`.\n3. `DELETE <id>`:\n   - Search for a student by `<id>`.\n   - If found, remove the student, preserve or pack the array, and print `DELETED`.\n   - If not found, print `NOT_FOUND`.\n4. `UPDATE <id> <new_gpa>`:\n   - Find student by `<id>`.\n   - If found, update their GPA to `<new_gpa>` and print `UPDATED`.\n   - If not found, print `NOT_FOUND`.\n5. `TOP`:\n   - Find the student with the highest GPA.\n   - If multiple students share the exact highest GPA, select the one with the smallest numerical `<id>`.\n   - Print `<name> <gpa>` formatted to 2 decimal places.\n   - If the system contains no student records, print `EMPTY`.\n\nProcess $N$ operations sequentially from standard input.",
+    "input_format": "The first line contains N (number of operations).\nThe next N lines each contain an operation command: ADD <id> <name> <gpa>, FIND <id>, DELETE <id>, UPDATE <id> <gpa>, or TOP.",
+    "output_format": "Print the result of each operation on a new line.",
+    "constraints": "1 <= N <= 500\n1 <= id <= 100000\n0.0 <= gpa <= 4.0\n1 <= strlen(name) <= 31",
+    "examples": [
+      {
+        "input": "7\nADD 101 Alice 3.85\nADD 102 Bob 3.92\nFIND 101\nTOP\nUPDATE 101 3.95\nTOP\nDELETE 102\n",
+        "output": "ADDED\nADDED\nAlice 3.85\nBob 3.92\nUPDATED\nAlice 3.95\nDELETED\n",
+        "explanation": "Alice and Bob are added. Bob is top with 3.92. Alice is updated to 3.95, making her top. Bob is then deleted."
+      },
+      {
+        "input": "5\nTOP\nFIND 999\nDELETE 999\nUPDATE 999 4.0\nADD 1 John 3.50\n",
+        "output": "EMPTY\nNOT_FOUND\nNOT_FOUND\nNOT_FOUND\nADDED\n",
+        "explanation": "Querying empty system outputs EMPTY. Looking up or deleting non-existent IDs yields NOT_FOUND."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\n#define MAX_STUDENTS 200\n\ntypedef struct {\n    int id;\n    char name[32];\n    float gpa;\n} Student;\n\ntypedef struct {\n    Student records[MAX_STUDENTS];\n    int count;\n} StudentSystem;\n\nvoid add_student(StudentSystem *sys, int id, const char *name, float gpa) {\n    // TODO: Add student or print ALREADY_EXISTS\n}\n\nvoid find_student(StudentSystem *sys, int id) {\n    // TODO: Print \"<name> <gpa>\" or NOT_FOUND\n}\n\nvoid delete_student(StudentSystem *sys, int id) {\n    // TODO: Remove student or print NOT_FOUND\n}\n\nvoid update_student(StudentSystem *sys, int id, float new_gpa) {\n    // TODO: Update GPA or print NOT_FOUND\n}\n\nvoid top_student(StudentSystem *sys) {\n    // TODO: Print top student or EMPTY\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    StudentSystem sys;\n    sys.count = 0;\n    \n    char op[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", op) != 1) break;\n        if (strcmp(op, \"ADD\") == 0) {\n            int id;\n            char name[32];\n            float gpa;\n            scanf(\"%d %s %f\", &id, name, &gpa);\n            add_student(&sys, id, name, gpa);\n        } else if (strcmp(op, \"FIND\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            find_student(&sys, id);\n        } else if (strcmp(op, \"DELETE\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            delete_student(&sys, id);\n        } else if (strcmp(op, \"UPDATE\") == 0) {\n            int id;\n            float new_gpa;\n            scanf(\"%d %f\", &id, &new_gpa);\n            update_student(&sys, id, new_gpa);\n        } else if (strcmp(op, \"TOP\") == 0) {\n            top_student(&sys);\n        }\n    }\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\n#define MAX_STUDENTS 200\n\ntypedef struct {\n    int id;\n    char name[32];\n    float gpa;\n} Student;\n\ntypedef struct {\n    Student records[MAX_STUDENTS];\n    int count;\n} StudentSystem;\n\nint find_index(StudentSystem *sys, int id) {\n    for (int i = 0; i < sys->count; i++) {\n        if (sys->records[i].id == id) return i;\n    }\n    return -1;\n}\n\nvoid add_student(StudentSystem *sys, int id, const char *name, float gpa) {\n    if (find_index(sys, id) != -1) {\n        printf(\"ALREADY_EXISTS\\n\");\n        return;\n    }\n    if (sys->count < MAX_STUDENTS) {\n        sys->records[sys->count].id = id;\n        strncpy(sys->records[sys->count].name, name, 31);\n        sys->records[sys->count].name[31] = '\\0';\n        sys->records[sys->count].gpa = gpa;\n        sys->count++;\n        printf(\"ADDED\\n\");\n    }\n}\n\nvoid find_student(StudentSystem *sys, int id) {\n    int idx = find_index(sys, id);\n    if (idx == -1) {\n        printf(\"NOT_FOUND\\n\");\n    } else {\n        printf(\"%s %.2f\\n\", sys->records[idx].name, sys->records[idx].gpa);\n    }\n}\n\nvoid delete_student(StudentSystem *sys, int id) {\n    int idx = find_index(sys, id);\n    if (idx == -1) {\n        printf(\"NOT_FOUND\\n\");\n    } else {\n        for (int i = idx; i < sys->count - 1; i++) {\n            sys->records[i] = sys->records[i + 1];\n        }\n        sys->count--;\n        printf(\"DELETED\\n\");\n    }\n}\n\nvoid update_student(StudentSystem *sys, int id, float new_gpa) {\n    int idx = find_index(sys, id);\n    if (idx == -1) {\n        printf(\"NOT_FOUND\\n\");\n    } else {\n        sys->records[idx].gpa = new_gpa;\n        printf(\"UPDATED\\n\");\n    }\n}\n\nvoid top_student(StudentSystem *sys) {\n    if (sys->count == 0) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    int best_idx = 0;\n    for (int i = 1; i < sys->count; i++) {\n        if (sys->records[i].gpa > sys->records[best_idx].gpa) {\n            best_idx = i;\n        } else if (sys->records[i].gpa == sys->records[best_idx].gpa) {\n            if (sys->records[i].id < sys->records[best_idx].id) {\n                best_idx = i;\n            }\n        }\n    }\n    printf(\"%s %.2f\\n\", sys->records[best_idx].name, sys->records[best_idx].gpa);\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    StudentSystem sys;\n    sys.count = 0;\n    \n    char op[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", op) != 1) break;\n        if (strcmp(op, \"ADD\") == 0) {\n            int id;\n            char name[32];\n            float gpa;\n            scanf(\"%d %s %f\", &id, name, &gpa);\n            add_student(&sys, id, name, gpa);\n        } else if (strcmp(op, \"FIND\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            find_student(&sys, id);\n        } else if (strcmp(op, \"DELETE\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            delete_student(&sys, id);\n        } else if (strcmp(op, \"UPDATE\") == 0) {\n            int id;\n            float new_gpa;\n            scanf(\"%d %f\", &id, &new_gpa);\n            update_student(&sys, id, new_gpa);\n        } else if (strcmp(op, \"TOP\") == 0) {\n            top_student(&sys);\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Use an array of Student structs and maintain an integer count of active records.",
+      "Write a helper function find_index(sys, id) that returns the index or -1.",
+      "When deleting an element at index i, shift records from i + 1 to count - 1 left by one position.",
+      "For TOP, break GPA ties by selecting the student with the smaller id."
+    ],
+    "explanation": "Struct arrays allow storing heterogenous data attributes together in contiguous memory. Linear scanning through the records provides O(N) lookup and deletion, while maintaining an array count avoids tracking sentinel records.",
+    "time_complexity": "O(N) for ADD, FIND, DELETE, UPDATE, TOP operations where N is the current student count",
+    "space_complexity": "O(MAX_STUDENTS) memory",
+    "common_mistakes": [
+      "Using == comparison on floating-point GPAs without considering equality tie-breaking rules.",
+      "Leaving gaps in the array after deletion rather than shifting subsequent elements.",
+      "Not checking whether a student ID already exists prior to adding."
+    ],
+    "related_problems": [
+      "sort-structures-by-multiple-fields",
+      "nested-structure-operations"
+    ],
+    "topic_slug": "structures-unions",
+    "company_slugs": [
+      "microsoft",
+      "cisco",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7\nADD 101 Alice 3.85\nADD 102 Bob 3.92\nFIND 101\nTOP\nUPDATE 101 3.95\nTOP\nDELETE 102\n",
+        "expected_output": "ADDED\nADDED\nAlice 3.85\nBob 3.92\nUPDATED\nAlice 3.95\nDELETED\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard ADD, FIND, UPDATE, TOP, and DELETE operations"
+      },
+      {
+        "input": "5\nTOP\nFIND 999\nDELETE 999\nUPDATE 999 4.0\nADD 1 John 3.50\n",
+        "expected_output": "EMPTY\nNOT_FOUND\nNOT_FOUND\nNOT_FOUND\nADDED\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on empty records and non-existent IDs"
+      },
+      {
+        "input": "6\nADD 100 Adam 3.90\nADD 50 Eve 3.90\nTOP\nADD 100 Duplicate 2.0\nDELETE 50\nTOP\n",
+        "expected_output": "ADDED\nADDED\nEve 3.90\nALREADY_EXISTS\nDELETED\nAdam 3.90\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "GPA tie-breaking by lowest ID and duplicate ADD prevention"
+      },
+      {
+        "input": "6\nADD 10 A 3.1\nADD 20 B 3.2\nADD 30 C 3.3\nDELETE 20\nFIND 20\nFIND 30\n",
+        "expected_output": "ADDED\nADDED\nADDED\nDELETED\nNOT_FOUND\nC 3.30\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Array compaction when deleting middle element"
+      },
+      {
+        "input": "4\nADD 1 Only 4.00\nDELETE 1\nTOP\nFIND 1\n",
+        "expected_output": "ADDED\nDELETED\nEMPTY\nNOT_FOUND\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Deleting single student leaves record system completely empty"
+      }
+    ]
+  },
+  {
+    "id": 77,
+    "title": "Sort Structures by Multiple Fields",
+    "slug": "sort-structures-by-multiple-fields",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nSorting tabular and structured data often requires cascading multi-level tie-breaking criteria. In C, the standard library function `qsort` (from `<stdlib.h>`) provides a generic, in-place sorting mechanism requiring a custom comparator callback function:\n```c\nint comparator(const void *a, const void *b);\n```\nInside the comparator, pointers must be cast back to the target structure pointer type (`const Candidate *`), and fields must be systematically evaluated in priority order.\n\nIn this problem, you are given a list of $N$ candidate student records:\n```c\ntypedef struct {\n    char name[32];\n    int score;\n    int age;\n} Candidate;\n```\n\n#### Sorting Criteria (in priority order):\n1. **Primary Criterion (Score):** Sort by `score` in **descending** order (higher score ranks first).\n2. **Secondary Criterion (Age):** If scores are tied, sort by `age` in **ascending** order (younger candidate ranks first).\n3. **Tertiary Criterion (Name):** If both score and age are tied, sort by `name` in **lexicographical ascending** order (alphabetical order using `strcmp`).\n\nImplement this multi-tier sort using `qsort` and print the sorted candidates.",
+    "input_format": "The first line contains N (number of candidates).\nThe next N lines each contain name, score, and age separated by spaces.",
+    "output_format": "Print N lines of sorted candidates in the format '<name> <score> <age>'.",
+    "constraints": "1 <= N <= 1000\n0 <= score <= 1000\n10 <= age <= 100\n1 <= strlen(name) <= 31",
+    "examples": [
+      {
+        "input": "4\nAlice 85 20\nBob 90 22\nCharlie 85 19\nDavid 85 19\n",
+        "output": "Bob 90 22\nCharlie 85 19\nDavid 85 19\nAlice 85 20\n",
+        "explanation": "Bob has highest score (90). Alice, Charlie, and David tie at 85. Charlie and David are younger (19) than Alice (20). Charlie precedes David alphabetically."
+      },
+      {
+        "input": "3\nZara 100 25\nAaron 100 25\nBen 100 25\n",
+        "output": "Aaron 100 25\nBen 100 25\nZara 100 25\n",
+        "explanation": "All candidates have score 100 and age 25. Lexicographical order yields Aaron, Ben, then Zara."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    char name[32];\n    int score;\n    int age;\n} Candidate;\n\nint compare_candidates(const void *a, const void *b) {\n    // TODO: Implement multi-field comparison:\n    // 1. score descending\n    // 2. age ascending\n    // 3. name ascending (strcmp)\n    return 0;\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    Candidate *arr = (Candidate *)malloc(n * sizeof(Candidate));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%s %d %d\", arr[i].name, &arr[i].score, &arr[i].age);\n    }\n    \n    // TODO: Sort with qsort and print sorted list\n    \n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    char name[32];\n    int score;\n    int age;\n} Candidate;\n\nint compare_candidates(const void *a, const void *b) {\n    const Candidate *c1 = (const Candidate *)a;\n    const Candidate *c2 = (const Candidate *)b;\n    \n    // 1. Score descending\n    if (c1->score != c2->score) {\n        return (c2->score - c1->score);\n    }\n    // 2. Age ascending\n    if (c1->age != c2->age) {\n        return (c1->age - c2->age);\n    }\n    // 3. Name lexicographical ascending\n    return strcmp(c1->name, c2->name);\n}\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    Candidate *arr = (Candidate *)malloc(n * sizeof(Candidate));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%s %d %d\", arr[i].name, &arr[i].score, &arr[i].age);\n    }\n    \n    qsort(arr, n, sizeof(Candidate), compare_candidates);\n    \n    for (int i = 0; i < n; i++) {\n        printf(\"%s %d %d\\n\", arr[i].name, arr[i].score, arr[i].age);\n    }\n    \n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Cast the void pointers: const Candidate *c1 = (const Candidate *)a;",
+      "For descending score: if (c1->score != c2->score) return c2->score - c1->score;",
+      "For ascending age: if (c1->age != c2->age) return c1->age - c2->age;",
+      "Use strcmp(c1->name, c2->name) as the final tie-breaker."
+    ],
+    "explanation": "Multi-field sorting in C relies on qsort with chained conditionals. If field A differs, return the difference immediately; if equal, fall through to field B, and finally to strcmp on field C. qsort executes in O(N log N) average time.",
+    "time_complexity": "O(N log N) using standard library quicksort",
+    "space_complexity": "O(N) to store the candidate array",
+    "common_mistakes": [
+      "Inverting the order for descending vs ascending fields (e.g. c1 - c2 instead of c2 - c1).",
+      "Returning 0 prematurely before checking remaining tie-breaking fields.",
+      "Failing to cast const void * correctly to const Candidate *."
+    ],
+    "related_problems": [
+      "student-record-system",
+      "nested-structure-operations"
+    ],
+    "topic_slug": "structures-unions",
+    "company_slugs": [
+      "bloomberg",
+      "amazon",
+      "google"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\nAlice 85 20\nBob 90 22\nCharlie 85 19\nDavid 85 19\n",
+        "expected_output": "Bob 90 22\nCharlie 85 19\nDavid 85 19\nAlice 85 20\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Score tie-breaking with age, and age tie-breaking with name"
+      },
+      {
+        "input": "3\nZara 100 25\nAaron 100 25\nBen 100 25\n",
+        "expected_output": "Aaron 100 25\nBen 100 25\nZara 100 25\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "All scores and ages identical; purely alphabetical sort"
+      },
+      {
+        "input": "5\nEve 50 20\nDan 60 21\nCole 70 22\nBen 80 23\nAdam 90 24\n",
+        "expected_output": "Adam 90 24\nBen 80 23\nCole 70 22\nDan 60 21\nEve 50 20\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Strictly descending scores without ties"
+      },
+      {
+        "input": "1\nSingle 95 18\n",
+        "expected_output": "Single 95 18\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "6\nXavier 75 20\nAlex 75 20\nAlex 75 19\nBob 75 22\nBob 75 18\nCarl 80 25\n",
+        "expected_output": "Carl 80 25\nBob 75 18\nAlex 75 19\nAlex 75 20\nXavier 75 20\nBob 75 22\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Complex combination of identical names with different ages and vice versa"
+      }
+    ]
+  },
+  {
+    "id": 78,
+    "title": "Nested Structure Operations",
+    "slug": "nested-structure-operations",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nIn real-world C applications such as enterprise HR and database systems, models frequently contain nested structures to represent composition and relationships. Accessing nested members requires chaining dot (`.`) operators or arrow (`->`) operators when using pointers.\n\nIn this problem, you will manage an employee database using nested structures:\n```c\ntypedef struct {\n    char street[32];\n    char city[32];\n    int zip;\n} Address;\n\ntypedef struct {\n    char name[32];\n    int floor;\n} Department;\n\ntypedef struct {\n    int id;\n    char name[32];\n    double salary;\n    Address address;\n    Department dept;\n} Employee;\n```\n\n#### Input & Queries:\nFirst, you are given $N$, the number of employees, followed by $N$ employee records:\nEach record has: `id name salary street city zip dept_name floor`.\nThen, you are given $Q$, the number of queries to execute:\n1. `CITY_COUNT <city>`: Print the number of employees whose `address.city` matches `<city>`.\n2. `DEPT_AVG <dept_name>`: Print the average salary of all employees belonging to `dept.name`, formatted to 2 decimal places (`%.2f`). If no employees belong to that department, print `0.00`.\n3. `MAX_SALARY`: Find the employee with the highest salary.\n   - If $N == 0$, print `NONE`.\n   - Otherwise, print `<name> <dept.name> <salary>` (salary formatted to 2 decimal places `%.2f`).\n   - If multiple employees have equal max salary, break the tie by selecting the one with the smallest `id`.",
+    "input_format": "The first line contains N (number of employees).\nThe next N lines each contain: id name salary street city zip dept_name floor.\nThe next line contains Q (number of queries).\nThe following Q lines each contain a query: CITY_COUNT <city>, DEPT_AVG <dept_name>, or MAX_SALARY.",
+    "output_format": "Print the response for each query on a new line.",
+    "constraints": "0 <= N <= 500\n1 <= Q <= 500\n0 <= salary <= 10^7\nString fields have lengths between 1 and 31 characters",
+    "examples": [
+      {
+        "input": "3\n101 Alice 95000.0 Main Seattle 98101 Engineering 3\n102 Bob 85000.0 Oak Seattle 98102 Marketing 2\n103 Carol 110000.0 Pine Austin 78701 Engineering 3\n4\nCITY_COUNT Seattle\nDEPT_AVG Engineering\nDEPT_AVG Sales\nMAX_SALARY\n",
+        "output": "2\n102500.00\n0.00\nCarol Engineering 110000.00\n",
+        "explanation": "Alice and Bob live in Seattle (count 2). Engineering average salary is (95000 + 110000)/2 = 102500.00. Sales has no employees (0.00). Carol has the highest salary."
+      },
+      {
+        "input": "0\n3\nCITY_COUNT Boston\nDEPT_AVG HR\nMAX_SALARY\n",
+        "output": "0\n0.00\nNONE\n",
+        "explanation": "With 0 employees, city count is 0, dept avg is 0.00, and MAX_SALARY prints NONE."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    char street[32];\n    char city[32];\n    int zip;\n} Address;\n\ntypedef struct {\n    char name[32];\n    int floor;\n} Department;\n\ntypedef struct {\n    int id;\n    char name[32];\n    double salary;\n    Address address;\n    Department dept;\n} Employee;\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    Employee *employees = (Employee *)malloc(n * sizeof(Employee));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d %s %lf %s %s %d %s %d\",\n            &employees[i].id,\n            employees[i].name,\n            &employees[i].salary,\n            employees[i].address.street,\n            employees[i].address.city,\n            &employees[i].address.zip,\n            employees[i].dept.name,\n            &employees[i].dept.floor);\n    }\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) {\n        free(employees);\n        return 0;\n    }\n    \n    // TODO: Process CITY_COUNT, DEPT_AVG, and MAX_SALARY queries\n    \n    free(employees);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct {\n    char street[32];\n    char city[32];\n    int zip;\n} Address;\n\ntypedef struct {\n    char name[32];\n    int floor;\n} Department;\n\ntypedef struct {\n    int id;\n    char name[32];\n    double salary;\n    Address address;\n    Department dept;\n} Employee;\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    Employee *employees = (n > 0) ? (Employee *)malloc(n * sizeof(Employee)) : NULL;\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d %s %lf %s %s %d %s %d\",\n            &employees[i].id,\n            employees[i].name,\n            &employees[i].salary,\n            employees[i].address.street,\n            employees[i].address.city,\n            &employees[i].address.zip,\n            employees[i].dept.name,\n            &employees[i].dept.floor);\n    }\n    \n    int q;\n    if (scanf(\"%d\", &q) != 1) {\n        if (employees) free(employees);\n        return 0;\n    }\n    \n    char cmd[16];\n    for (int k = 0; k < q; k++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"CITY_COUNT\") == 0) {\n            char target_city[32];\n            scanf(\"%s\", target_city);\n            int count = 0;\n            for (int i = 0; i < n; i++) {\n                if (strcmp(employees[i].address.city, target_city) == 0) {\n                    count++;\n                }\n            }\n            printf(\"%d\\n\", count);\n        } else if (strcmp(cmd, \"DEPT_AVG\") == 0) {\n            char target_dept[32];\n            scanf(\"%s\", target_dept);\n            double sum = 0.0;\n            int count = 0;\n            for (int i = 0; i < n; i++) {\n                if (strcmp(employees[i].dept.name, target_dept) == 0) {\n                    sum += employees[i].salary;\n                    count++;\n                }\n            }\n            if (count == 0) {\n                printf(\"0.00\\n\");\n            } else {\n                printf(\"%.2f\\n\", sum / count);\n            }\n        } else if (strcmp(cmd, \"MAX_SALARY\") == 0) {\n            if (n == 0) {\n                printf(\"NONE\\n\");\n            } else {\n                int best_idx = 0;\n                for (int i = 1; i < n; i++) {\n                    if (employees[i].salary > employees[best_idx].salary) {\n                        best_idx = i;\n                    } else if (employees[i].salary == employees[best_idx].salary) {\n                        if (employees[i].id < employees[best_idx].id) {\n                            best_idx = i;\n                        }\n                    }\n                }\n                printf(\"%s %s %.2f\\n\", employees[best_idx].name, employees[best_idx].dept.name, employees[best_idx].salary);\n            }\n        }\n    }\n    \n    if (employees) free(employees);\n    return 0;\n}\n",
+    "hints": [
+      "Access nested fields with chaining: employees[i].address.city and employees[i].dept.name.",
+      "In DEPT_AVG, check if matching count is 0 before dividing to avoid division by zero.",
+      "Handle N == 0 cleanly by printing NONE for MAX_SALARY.",
+      "Break salary ties using the student id (prefer lower numerical id)."
+    ],
+    "explanation": "Nested structures allow modular grouping of attributes. In memory, nested structures are laid out inline according to standard struct padding rules. Accessing nested struct members operates without pointer indirection overhead.",
+    "time_complexity": "O(N) per query, O(N * Q) overall",
+    "space_complexity": "O(N) heap memory for the employee array",
+    "common_mistakes": [
+      "Division by zero when calculating average salary of a department with 0 employees.",
+      "Crashing on MAX_SALARY when N == 0.",
+      "Incorrect string comparison (using == instead of strcmp)."
+    ],
+    "related_problems": [
+      "student-record-system",
+      "sort-structures-by-multiple-fields"
+    ],
+    "topic_slug": "structures-unions",
+    "company_slugs": [
+      "oracle",
+      "microsoft",
+      "amazon"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3\n101 Alice 95000.0 Main Seattle 98101 Engineering 3\n102 Bob 85000.0 Oak Seattle 98102 Marketing 2\n103 Carol 110000.0 Pine Austin 78701 Engineering 3\n4\nCITY_COUNT Seattle\nDEPT_AVG Engineering\nDEPT_AVG Sales\nMAX_SALARY\n",
+        "expected_output": "2\n102500.00\n0.00\nCarol Engineering 110000.00\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard queries on nested employee address and department fields"
+      },
+      {
+        "input": "0\n3\nCITY_COUNT Boston\nDEPT_AVG HR\nMAX_SALARY\n",
+        "expected_output": "0\n0.00\nNONE\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Empty employee database (N=0)"
+      },
+      {
+        "input": "2\n200 Dan 80000.0 First Dallas 75001 Finance 1\n100 Eve 80000.0 Second Dallas 75001 Finance 1\n2\nMAX_SALARY\nCITY_COUNT Dallas\n",
+        "expected_output": "Eve Finance 80000.00\n2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Salary tie-breaking by lowest employee ID"
+      },
+      {
+        "input": "4\n1 A 50000 Elm NY 10001 IT 4\n2 B 60000 Elm NY 10001 IT 4\n3 C 70000 Elm NY 10001 IT 4\n4 D 80000 Elm NY 10001 HR 2\n2\nDEPT_AVG IT\nDEPT_AVG HR\n",
+        "expected_output": "60000.00\n80000.00\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Average salary across multiple members in identical department"
+      },
+      {
+        "input": "1\n5 Lone 12345.67 Wall SF 94105 Legal 5\n3\nCITY_COUNT LA\nDEPT_AVG Legal\nMAX_SALARY\n",
+        "expected_output": "0\n12345.67\nLone Legal 12345.67\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single employee record with mismatched city query"
+      }
+    ]
+  },
+  {
+    "id": 79,
+    "title": "Structure Pointer Linked List",
+    "slug": "structure-pointer-linked-list",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nIn C, dynamic data structures like linked lists are constructed using self-referential structures containing pointers to their own type:\n```c\ntypedef struct Node {\n    int id;\n    int value;\n    struct Node *next;\n} Node;\n```\nManipulating nodes via struct pointers (`Node*`) is a foundational systems programming pattern. Each node must be allocated on the heap using `malloc` and deallocated using `free`.\n\nImplement a singly linked list supporting the following operations:\n1. `PUSH_FRONT <id> <val>`: Allocate a new node and insert it at the head of the list.\n2. `PUSH_BACK <id> <val>`: Allocate a new node and append it to the tail of the list.\n3. `DELETE_ID <id>`: Search for the first node with matching `<id>`, unlink it, free its memory, and print `DELETED`. If no node matches, print `NOT_FOUND`.\n4. `UPDATE_VAL <id> <new_val>`: Search for the first node with matching `<id>` and update its value to `<new_val>`. Print `UPDATED` if found, or `NOT_FOUND` if not found.\n5. `PRINT`: Print the list in the format `[id:val]->...->NULL`. If the list is empty, print `EMPTY`.\n6. `SUM`: Print the sum of `value`s across all nodes in the list (if empty, print `0`).\n\nEnsure all remaining nodes are properly freed before program exit.",
+    "input_format": "The first line contains Q (number of commands).\nThe following Q lines contain commands: PUSH_FRONT <id> <val>, PUSH_BACK <id> <val>, DELETE_ID <id>, UPDATE_VAL <id> <new_val>, PRINT, or SUM.",
+    "output_format": "Print the result of each command producing output on a separate line.",
+    "constraints": "1 <= Q <= 500\n-10^9 <= id, val <= 10^9",
+    "examples": [
+      {
+        "input": "8\nPUSH_BACK 1 10\nPUSH_FRONT 2 20\nPUSH_BACK 3 30\nPRINT\nSUM\nDELETE_ID 1\nPRINT\nSUM\n",
+        "output": "[2:20]->[1:10]->[3:30]->NULL\n60\nDELETED\n[2:20]->[3:30]->NULL\n50\n",
+        "explanation": "Node 1 is appended, node 2 prepended, node 3 appended. Total sum is 20+10+30=60. Node 1 is deleted from the middle."
+      },
+      {
+        "input": "5\nPRINT\nSUM\nDELETE_ID 1\nUPDATE_VAL 1 10\nPRINT\n",
+        "output": "EMPTY\n0\nNOT_FOUND\nNOT_FOUND\nEMPTY\n",
+        "explanation": "Operating on an empty list safely prints EMPTY or NOT_FOUND without crashing."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Node {\n    int id;\n    int value;\n    struct Node *next;\n} Node;\n\ntypedef struct {\n    Node *head;\n} LinkedList;\n\nvoid list_push_front(LinkedList *list, int id, int val) {\n    // TODO: Insert node at head\n}\n\nvoid list_push_back(LinkedList *list, int id, int val) {\n    // TODO: Append node at tail\n}\n\nvoid list_delete_id(LinkedList *list, int id) {\n    // TODO: Delete node by id or print NOT_FOUND\n}\n\nvoid list_update_val(LinkedList *list, int id, int new_val) {\n    // TODO: Update value or print NOT_FOUND\n}\n\nvoid list_print(LinkedList *list) {\n    // TODO: Print [id:val]->...->NULL or EMPTY\n}\n\nvoid list_sum(LinkedList *list) {\n    // TODO: Print sum of values\n}\n\nvoid list_free(LinkedList *list) {\n    // TODO: Free all nodes\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    LinkedList list = { NULL };\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"PUSH_FRONT\") == 0) {\n            int id, val;\n            scanf(\"%d %d\", &id, &val);\n            list_push_front(&list, id, val);\n        } else if (strcmp(cmd, \"PUSH_BACK\") == 0) {\n            int id, val;\n            scanf(\"%d %d\", &id, &val);\n            list_push_back(&list, id, val);\n        } else if (strcmp(cmd, \"DELETE_ID\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            list_delete_id(&list, id);\n        } else if (strcmp(cmd, \"UPDATE_VAL\") == 0) {\n            int id, val;\n            scanf(\"%d %d\", &id, &val);\n            list_update_val(&list, id, val);\n        } else if (strcmp(cmd, \"PRINT\") == 0) {\n            list_print(&list);\n        } else if (strcmp(cmd, \"SUM\") == 0) {\n            list_sum(&list);\n        }\n    }\n    \n    list_free(&list);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\ntypedef struct Node {\n    int id;\n    int value;\n    struct Node *next;\n} Node;\n\ntypedef struct {\n    Node *head;\n} LinkedList;\n\nvoid list_push_front(LinkedList *list, int id, int val) {\n    Node *node = (Node *)malloc(sizeof(Node));\n    node->id = id;\n    node->value = val;\n    node->next = list->head;\n    list->head = node;\n}\n\nvoid list_push_back(LinkedList *list, int id, int val) {\n    Node *node = (Node *)malloc(sizeof(Node));\n    node->id = id;\n    node->value = val;\n    node->next = NULL;\n    if (list->head == NULL) {\n        list->head = node;\n        return;\n    }\n    Node *curr = list->head;\n    while (curr->next != NULL) {\n        curr = curr->next;\n    }\n    curr->next = node;\n}\n\nvoid list_delete_id(LinkedList *list, int id) {\n    if (list->head == NULL) {\n        printf(\"NOT_FOUND\\n\");\n        return;\n    }\n    if (list->head->id == id) {\n        Node *temp = list->head;\n        list->head = list->head->next;\n        free(temp);\n        printf(\"DELETED\\n\");\n        return;\n    }\n    Node *curr = list->head;\n    while (curr->next != NULL && curr->next->id != id) {\n        curr = curr->next;\n    }\n    if (curr->next != NULL) {\n        Node *temp = curr->next;\n        curr->next = curr->next->next;\n        free(temp);\n        printf(\"DELETED\\n\");\n    } else {\n        printf(\"NOT_FOUND\\n\");\n    }\n}\n\nvoid list_update_val(LinkedList *list, int id, int new_val) {\n    Node *curr = list->head;\n    while (curr != NULL) {\n        if (curr->id == id) {\n            curr->value = new_val;\n            printf(\"UPDATED\\n\");\n            return;\n        }\n        curr = curr->next;\n    }\n    printf(\"NOT_FOUND\\n\");\n}\n\nvoid list_print(LinkedList *list) {\n    if (list->head == NULL) {\n        printf(\"EMPTY\\n\");\n        return;\n    }\n    Node *curr = list->head;\n    while (curr != NULL) {\n        printf(\"[%d:%d]->\", curr->id, curr->value);\n        curr = curr->next;\n    }\n    printf(\"NULL\\n\");\n}\n\nvoid list_sum(LinkedList *list) {\n    long long total = 0;\n    Node *curr = list->head;\n    while (curr != NULL) {\n        total += curr->value;\n        curr = curr->next;\n    }\n    printf(\"%lld\\n\", total);\n}\n\nvoid list_free(LinkedList *list) {\n    Node *curr = list->head;\n    while (curr != NULL) {\n        Node *next = curr->next;\n        free(curr);\n        curr = next;\n    }\n    list->head = NULL;\n}\n\nint main() {\n    int q;\n    if (scanf(\"%d\", &q) != 1) return 0;\n    \n    LinkedList list = { NULL };\n    \n    char cmd[16];\n    for (int i = 0; i < q; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"PUSH_FRONT\") == 0) {\n            int id, val;\n            scanf(\"%d %d\", &id, &val);\n            list_push_front(&list, id, val);\n        } else if (strcmp(cmd, \"PUSH_BACK\") == 0) {\n            int id, val;\n            scanf(\"%d %d\", &id, &val);\n            list_push_back(&list, id, val);\n        } else if (strcmp(cmd, \"DELETE_ID\") == 0) {\n            int id;\n            scanf(\"%d\", &id);\n            list_delete_id(&list, id);\n        } else if (strcmp(cmd, \"UPDATE_VAL\") == 0) {\n            int id, val;\n            scanf(\"%d %d\", &id, &val);\n            list_update_val(&list, id, val);\n        } else if (strcmp(cmd, \"PRINT\") == 0) {\n            list_print(&list);\n        } else if (strcmp(cmd, \"SUM\") == 0) {\n            list_sum(&list);\n        }\n    }\n    \n    list_free(&list);\n    return 0;\n}\n",
+    "hints": [
+      "Use malloc(sizeof(Node)) to create new nodes, and free(node) when unlinking.",
+      "Special-case head deletion: if list->head->id == id, advance list->head and free the old head.",
+      "For general deletion, maintain pointer to current node and check curr->next->id == id.",
+      "Always store next = curr->next before calling free(curr) during list traversal cleanup."
+    ],
+    "explanation": "Self-referential structures represent linked nodes in heap memory. Pointers to structures allow dynamic manipulation of links (next pointers) in O(1) time at head or O(N) traversal. Every allocated node must be explicitly released with free().",
+    "time_complexity": "O(1) for PUSH_FRONT, O(N) for PUSH_BACK, DELETE_ID, UPDATE_VAL, PRINT, and SUM",
+    "space_complexity": "O(N) heap memory for allocated nodes",
+    "common_mistakes": [
+      "Dereferencing a freed pointer: accessing curr->next after calling free(curr).",
+      "Memory leak by dropping pointers when deleting nodes without calling free().",
+      "Failing to handle deleting the head node properly."
+    ],
+    "related_problems": [
+      "build-and-display-linked-list",
+      "doubly-linked-list-operations"
+    ],
+    "topic_slug": "structures-unions",
+    "company_slugs": [
+      "microsoft",
+      "apple",
+      "amazon"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "8\nPUSH_BACK 1 10\nPUSH_FRONT 2 20\nPUSH_BACK 3 30\nPRINT\nSUM\nDELETE_ID 1\nPRINT\nSUM\n",
+        "expected_output": "[2:20]->[1:10]->[3:30]->NULL\n60\nDELETED\n[2:20]->[3:30]->NULL\n50\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard push front, push back, print, sum, and middle deletion"
+      },
+      {
+        "input": "5\nPRINT\nSUM\nDELETE_ID 1\nUPDATE_VAL 1 10\nPRINT\n",
+        "expected_output": "EMPTY\n0\nNOT_FOUND\nNOT_FOUND\nEMPTY\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Operations on empty linked list"
+      },
+      {
+        "input": "7\nPUSH_FRONT 1 100\nUPDATE_VAL 1 200\nPRINT\nDELETE_ID 1\nPRINT\nDELETE_ID 1\nSUM\n",
+        "expected_output": "UPDATED\n[1:200]->NULL\nDELETED\nEMPTY\nNOT_FOUND\n0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element operations: update, print, delete, and repeated delete"
+      },
+      {
+        "input": "6\nPUSH_BACK 1 5\nPUSH_BACK 2 10\nPUSH_BACK 3 15\nDELETE_ID 3\nPRINT\nDELETE_ID 1\n",
+        "expected_output": "DELETED\n[1:5]->[2:10]->NULL\nDELETED\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Tail node deletion and head node deletion"
+      },
+      {
+        "input": "6\nPUSH_FRONT 1 -10\nPUSH_FRONT 2 -20\nPUSH_FRONT 3 30\nSUM\nUPDATE_VAL 2 0\nSUM\n",
+        "expected_output": "0\nUPDATED\n20\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Handling negative numbers and updating node values"
+      }
+    ]
+  },
+  {
+    "id": 80,
+    "title": "Union Memory Layout Analyzer",
+    "slug": "union-memory-layout-analyzer",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nUnlike a `struct` where each member has its own distinct offset in memory, all members of a `union` in C share the **exact same starting memory address**. The total size of a union is determined by the size of its largest member (plus any alignment padding). Writing to one member overwrites the raw bytes of all other members. In systems programming, unions are used for low-level packet decoding, hardware register manipulation, and type punning.\n\nIn this problem, you will analyze the memory overlay and little-endian representation of a 4-byte multi-view union:\n```c\ntypedef union {\n    uint32_t u32;\n    uint16_t u16[2];\n    uint8_t u8[4];\n} MultiView;\n```\n\n#### Endianness Note:\nStandard modern architectures (x86_64, ARM64) use **little-endian** byte ordering. The least significant byte (LSB) is stored at byte index `0` (`u8[0]`), and the most significant byte (MSB) is stored at byte index `3` (`u8[3]`).\nSimilarly:\n- `u16[0]` comprises bytes `u8[0]` (low) and `u8[1]` (high).\n- `u16[1]` comprises bytes `u8[2]` (low) and `u8[3]` (high).\n\n#### Supported Commands:\n1. `SET_U32 <hex>`: Set `u32` to the given 32-bit unsigned hex value (e.g. `0x12345678`). Print `OK`.\n2. `SET_BYTE <idx> <hex>`: Set byte `u8[idx]` to the given 8-bit hex value ($0 \\le \\text{val} \\le 255$).\n   - If `<idx> < 0` or `<idx> > 3`, print `OUT_OF_BOUNDS`.\n   - Otherwise, update the byte and print `OK`.\n3. `SHOW_BYTES`: Print the 4 bytes in hex from index 0 to 3:\n   `B0:0x%02X B1:0x%02X B2:0x%02X B3:0x%02X`\n4. `SHOW_U16`: Print the two 16-bit words in hex:\n   `W0:0x%04X W1:0x%04X`\n5. `SHOW_U32`: Print the 32-bit integer in hex and unsigned decimal:\n   `HEX:0x%08X DEC:%u`",
+    "input_format": "The first line contains N (number of operations).\nThe next N lines each contain a command: SET_U32 <hex>, SET_BYTE <idx> <hex>, SHOW_BYTES, SHOW_U16, or SHOW_U32.",
+    "output_format": "Print the response for each command on a separate line.",
+    "constraints": "1 <= N <= 200\n-10 <= idx <= 10\nHex values provided without '0x' prefix for scanf (%x)",
+    "examples": [
+      {
+        "input": "5\nSET_U32 12345678\nSHOW_BYTES\nSHOW_U16\nSHOW_U32\nSET_BYTE 0 FF\n",
+        "output": "OK\nB0:0x78 B1:0x56 B2:0x34 B3:0x12\nW0:0x5678 W1:0x1234\nHEX:0x12345678 DEC:305419896\nOK\n",
+        "explanation": "Setting 0x12345678 on a little-endian machine places 0x78 at byte 0, 0x56 at byte 1, 0x34 at byte 2, and 0x12 at byte 3. W0 combines byte 0 and 1 (0x5678)."
+      },
+      {
+        "input": "4\nSHOW_BYTES\nSET_BYTE 4 AA\nSET_BYTE -1 BB\nSHOW_U32\n",
+        "output": "B0:0x00 B1:0x00 B2:0x00 B3:0x00\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\nHEX:0x00000000 DEC:0\n",
+        "explanation": "Initially zeroed. Byte indices < 0 or > 3 are rejected with OUT_OF_BOUNDS."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdint.h>\n#include <string.h>\n\ntypedef union {\n    uint32_t u32;\n    uint16_t u16[2];\n    uint8_t u8[4];\n} MultiView;\n\nint main() {\n    MultiView mv;\n    mv.u32 = 0;\n    \n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        // TODO: Implement SET_U32, SET_BYTE, SHOW_BYTES, SHOW_U16, SHOW_U32\n    }\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdint.h>\n#include <string.h>\n\ntypedef union {\n    uint32_t u32;\n    uint16_t u16[2];\n    uint8_t u8[4];\n} MultiView;\n\nint main() {\n    MultiView mv;\n    mv.u32 = 0;\n    \n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"SET_U32\") == 0) {\n            uint32_t val;\n            scanf(\"%x\", &val);\n            mv.u32 = val;\n            printf(\"OK\\n\");\n        } else if (strcmp(cmd, \"SET_BYTE\") == 0) {\n            int idx;\n            unsigned int byte_val;\n            scanf(\"%d %x\", &idx, &byte_val);\n            if (idx < 0 || idx > 3) {\n                printf(\"OUT_OF_BOUNDS\\n\");\n            } else {\n                mv.u8[idx] = (uint8_t)(byte_val & 0xFF);\n                printf(\"OK\\n\");\n            }\n        } else if (strcmp(cmd, \"SHOW_BYTES\") == 0) {\n            printf(\"B0:0x%02X B1:0x%02X B2:0x%02X B3:0x%02X\\n\",\n                mv.u8[0], mv.u8[1], mv.u8[2], mv.u8[3]);\n        } else if (strcmp(cmd, \"SHOW_U16\") == 0) {\n            printf(\"W0:0x%04X W1:0x%04X\\n\",\n                mv.u16[0], mv.u16[1]);\n        } else if (strcmp(cmd, \"SHOW_U32\") == 0) {\n            printf(\"HEX:0x%08X DEC:%u\\n\",\n                mv.u32, mv.u32);\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "In C, union members share the same starting address.",
+      "Use scanf(\"%x\", &val) to parse hexadecimal inputs.",
+      "Remember that in little-endian, byte 0 is the least significant byte.",
+      "Print using uppercase hex formatting: %02X, %04X, %08X."
+    ],
+    "explanation": "Unions enable type punning and multi-view representation of memory buffers. On little-endian architectures, the lowest-order byte of a multi-byte scalar is stored at the lowest memory address. Manipulating individual bytes immediately reflects across all larger union members.",
+    "time_complexity": "O(1) for all operations",
+    "space_complexity": "O(1) memory (4 bytes total)",
+    "common_mistakes": [
+      "Assuming big-endian ordering where byte 0 would hold the most significant byte.",
+      "Forgetting to check bounds on byte index (0 <= idx <= 3).",
+      "Using signed integer formatters (%d) instead of unsigned (%u) for 32-bit values exceeding INT_MAX."
+    ],
+    "related_problems": [
+      "structure-padding-calculator",
+      "nested-structure-operations"
+    ],
+    "topic_slug": "structures-unions",
+    "company_slugs": [
+      "qualcomm",
+      "intel",
+      "apple",
+      "nvidia"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\nSET_U32 12345678\nSHOW_BYTES\nSHOW_U16\nSHOW_U32\nSET_BYTE 0 FF\n",
+        "expected_output": "OK\nB0:0x78 B1:0x56 B2:0x34 B3:0x12\nW0:0x5678 W1:0x1234\nHEX:0x12345678 DEC:305419896\nOK\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Little-endian byte layout of 0x12345678 and byte mutation"
+      },
+      {
+        "input": "4\nSHOW_BYTES\nSET_BYTE 4 AA\nSET_BYTE -1 BB\nSHOW_U32\n",
+        "expected_output": "B0:0x00 B1:0x00 B2:0x00 B3:0x00\nOUT_OF_BOUNDS\nOUT_OF_BOUNDS\nHEX:0x00000000 DEC:0\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Zero initialization and out-of-bounds byte index checks"
+      },
+      {
+        "input": "6\nSET_BYTE 0 01\nSET_BYTE 1 02\nSET_BYTE 2 03\nSET_BYTE 3 04\nSHOW_U16\nSHOW_U32\n",
+        "expected_output": "OK\nOK\nOK\nOK\nW0:0x0201 W1:0x0403\nHEX:0x04030201 DEC:67305985\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Setting individual bytes and observing composite 16-bit and 32-bit values"
+      },
+      {
+        "input": "4\nSET_U32 FFFFFFFF\nSHOW_BYTES\nSHOW_U16\nSHOW_U32\n",
+        "expected_output": "OK\nB0:0xFF B1:0xFF B2:0xFF B3:0xFF\nW0:0xFFFF W1:0xFFFF\nHEX:0xFFFFFFFF DEC:4294967295\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All bits set (0xFFFFFFFF)"
+      },
+      {
+        "input": "5\nSET_U32 AABBCCDD\nSET_BYTE 2 00\nSHOW_BYTES\nSHOW_U16\nSHOW_U32\n",
+        "expected_output": "OK\nOK\nB0:0xDD B1:0xCC B2:0x00 B3:0xAA\nW0:0xCCDD W1:0xAA00\nHEX:0xAA00CCDD DEC:2852244701\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Zeroing a middle byte in the 32-bit value via union member"
+      }
+    ]
+  },
+  {
+    "id": 81,
+    "title": "Enum-Based State Machine",
+    "slug": "enum-based-state-machine",
+    "difficulty": "hard",
+    "description": "### Problem Statement\nEnumerations (`enum`) in C define user-friendly symbolic names for integral constants. They are extensively used in embedded systems and driver programming to implement **Finite State Machines (FSMs)**. A state machine maintains a current state and evaluates incoming events to trigger state transitions and associated actions.\n\nIn this problem, you will model a vending machine controller using C `enum`s.\n\n#### State Definitions:\n```c\ntypedef enum {\n    STATE_IDLE,\n    STATE_COIN_INSERTED\n} VendingState;\n```\n\n#### Machine Variables:\n- `state`: Current state, starts at `STATE_IDLE`.\n- `stock`: Current inventory count of the item, initialized from input.\n- `balance`: Total cents inserted in the current transaction, initially `0`.\n- **Item Price:** Fixed at `50` cents per item.\n\n#### Events & Rules:\n1. `INSERT <amount>`:\n   - `<amount>` is in cents ($> 0$).\n   - Add `<amount>` to `balance`.\n   - Transition to `STATE_COIN_INSERTED`.\n   - Print `BALANCE: <balance> STATE: COIN_INSERTED`.\n2. `SELECT`:\n   - If `state == STATE_IDLE`: print `INVALID_ACTION`.\n   - If `state == STATE_COIN_INSERTED`:\n     - If `stock == 0`: Out of stock! Refund entire `balance`, set `balance = 0`, transition to `STATE_IDLE`, and print `OUT_OF_STOCK REFUND: <refund_amount> STATE: IDLE`.\n     - Else if `balance < 50`: Insufficient funds. Print `INSUFFICIENT_FUNDS NEED: <50 - balance>`.\n     - Else (`balance >= 50` and `stock > 0`):\n       - Dispense item: decrement `stock` by 1.\n       - Calculate change = `balance - 50`.\n       - Print `DISPENSING CHANGE: <change>`.\n       - Set `balance = 0`, transition to `STATE_IDLE`.\n3. `REFUND`:\n   - If `state == STATE_COIN_INSERTED`:\n     - Refund all inserted coins.\n     - Print `REFUND: <balance> STATE: IDLE`.\n     - Set `balance = 0`, transition to `STATE_IDLE`.\n   - Else (`state == STATE_IDLE`):\n     - Print `NO_COINS`.\n4. `RESTOCK <count>`:\n   - Increase `stock` by `<count>`.\n   - Print `STOCK: <stock>`.",
+    "input_format": "The first line contains initial_stock.\nThe second line contains N (number of commands).\nThe following N lines each contain a command: INSERT <amount>, SELECT, REFUND, or RESTOCK <count>.",
+    "output_format": "Print the response for each command on a separate line.",
+    "constraints": "0 <= initial_stock <= 1000\n1 <= N <= 500\n1 <= amount <= 1000\n1 <= count <= 1000",
+    "examples": [
+      {
+        "input": "2\n6\nINSERT 25\nSELECT\nINSERT 50\nSELECT\nREFUND\nRESTOCK 5\n",
+        "output": "BALANCE: 25 STATE: COIN_INSERTED\nINSUFFICIENT_FUNDS NEED: 25\nBALANCE: 75 STATE: COIN_INSERTED\nDISPENSING CHANGE: 25\nNO_COINS\nSTOCK: 6\n",
+        "explanation": "Inserting 25 gives 25 cents. Selecting reports 25 more needed. Adding 50 makes balance 75. Selecting dispenses item (cost 50), returning 25 cents change and resetting state to IDLE."
+      },
+      {
+        "input": "0\n4\nSELECT\nREFUND\nINSERT 100\nSELECT\n",
+        "output": "INVALID_ACTION\nNO_COINS\nBALANCE: 100 STATE: COIN_INSERTED\nOUT_OF_STOCK REFUND: 100 STATE: IDLE\n",
+        "explanation": "When stock is 0, selecting after inserting coins triggers OUT_OF_STOCK, refunds all inserted coins, and returns machine to IDLE."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\ntypedef enum {\n    STATE_IDLE,\n    STATE_COIN_INSERTED\n} VendingState;\n\ntypedef struct {\n    VendingState state;\n    int stock;\n    int balance;\n} VendingMachine;\n\nvoid vm_init(VendingMachine *vm, int initial_stock) {\n    // TODO: Initialize machine\n}\n\nvoid vm_insert(VendingMachine *vm, int amount) {\n    // TODO: Add coins, transition to COIN_INSERTED\n}\n\nvoid vm_select(VendingMachine *vm) {\n    // TODO: Handle item selection, dispensing, change, or out-of-stock refund\n}\n\nvoid vm_refund(VendingMachine *vm) {\n    // TODO: Refund coins if any\n}\n\nvoid vm_restock(VendingMachine *vm, int count) {\n    // TODO: Add to stock\n}\n\nint main() {\n    int initial_stock;\n    if (scanf(\"%d\", &initial_stock) != 1) return 0;\n    \n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    VendingMachine vm;\n    vm_init(&vm, initial_stock);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"INSERT\") == 0) {\n            int amount;\n            scanf(\"%d\", &amount);\n            vm_insert(&vm, amount);\n        } else if (strcmp(cmd, \"SELECT\") == 0) {\n            vm_select(&vm);\n        } else if (strcmp(cmd, \"REFUND\") == 0) {\n            vm_refund(&vm);\n        } else if (strcmp(cmd, \"RESTOCK\") == 0) {\n            int count;\n            scanf(\"%d\", &count);\n            vm_restock(&vm, count);\n        }\n    }\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\ntypedef enum {\n    STATE_IDLE,\n    STATE_COIN_INSERTED\n} VendingState;\n\ntypedef struct {\n    VendingState state;\n    int stock;\n    int balance;\n} VendingMachine;\n\nvoid vm_init(VendingMachine *vm, int initial_stock) {\n    vm->state = STATE_IDLE;\n    vm->stock = initial_stock;\n    vm->balance = 0;\n}\n\nvoid vm_insert(VendingMachine *vm, int amount) {\n    vm->balance += amount;\n    vm->state = STATE_COIN_INSERTED;\n    printf(\"BALANCE: %d STATE: COIN_INSERTED\\n\", vm->balance);\n}\n\nvoid vm_select(VendingMachine *vm) {\n    if (vm->state == STATE_IDLE) {\n        printf(\"INVALID_ACTION\\n\");\n        return;\n    }\n    if (vm->stock == 0) {\n        int refund = vm->balance;\n        vm->balance = 0;\n        vm->state = STATE_IDLE;\n        printf(\"OUT_OF_STOCK REFUND: %d STATE: IDLE\\n\", refund);\n        return;\n    }\n    if (vm->balance < 50) {\n        printf(\"INSUFFICIENT_FUNDS NEED: %d\\n\", 50 - vm->balance);\n        return;\n    }\n    vm->stock--;\n    int change = vm->balance - 50;\n    vm->balance = 0;\n    vm->state = STATE_IDLE;\n    printf(\"DISPENSING CHANGE: %d\\n\", change);\n}\n\nvoid vm_refund(VendingMachine *vm) {\n    if (vm->state == STATE_COIN_INSERTED) {\n        int refund = vm->balance;\n        vm->balance = 0;\n        vm->state = STATE_IDLE;\n        printf(\"REFUND: %d STATE: IDLE\\n\", refund);\n    } else {\n        printf(\"NO_COINS\\n\");\n    }\n}\n\nvoid vm_restock(VendingMachine *vm, int count) {\n    vm->stock += count;\n    printf(\"STOCK: %d\\n\", vm->stock);\n}\n\nint main() {\n    int initial_stock;\n    if (scanf(\"%d\", &initial_stock) != 1) return 0;\n    \n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    VendingMachine vm;\n    vm_init(&vm, initial_stock);\n    \n    char cmd[16];\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s\", cmd) != 1) break;\n        if (strcmp(cmd, \"INSERT\") == 0) {\n            int amount;\n            scanf(\"%d\", &amount);\n            vm_insert(&vm, amount);\n        } else if (strcmp(cmd, \"SELECT\") == 0) {\n            vm_select(&vm);\n        } else if (strcmp(cmd, \"REFUND\") == 0) {\n            vm_refund(&vm);\n        } else if (strcmp(cmd, \"RESTOCK\") == 0) {\n            int count;\n            scanf(\"%d\", &count);\n            vm_restock(&vm, count);\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Use enum for states: typedef enum { STATE_IDLE, STATE_COIN_INSERTED } VendingState;",
+      "Check current state before executing actions: SELECT when IDLE is an INVALID_ACTION.",
+      "Remember that dispensing item sets balance to 0 and transitions state back to STATE_IDLE.",
+      "When out of stock, refund the current balance before zeroing it out."
+    ],
+    "explanation": "State machines control transitions between distinct operating modes. Enums provide compile-time type safety and readable symbolic constants. State-based conditionals prevent illegal operations (like selecting an item without inserting coins).",
+    "time_complexity": "O(1) for each command",
+    "space_complexity": "O(1) memory",
+    "common_mistakes": [
+      "Forgetting to transition state back to STATE_IDLE after dispensing an item or issuing a refund.",
+      "Not zeroing out the balance after dispensing or refunding.",
+      "Failing to handle stock == 0 when SELECT is called."
+    ],
+    "related_problems": [
+      "student-record-system",
+      "typedef-and-function-pointer-dispatch"
+    ],
+    "topic_slug": "structures-unions",
+    "company_slugs": [
+      "qualcomm",
+      "intel",
+      "cisco"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "2\n6\nINSERT 25\nSELECT\nINSERT 50\nSELECT\nREFUND\nRESTOCK 5\n",
+        "expected_output": "BALANCE: 25 STATE: COIN_INSERTED\nINSUFFICIENT_FUNDS NEED: 25\nBALANCE: 75 STATE: COIN_INSERTED\nDISPENSING CHANGE: 25\nNO_COINS\nSTOCK: 6\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Insufficient funds, subsequent coin insertion, dispensing with change, restock"
+      },
+      {
+        "input": "0\n4\nSELECT\nREFUND\nINSERT 100\nSELECT\n",
+        "expected_output": "INVALID_ACTION\nNO_COINS\nBALANCE: 100 STATE: COIN_INSERTED\nOUT_OF_STOCK REFUND: 100 STATE: IDLE\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Out-of-stock scenario triggering automatic full refund"
+      },
+      {
+        "input": "1\n5\nINSERT 50\nSELECT\nINSERT 50\nSELECT\nREFUND\n",
+        "expected_output": "BALANCE: 50 STATE: COIN_INSERTED\nDISPENSING CHANGE: 0\nBALANCE: 50 STATE: COIN_INSERTED\nOUT_OF_STOCK REFUND: 50 STATE: IDLE\nNO_COINS\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Depleting stock to zero on second purchase"
+      },
+      {
+        "input": "5\n4\nINSERT 10\nINSERT 20\nREFUND\nREFUND\n",
+        "expected_output": "BALANCE: 10 STATE: COIN_INSERTED\nBALANCE: 30 STATE: COIN_INSERTED\nREFUND: 30 STATE: IDLE\nNO_COINS\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Accumulating multiple coin inserts and canceling with refund"
+      },
+      {
+        "input": "1\n3\nRESTOCK 10\nINSERT 50\nSELECT\n",
+        "expected_output": "STOCK: 11\nBALANCE: 50 STATE: COIN_INSERTED\nDISPENSING CHANGE: 0\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Restocking before purchase and exact payment (0 change)"
+      }
+    ]
+  },
+  {
+    "id": 82,
+    "title": "Typedef and Function Pointer Dispatch",
+    "slug": "typedef-and-function-pointer-dispatch",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nIn systems software, operating system kernels, and device driver frameworks, runtime command routing is often implemented using **function pointer dispatch tables** rather than large `switch` statements. This architectural pattern combines `typedef` function signatures with an array of mapping structures, decoupling command parsing from business logic.\n\nDefine the function pointer type and dispatch table entry as follows:\n```c\ntypedef int (*OpFunc)(int a, int b, int *error_code);\n\ntypedef struct {\n    char name[16];\n    OpFunc func;\n} CommandEntry;\n```\n\n#### Supported Operations:\n1. `ADD a b`: Return $a + b$.\n2. `SUB a b`: Return $a - b$.\n3. `MUL a b`: Return $a \\times b$.\n4. `DIV a b`: Integer division $a / b$. If $b == 0$, set `*error_code = 1`.\n5. `MOD a b`: Modulo $a \\% b$. If $b == 0$, set `*error_code = 1`.\n6. `AND a b`: Bitwise AND $a \\ \\& \\ b$.\n7. `OR a b`: Bitwise OR $a \\ | \\ b$.\n8. `XOR a b`: Bitwise XOR $a \\ \\hat{} \\ b$.\n\n#### Error Handling Rules:\n- If the operation name is not found in the dispatch table, print `ERROR: UNKNOWN_OP`.\n- If an operation sets `*error_code != 0` (e.g. division or modulo by zero), print `ERROR: DIVISION_BY_ZERO`.\n- Otherwise, print the integer result.",
+    "input_format": "The first line contains N (number of commands).\nThe following N lines each contain: <op> <a> <b>.",
+    "output_format": "Print the integer result or error string on a new line.",
+    "constraints": "1 <= N <= 500\n-10^6 <= a, b <= 10^6\nOperation name length <= 15 chars",
+    "examples": [
+      {
+        "input": "6\nADD 10 20\nSUB 50 15\nMUL 6 7\nDIV 42 6\nMOD 29 5\nXOR 12 25\n",
+        "output": "30\n35\n42\n7\n4\n21\n",
+        "explanation": "Each command is looked up in the dispatch table and executed. XOR 12 (1100b) with 25 (11001b) gives 21 (10101b)."
+      },
+      {
+        "input": "4\nDIV 10 0\nMOD 10 0\nPOW 2 3\nSQRT 16 0\n",
+        "output": "ERROR: DIVISION_BY_ZERO\nERROR: DIVISION_BY_ZERO\nERROR: UNKNOWN_OP\nERROR: UNKNOWN_OP\n",
+        "explanation": "b == 0 for DIV and MOD triggers error code 1. POW and SQRT are not in the table, producing ERROR: UNKNOWN_OP."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\ntypedef int (*OpFunc)(int a, int b, int *error_code);\n\ntypedef struct {\n    char name[16];\n    OpFunc func;\n} CommandEntry;\n\n// TODO: Implement arithmetic and bitwise functions\n\nint main() {\n    // TODO: Initialize dispatch table\n\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    char op[16];\n    int a, b;\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s %d %d\", op, &a, &b) != 3) break;\n        // TODO: Dispatch to matching function or handle errors\n    }\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\ntypedef int (*OpFunc)(int a, int b, int *error_code);\n\nint op_add(int a, int b, int *err) {\n    return a + b;\n}\n\nint op_sub(int a, int b, int *err) {\n    return a - b;\n}\n\nint op_mul(int a, int b, int *err) {\n    return a * b;\n}\n\nint op_div(int a, int b, int *err) {\n    if (b == 0) {\n        *err = 1;\n        return 0;\n    }\n    return a / b;\n}\n\nint op_mod(int a, int b, int *err) {\n    if (b == 0) {\n        *err = 1;\n        return 0;\n    }\n    return a % b;\n}\n\nint op_and(int a, int b, int *err) {\n    return a & b;\n}\n\nint op_or(int a, int b, int *err) {\n    return a | b;\n}\n\nint op_xor(int a, int b, int *err) {\n    return a ^ b;\n}\n\ntypedef struct {\n    char name[16];\n    OpFunc func;\n} CommandEntry;\n\nstatic const CommandEntry dispatch_table[] = {\n    {\"ADD\", op_add},\n    {\"SUB\", op_sub},\n    {\"MUL\", op_mul},\n    {\"DIV\", op_div},\n    {\"MOD\", op_mod},\n    {\"AND\", op_and},\n    {\"OR\",  op_or},\n    {\"XOR\", op_xor}\n};\n\nstatic const int NUM_COMMANDS = sizeof(dispatch_table) / sizeof(dispatch_table[0]);\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    char op[16];\n    int a, b;\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%s %d %d\", op, &a, &b) != 3) break;\n        \n        int found = 0;\n        for (int j = 0; j < NUM_COMMANDS; j++) {\n            if (strcmp(dispatch_table[j].name, op) == 0) {\n                int err = 0;\n                int res = dispatch_table[j].func(a, b, &err);\n                if (err != 0) {\n                    printf(\"ERROR: DIVISION_BY_ZERO\\n\");\n                } else {\n                    printf(\"%d\\n\", res);\n                }\n                found = 1;\n                break;\n            }\n        }\n        if (!found) {\n            printf(\"ERROR: UNKNOWN_OP\\n\");\n        }\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Use typedef int (*OpFunc)(int a, int b, int *error_code); for the function signature.",
+      "Store command names and function pointers in an array of structs.",
+      "Loop over the dispatch table comparing names using strcmp.",
+      "Pass an error code pointer (&err) into the dispatched function to check for division by zero."
+    ],
+    "explanation": "Function pointers in C provide runtime polymorphism and table-driven routing. Storing function pointers in a dispatch table avoids monolithic switch-case statements, makes adding new commands trivial (open-closed principle), and mirrors how virtual method tables (vtables) work internally.",
+    "time_complexity": "O(K) search per query where K is number of registered commands (O(1) effectively)",
+    "space_complexity": "O(1) memory for dispatch table",
+    "common_mistakes": [
+      "Calling free() or treating function pointers as dynamic heap memory.",
+      "Forgetting to check b == 0 in both DIV and MOD.",
+      "Dereferencing a NULL function pointer when a command is not found."
+    ],
+    "related_problems": [
+      "enum-based-state-machine",
+      "student-record-system"
+    ],
+    "topic_slug": "structures-unions",
+    "company_slugs": [
+      "google",
+      "apple",
+      "bloomberg"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "6\nADD 10 20\nSUB 50 15\nMUL 6 7\nDIV 42 6\nMOD 29 5\nXOR 12 25\n",
+        "expected_output": "30\n35\n42\n7\n4\n21\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard arithmetic and bitwise operations"
+      },
+      {
+        "input": "4\nDIV 10 0\nMOD 10 0\nPOW 2 3\nSQRT 16 0\n",
+        "expected_output": "ERROR: DIVISION_BY_ZERO\nERROR: DIVISION_BY_ZERO\nERROR: UNKNOWN_OP\nERROR: UNKNOWN_OP\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "Division by zero errors and unknown command rejection"
+      },
+      {
+        "input": "4\nAND 15 7\nOR 16 8\nAND 0 255\nOR 0 0\n",
+        "expected_output": "7\n24\n0\n0\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Bitwise operations with zero operands"
+      },
+      {
+        "input": "3\nSUB 10 20\nDIV -20 4\nMOD -17 5\n",
+        "expected_output": "-10\n-5\n-2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Negative numbers in arithmetic and modulo"
+      },
+      {
+        "input": "4\nADD 0 0\nUNKNOWN 1 2\nMUL 0 100\nDIV 0 5\n",
+        "expected_output": "0\nERROR: UNKNOWN_OP\n0\n0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Zeros as numerators and unknown op fallback"
+      }
+    ]
+  },
+  {
+    "id": 83,
+    "title": "Structure Padding Calculator",
+    "slug": "structure-padding-calculator",
+    "difficulty": "very_hard",
+    "description": "### Problem Statement\nIn C, the size of a structure is frequently larger than the mathematical sum of its member sizes. To optimize memory bus transfers and avoid unaligned memory access faults, compilers insert **padding bytes** between structure members and at the end of the structure (tail padding).\n\nThe standard natural alignment rules on 64-bit systems are:\n1. **Member Sizes & Alignments:**\n   - `char`: Size 1 byte, Alignment 1 byte.\n   - `short`: Size 2 bytes, Alignment 2 bytes.\n   - `int`: Size 4 bytes, Alignment 4 bytes.\n   - `float`: Size 4 bytes, Alignment 4 bytes.\n   - `double`: Size 8 bytes, Alignment 8 bytes.\n   - `long_long`: Size 8 bytes, Alignment 8 bytes.\n   - `pointer`: Size 8 bytes, Alignment 8 bytes.\n2. **Placement Rule:**\n   - The structure begins at offset `0`.\n   - A member of alignment $A$ must be positioned at an offset that is an integer multiple of $A$. If the current offset is not a multiple of $A$, padding bytes must be inserted immediately preceding the member:\n     $$\\text{padding} = (A - (\\text{offset} \\% A)) \\% A$$\n   - The member then occupies `size` bytes, advancing the offset to $\\text{offset} + \\text{padding} + \\text{size}$.\n3. **Structure Alignment & Tail Padding:**\n   - The alignment requirement of the entire struct ($A_{\\text{struct}}$) is equal to the **maximum alignment** among all its members (or `1` if the struct has 0 members).\n   - The total size of the struct must be rounded up to the nearest multiple of $A_{\\text{struct}}$ by appending tail padding:\n     $$\\text{tail\\_padding} = (A_{\\text{struct}} - (\\text{final\\_offset} \\% A_{\\text{struct}})) \\% A_{\\text{struct}}$$\n\nGiven a sequential list of $M$ field types declared in a struct, compute the offset and padding for each member, along with the total size, total padding, and alignment.",
+    "input_format": "The first line contains M (number of field types).\nThe next M lines each contain a type name: char, short, int, float, double, long_long, or pointer.",
+    "output_format": "For each field, print: FIELD <i>: <type> OFFSET: <off> PAD: <pad>\nFinally, print: TOTAL_SIZE: <size> TOTAL_PADDING: <pad> ALIGNMENT: <align>",
+    "constraints": "1 <= M <= 50\nSupported types: char, short, int, float, double, long_long, pointer",
+    "examples": [
+      {
+        "input": "3\nchar\nint\nshort\n",
+        "output": "FIELD 0: char OFFSET: 0 PAD: 0\nFIELD 1: int OFFSET: 4 PAD: 3\nFIELD 2: short OFFSET: 8 PAD: 0\nTOTAL_SIZE: 12 TOTAL_PADDING: 5 ALIGNMENT: 4\n",
+        "explanation": "char starts at 0 (size 1). int requires 4-byte alignment, so 3 padding bytes advance offset to 4. int ends at 8. short requires 2-byte alignment (8 is a multiple of 2, pad 0) and ends at 10. Max align is 4, so 2 bytes of tail padding bring total size to 12."
+      },
+      {
+        "input": "3\nchar\nchar\nchar\n",
+        "output": "FIELD 0: char OFFSET: 0 PAD: 0\nFIELD 1: char OFFSET: 1 PAD: 0\nFIELD 2: char OFFSET: 2 PAD: 0\nTOTAL_SIZE: 3 TOTAL_PADDING: 0 ALIGNMENT: 1\n",
+        "explanation": "All members are char with alignment 1. No interior or tail padding is needed. Total size is 3."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <string.h>\n\nvoid get_type_info(const char *type, int *size, int *align) {\n    // TODO: Return size and alignment for char, short, int, float, double, long_long, pointer\n}\n\nint main() {\n    int m;\n    if (scanf(\"%d\", &m) != 1) return 0;\n    \n    // TODO: Read field types, calculate padding and offsets according to natural alignment rules\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <string.h>\n\nvoid get_type_info(const char *type, int *size, int *align) {\n    if (strcmp(type, \"char\") == 0) {\n        *size = 1; *align = 1;\n    } else if (strcmp(type, \"short\") == 0) {\n        *size = 2; *align = 2;\n    } else if (strcmp(type, \"int\") == 0) {\n        *size = 4; *align = 4;\n    } else if (strcmp(type, \"float\") == 0) {\n        *size = 4; *align = 4;\n    } else if (strcmp(type, \"double\") == 0) {\n        *size = 8; *align = 8;\n    } else if (strcmp(type, \"long_long\") == 0) {\n        *size = 8; *align = 8;\n    } else if (strcmp(type, \"pointer\") == 0) {\n        *size = 8; *align = 8;\n    } else {\n        *size = 1; *align = 1;\n    }\n}\n\nint main() {\n    int m;\n    if (scanf(\"%d\", &m) != 1) return 0;\n    \n    int current_offset = 0;\n    int max_align = 1;\n    int total_padding = 0;\n    \n    char type[32];\n    for (int i = 0; i < m; i++) {\n        scanf(\"%s\", type);\n        int size, align;\n        get_type_info(type, &size, &align);\n        \n        if (align > max_align) {\n            max_align = align;\n        }\n        \n        int pad = (align - (current_offset % align)) % align;\n        total_padding += pad;\n        current_offset += pad;\n        \n        printf(\"FIELD %d: %s OFFSET: %d PAD: %d\\n\", i, type, current_offset, pad);\n        current_offset += size;\n    }\n    \n    int tail_pad = (max_align - (current_offset % max_align)) % max_align;\n    total_padding += tail_pad;\n    int total_size = current_offset + tail_pad;\n    \n    printf(\"TOTAL_SIZE: %d TOTAL_PADDING: %d ALIGNMENT: %d\\n\", total_size, total_padding, max_align);\n    return 0;\n}\n",
+    "hints": [
+      "Formula for padding: int pad = (align - (offset % align)) % align;",
+      "Offset of the member is current_offset + pad.",
+      "Remember that max_alignment = max(max_alignment, member_alignment).",
+      "Tail padding rounds the final offset up to the nearest multiple of max_alignment."
+    ],
+    "explanation": "Natural memory alignment mandates that N-byte data types reside at addresses divisible by N. The compiler inserts padding between fields to satisfy member alignment and appends tail padding to ensure array indexing of structs preserves alignment for all subsequent array elements.",
+    "time_complexity": "O(M) linear time",
+    "space_complexity": "O(1) memory",
+    "common_mistakes": [
+      "Forgetting tail padding at the end of the structure.",
+      "Incorrect padding formula when offset % align == 0 (without outer modulo % align).",
+      "Not tracking the maximum alignment across all members."
+    ],
+    "related_problems": [
+      "union-memory-layout-analyzer",
+      "nested-structure-operations"
+    ],
+    "topic_slug": "structures-unions",
+    "company_slugs": [
+      "qualcomm",
+      "intel",
+      "nvidia",
+      "apple"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3\nchar\nint\nshort\n",
+        "expected_output": "FIELD 0: char OFFSET: 0 PAD: 0\nFIELD 1: int OFFSET: 4 PAD: 3\nFIELD 2: short OFFSET: 8 PAD: 0\nTOTAL_SIZE: 12 TOTAL_PADDING: 5 ALIGNMENT: 4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Classic struct padding: char (1), 3 pad bytes, int (4), short (2), 2 tail pad bytes = 12 total"
+      },
+      {
+        "input": "3\nchar\nchar\nchar\n",
+        "expected_output": "FIELD 0: char OFFSET: 0 PAD: 0\nFIELD 1: char OFFSET: 1 PAD: 0\nFIELD 2: char OFFSET: 2 PAD: 0\nTOTAL_SIZE: 3 TOTAL_PADDING: 0 ALIGNMENT: 1\n",
+        "is_hidden": false,
+        "is_edge_case": true,
+        "description": "All 1-byte char fields with 0 padding and alignment 1"
+      },
+      {
+        "input": "4\nchar\ndouble\nint\npointer\n",
+        "expected_output": "FIELD 0: char OFFSET: 0 PAD: 0\nFIELD 1: double OFFSET: 8 PAD: 7\nFIELD 2: int OFFSET: 16 PAD: 0\nFIELD 3: pointer OFFSET: 24 PAD: 4\nTOTAL_SIZE: 32 TOTAL_PADDING: 11 ALIGNMENT: 8\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "64-bit types (double, pointer) requiring 8-byte alignment"
+      },
+      {
+        "input": "1\nlong_long\n",
+        "expected_output": "FIELD 0: long_long OFFSET: 0 PAD: 0\nTOTAL_SIZE: 8 TOTAL_PADDING: 0 ALIGNMENT: 8\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single 8-byte field with zero padding"
+      },
+      {
+        "input": "5\nshort\nint\nchar\npointer\nshort\n",
+        "expected_output": "FIELD 0: short OFFSET: 0 PAD: 0\nFIELD 1: int OFFSET: 4 PAD: 2\nFIELD 2: char OFFSET: 8 PAD: 0\nFIELD 3: pointer OFFSET: 16 PAD: 7\nFIELD 4: short OFFSET: 24 PAD: 0\nTOTAL_SIZE: 32 TOTAL_PADDING: 15 ALIGNMENT: 8\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Complex layout requiring both intermediate and tail padding"
+      }
+    ]
+  }
+]

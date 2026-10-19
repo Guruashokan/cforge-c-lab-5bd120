@@ -1,0 +1,714 @@
+[
+  {
+    "id": 11,
+    "title": "Hollow Diamond Pattern",
+    "slug": "hollow-diamond-pattern",
+    "difficulty": "medium",
+    "description": "Pattern programming builds spatial reasoning, loop boundary management, and precise formatted character output. A hollow diamond pattern consists of an upper upright triangular section and a lower inverted triangular section, where only the outer border is drawn with star characters (`*`) while the interior and margins are filled with spaces.\n\nFor a given integer size $N \\ge 1$:\n- The pattern comprises $2N - 1$ total lines.\n- Upper half (rows $i = 1$ to $N$):\n  - Print $N - i$ leading spaces.\n  - If $i == 1$, print exactly one `*`.\n  - If $i > 1$, print `*`, followed by $2i - 3$ spaces, followed by `*`.\n- Lower half (rows $i = N - 1$ down to $1$):\n  - Print $N - i$ leading spaces.\n  - If $i == 1$, print exactly one `*`.\n  - If $i > 1$, print `*`, followed by $2i - 3$ spaces, followed by `*`.\n\nNo trailing whitespace is allowed after the final star on each line. Write a C program to output this hollow diamond.",
+    "input_format": "A single line containing an integer $N$ ($1 \\le N \\le 30$).",
+    "output_format": "The hollow diamond pattern consisting of $2N - 1$ lines, without trailing spaces.",
+    "constraints": "$1 \\le N \\le 30$.",
+    "examples": [
+      {
+        "input": "4",
+        "output": "   *\n  * *\n *   *\n*     *\n *   *\n  * *\n   *",
+        "explanation": "A hollow diamond of size 4 having 7 rows with borders at each boundary."
+      },
+      {
+        "input": "2",
+        "output": " *\n* *\n *",
+        "explanation": "Size 2 diamond having 3 rows."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Print hollow diamond pattern of size N\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic void print_line(int spaces, int inner_spaces) {\n    for (int s = 0; s < spaces; s++) putchar(' ');\n    putchar('*');\n    if (inner_spaces >= 0) {\n        for (int s = 0; s < inner_spaces; s++) putchar(' ');\n        putchar('*');\n    }\n    putchar('\\n');\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    for (int i = 1; i <= n; i++) {\n        int spaces = n - i;\n        int inner = (i == 1) ? -1 : 2 * i - 3;\n        print_line(spaces, inner);\n    }\n    for (int i = n - 1; i >= 1; i--) {\n        int spaces = n - i;\n        int inner = (i == 1) ? -1 : 2 * i - 3;\n        print_line(spaces, inner);\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Divide the output into two loops: top half (1 to N) and bottom half (N - 1 down to 1).",
+      "Notice that the first and last rows have inner_spaces = -1 (only one star is printed).",
+      "For row i > 1, the number of interior spaces is exactly 2 * i - 3."
+    ],
+    "explanation": "The diamond has vertical symmetry. For each row i, the number of leading spaces is N - i. When i = 1, only a single star is printed. For i > 1, the distance between the two boundary stars is 2 * i - 3 spaces. The lower half mirrors the upper half from N - 1 down to 1.",
+    "time_complexity": "O(N^2)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Printing two stars on the apex row (i = 1).",
+      "Emitting trailing whitespace after the second star.",
+      "Off-by-one errors in inner space count: it must be 2*i - 3, not 2*i - 1."
+    ],
+    "related_problems": [
+      "hourglass-star-pattern",
+      "butterfly-pattern"
+    ],
+    "topic_slug": "pattern-programming",
+    "company_slugs": ["amazon", "tcs", "capgemini"],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\n",
+        "expected_output": "   *\n  * *\n *   *\n*     *\n *   *\n  * *\n   *\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard size 4 hollow diamond"
+      },
+      {
+        "input": "2\n",
+        "expected_output": " *\n* *\n *\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Size 2 diamond"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "*\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single star boundary case"
+      },
+      {
+        "input": "3\n",
+        "expected_output": "  *\n * *\n*   *\n * *\n  *\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 3 diamond"
+      },
+      {
+        "input": "5\n",
+        "expected_output": "    *\n   * *\n  *   *\n *     *\n*       *\n *     *\n  *   *\n   * *\n    *\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 5 diamond"
+      },
+      {
+        "input": "7\n",
+        "expected_output": "      *\n     * *\n    *   *\n   *     *\n  *       *\n *         *\n*           *\n *         *\n  *       *\n   *     *\n    *   *\n     * *\n      *\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 7 diamond"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Number Spiral Matrix",
+    "slug": "number-spiral-matrix",
+    "difficulty": "hard",
+    "description": "A spiral matrix is a 2D grid filled with consecutive integers arranged in a continuous spiral winding clockwise from the outside inward. Starting from the top-left corner $(0, 0)$ with value 1, the path advances to the right until it hits the boundary, turns 90 degrees clockwise down, turns left along the bottom, turns up along the left, and repeats inward until all $N^2$ numbers from $1$ to $N^2$ are placed.\n\nSpiral matrix generation tests 2D array traversal, boundary pointer manipulation (`top`, `bottom`, `left`, `right`), and index arithmetic in C.\n\nWrite a program in C that takes an integer $N$ and generates an $N \\times N$ spiral matrix, printing each row with single space separation between numbers and no trailing spaces.",
+    "input_format": "A single line containing an integer $N$ ($1 \\le N \\le 20$).",
+    "output_format": "Print $N$ lines, each containing $N$ space-separated integers representing the rows of the spiral matrix.",
+    "constraints": "$1 \\le N \\le 20$.",
+    "examples": [
+      {
+        "input": "3",
+        "output": "1 2 3\n8 9 4\n7 6 5",
+        "explanation": "Numbers 1 through 9 spiral clockwise inside a 3x3 grid."
+      },
+      {
+        "input": "4",
+        "output": "1 2 3 4\n12 13 14 5\n11 16 15 6\n10 9 8 7",
+        "explanation": "Numbers 1 through 16 spiral clockwise inside a 4x4 grid."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Generate and print NxN clockwise spiral matrix\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    int grid[25][25];\n    int val = 1;\n    int top = 0, bottom = n - 1, left = 0, right = n - 1;\n\n    while (top <= bottom && left <= right) {\n        for (int c = left; c <= right; c++) grid[top][c] = val++;\n        top++;\n        for (int r = top; r <= bottom; r++) grid[r][right] = val++;\n        right--;\n        if (top <= bottom) {\n            for (int c = right; c >= left; c--) grid[bottom][c] = val++;\n            bottom--;\n        }\n        if (left <= right) {\n            for (int r = bottom; r >= top; r--) grid[r][left] = val++;\n            left++;\n        }\n    }\n\n    for (int r = 0; r < n; r++) {\n        for (int c = 0; c < n; c++) {\n            if (c > 0) printf(\" \");\n            printf(\"%d\", grid[r][c]);\n        }\n        printf(\"\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Maintain 4 boundary markers: top, bottom, left, right.",
+      "Fill from left to right across top row, then top to bottom down right column, right to left across bottom row, and bottom to top up left column.",
+      "Update boundaries after each traversal and check conditions top <= bottom and left <= right."
+    ],
+    "explanation": "Four pointers (top, bottom, left, right) delineate the unfilled perimeter of the matrix. Each iteration fills the 4 edges of the bounding box and contracts the pointers. The process finishes when top > bottom or left > right, correctly populating all N^2 cells in O(N^2) time.",
+    "time_complexity": "O(N^2)",
+    "space_complexity": "O(N^2)",
+    "common_mistakes": [
+      "Missing the boundary checks (top <= bottom and left <= right) before bottom and left fills in odd-sized matrices.",
+      "Off-by-one errors when turning at corners causing overwritten numbers.",
+      "Printing trailing whitespace at the end of matrix rows."
+    ],
+    "related_problems": [
+      "zigzag-number-pattern",
+      "pascals-triangle-with-formatting"
+    ],
+    "topic_slug": "pattern-programming",
+    "company_slugs": ["microsoft", "amazon", "google", "apple"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "3\n",
+        "expected_output": "1 2 3\n8 9 4\n7 6 5\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 3x3 spiral"
+      },
+      {
+        "input": "4\n",
+        "expected_output": "1 2 3 4\n12 13 14 5\n11 16 15 6\n10 9 8 7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Even 4x4 spiral matrix"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single element matrix"
+      },
+      {
+        "input": "2\n",
+        "expected_output": "1 2\n4 3\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "2x2 spiral matrix"
+      },
+      {
+        "input": "5\n",
+        "expected_output": "1 2 3 4 5\n16 17 18 19 6\n15 24 25 20 7\n14 23 22 21 8\n13 12 11 10 9\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "5x5 spiral matrix"
+      },
+      {
+        "input": "6\n",
+        "expected_output": "1 2 3 4 5 6\n20 21 22 23 24 7\n19 32 33 34 25 8\n18 31 36 35 26 9\n17 30 29 28 27 10\n16 15 14 13 12 11\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "6x6 spiral matrix"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Pascal's Triangle with Formatting",
+    "slug": "pascals-triangle-with-formatting",
+    "difficulty": "medium",
+    "description": "Pascal's Triangle is a triangular array of binomial coefficients named after the French mathematician Blaise Pascal. Each number is the sum of the two numbers directly above it.\n\nFormally, entry $(r, c)$ in row $r$ (0-indexed, $0 \\le r < N$) and column $c$ ($0 \\le c \\le r$) is given by:\n$$\\binom{r}{c} = \\frac{r!}{c!(r-c)!}$$\nwith $\\binom{r}{0} = \\binom{r}{r} = 1$.\n\nIn this problem, print Pascal's triangle formatted into a classic centered pyramid shape. For a triangle of $N$ rows:\n- Row $r$ ($0 \\le r < N$) has exactly $N - 1 - r$ leading spaces.\n- The numbers $\\binom{r}{0}, \\binom{r}{1}, \\dots, \\binom{r}{r}$ in row $r$ are separated from each other by a single space.\n- No trailing spaces appear after the last number of each line.\n\nWrite a C program to format and output Pascal's triangle of $N$ rows.",
+    "input_format": "A single line containing an integer $N$ ($1 \\le N \\le 15$).",
+    "output_format": "The centered Pascal's triangle of $N$ rows, with single space delimiters and no trailing spaces.",
+    "constraints": "$1 \\le N \\le 15$.",
+    "examples": [
+      {
+        "input": "5",
+        "output": "    1\n   1 1\n  1 2 1\n 1 3 3 1\n1 4 6 4 1",
+        "explanation": "Pascal's triangle of 5 rows centered with leading spaces: 4, 3, 2, 1, 0 spaces respectively."
+      },
+      {
+        "input": "3",
+        "output": "  1\n 1 1\n1 2 1",
+        "explanation": "3 rows of Pascal's triangle centered."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Print centered Pascal's Triangle with proper formatting\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    int c[20][20];\n    for (int r = 0; r < n; r++) {\n        c[r][0] = 1;\n        c[r][r] = 1;\n        for (int k = 1; k < r; k++) {\n            c[r][k] = c[r - 1][k - 1] + c[r - 1][k];\n        }\n    }\n\n    for (int r = 0; r < n; r++) {\n        for (int s = 0; s < n - 1 - r; s++) putchar(' ');\n        for (int k = 0; k <= r; k++) {\n            if (k > 0) putchar(' ');\n            printf(\"%d\", c[r][k]);\n        }\n        putchar('\\n');\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Compute binomial coefficients using dynamic programming: c[r][k] = c[r-1][k-1] + c[r-1][k].",
+      "Row r requires N - 1 - r leading spaces for centered pyramid alignment.",
+      "Separate numbers within each row by a single space."
+    ],
+    "explanation": "Dynamic programming builds Pascal's identity efficiently. For output alignment, row r has N - 1 - r leading spaces, which centers the triangle when each pair of adjacent numbers is separated by a single space.",
+    "time_complexity": "O(N^2)",
+    "space_complexity": "O(N^2)",
+    "common_mistakes": [
+      "Calculating factorial directly, which causes 32-bit integer overflow even for N = 13.",
+      "Leaving trailing spaces at the end of output lines.",
+      "Incorrect leading space count."
+    ],
+    "related_problems": [
+      "floyds-triangle-variant",
+      "hollow-diamond-pattern"
+    ],
+    "topic_slug": "pattern-programming",
+    "company_slugs": ["adobe", "cisco", "bloomberg"],
+    "company_source_type": "official_sample",
+    "test_cases": [
+      {
+        "input": "5\n",
+        "expected_output": "    1\n   1 1\n  1 2 1\n 1 3 3 1\n1 4 6 4 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 5-row Pascal's triangle"
+      },
+      {
+        "input": "3\n",
+        "expected_output": "  1\n 1 1\n1 2 1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "3-row Pascal's triangle"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single element boundary case"
+      },
+      {
+        "input": "2\n",
+        "expected_output": " 1\n1 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "2-row Pascal's triangle"
+      },
+      {
+        "input": "6\n",
+        "expected_output": "     1\n    1 1\n   1 2 1\n  1 3 3 1\n 1 4 6 4 1\n1 5 10 10 5 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "6-row Pascal's triangle"
+      },
+      {
+        "input": "8\n",
+        "expected_output": "       1\n      1 1\n     1 2 1\n    1 3 3 1\n   1 4 6 4 1\n  1 5 10 10 5 1\n 1 6 15 20 15 6 1\n1 7 21 35 35 21 7 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "8-row Pascal's triangle"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Zigzag Number Pattern",
+    "slug": "zigzag-number-pattern",
+    "difficulty": "hard",
+    "description": "Zigzag number placement is an essential pattern programming challenge inspired by rail-fence ciphers and memory interleaving. In this pattern, the positive integers $1, 2, 3, \\dots, N$ are distributed across $R$ rows in a vertical oscillating zigzag trajectory.\n\nStarting at row 0, the trajectory descends row by row: $0, 1, 2, \\dots, R-1$. Upon reaching row $R-1$, it reverses direction and ascends diagonally: $R-2, R-3, \\dots, 0$. This bouncing cycle repeats until all $N$ numbers are allocated. If $R = 1$, all numbers fall into row 0.\n\nWrite a program in C that takes $R$ (number of rows) and $N$ (maximum number) as input, and prints the numbers row by row from row $0$ to row $R-1$. Each row contains all numbers assigned to that row in order of appearance, separated by a single space.",
+    "input_format": "A single line containing two space-separated integers $R$ and $N$ ($1 \\le R \\le 10$, $1 \\le N \\le 100$).",
+    "output_format": "Print $R$ lines. Line $i$ contains the space-separated sequence of numbers assigned to row $i$. If a row has no numbers assigned, print an empty line.",
+    "constraints": "$1 \\le R \\le 10$, $1 \\le N \\le 100$.",
+    "examples": [
+      {
+        "input": "3 9",
+        "output": "1 5 9\n2 4 6 8\n3 7",
+        "explanation": "Trajectory: 1->r0, 2->r1, 3->r2, 4->r1, 5->r0, 6->r1, 7->r2, 8->r1, 9->r0."
+      },
+      {
+        "input": "4 10",
+        "output": "1 7\n2 6 8\n3 5 9\n4 10",
+        "explanation": "Row 0 receives 1 and 7; Row 1 receives 2, 6, 8; Row 2 receives 3, 5, 9; Row 3 receives 4, 10."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Distribute 1..N in R-row zigzag pattern\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nint main(void) {\n    int R, N;\n    if (scanf(\"%d %d\", &R, &N) != 2) return 0;\n\n    int rows[15][128];\n    int counts[15] = {0};\n\n    int curr_row = 0;\n    int step = 1;\n\n    for (int num = 1; num <= N; num++) {\n        rows[curr_row][counts[curr_row]++] = num;\n        if (R > 1) {\n            if (curr_row == 0) step = 1;\n            else if (curr_row == R - 1) step = -1;\n            curr_row += step;\n        }\n    }\n\n    for (int r = 0; r < R; r++) {\n        for (int i = 0; i < counts[r]; i++) {\n            if (i > 0) putchar(' ');\n            printf(\"%d\", rows[r][i]);\n        }\n        putchar('\\n');\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Simulate the rail-fence trajectory by maintaining curr_row and a step direction (+1 or -1).",
+      "Special case: If R == 1, step should not bounce; all numbers stay on row 0.",
+      "Store numbers in row-based arrays and print each row space-separated."
+    ],
+    "explanation": "A simulation places numbers 1 to N sequentially into rows. A direction indicator (+1 or -1) reverses whenever curr_row reaches 0 or R - 1. When R = 1, direction never changes. Stored numbers are printed row by row with space separation.",
+    "time_complexity": "O(N)",
+    "space_complexity": "O(N)",
+    "common_mistakes": [
+      "Infinite bouncing or indexing out of bounds when R = 1.",
+      "Reversing direction on both row 0 and row R - 1 immediately when R = 2, causing incorrect alternating steps.",
+      "Printing trailing whitespace at the end of each row."
+    ],
+    "related_problems": [
+      "number-spiral-matrix",
+      "diamond-number-wave"
+    ],
+    "topic_slug": "pattern-programming",
+    "company_slugs": ["paypal", "walmart", "intuit"],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "3 9\n",
+        "expected_output": "1 5 9\n2 4 6 8\n3 7\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 3-row zigzag"
+      },
+      {
+        "input": "4 10\n",
+        "expected_output": "1 7\n2 6 8\n3 5 9\n4 10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "4-row zigzag with 10 numbers"
+      },
+      {
+        "input": "1 5\n",
+        "expected_output": "1 2 3 4 5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "R=1 single row boundary case"
+      },
+      {
+        "input": "5 1\n",
+        "expected_output": "1\n\n\n\n\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 with R=5 having empty remaining rows"
+      },
+      {
+        "input": "2 8\n",
+        "expected_output": "1 3 5 7\n2 4 6 8\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "2-row alternating zigzag"
+      },
+      {
+        "input": "5 25\n",
+        "expected_output": "1 9 17 25\n2 8 10 16 18 24\n3 7 11 15 19 23\n4 6 12 14 20 22\n5 13 21\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "5-row zigzag with 25 elements"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Hourglass Star Pattern",
+    "slug": "hourglass-star-pattern",
+    "difficulty": "medium",
+    "description": "An hourglass star pattern resembles an antique sand timer. It is constructed from an inverted isosceles triangle at the top and an upright isosceles triangle at the bottom, joined at a single apex star in the center.\n\nFor a given parameter $N \\ge 1$:\n- The complete hourglass consists of $2N - 1$ total lines.\n- Upper half ($N$ lines, indexed $i = 0$ to $N - 1$):\n  - Row $i$ has $i$ leading spaces, followed by $2(N - i) - 1$ star (`*`) characters.\n- Lower half ($N - 1$ lines, indexed $i = 1$ to $N - 1$):\n  - Row $i$ has $N - 1 - i$ leading spaces, followed by $2i + 1$ star (`*`) characters.\n\nNo trailing spaces are printed after the last star on any row. Write a C program to output the hourglass pattern.",
+    "input_format": "A single line containing an integer $N$ ($1 \\le N \\le 25$).",
+    "output_format": "The hourglass star pattern of $2N - 1$ lines.",
+    "constraints": "$1 \\le N \\le 25$.",
+    "examples": [
+      {
+        "input": "4",
+        "output": "*******\n *****\n  ***\n   *\n  ***\n *****\n*******",
+        "explanation": "An hourglass pattern of size 4 having 7 rows."
+      },
+      {
+        "input": "3",
+        "output": "*****\n ***\n  *\n ***\n*****",
+        "explanation": "An hourglass pattern of size 3 having 5 rows."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Print hourglass star pattern of size N\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic void print_stars(int spaces, int stars) {\n    for (int s = 0; s < spaces; s++) putchar(' ');\n    for (int st = 0; st < stars; st++) putchar('*');\n    putchar('\\n');\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    for (int i = 0; i < n; i++) {\n        print_stars(i, 2 * (n - i) - 1);\n    }\n    for (int i = 1; i < n; i++) {\n        print_stars(n - 1 - i, 2 * i + 1);\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Top half consists of N rows, with row i having i spaces and 2 * (N - i) - 1 stars.",
+      "Bottom half consists of N - 1 rows, with row i having N - 1 - i spaces and 2 * i + 1 stars.",
+      "Ensure no trailing spaces are printed after the stars."
+    ],
+    "explanation": "The hourglass is divided into top and bottom components. The top inverted triangle has row i starting with i leading spaces and 2*(N-i)-1 stars. The bottom upright triangle starts from row index 1 to N-1 to avoid duplicating the central single star, with N-1-i leading spaces and 2*i+1 stars.",
+    "time_complexity": "O(N^2)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Duplicating the middle row with a single star.",
+      "Emitting extra spaces after the last star on each line.",
+      "Using wrong formula for bottom half star count."
+    ],
+    "related_problems": [
+      "hollow-diamond-pattern",
+      "butterfly-pattern"
+    ],
+    "topic_slug": "pattern-programming",
+    "company_slugs": ["infosys", "accenture", "wipro"],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\n",
+        "expected_output": "*******\n *****\n  ***\n   *\n  ***\n *****\n*******\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard size 4 hourglass"
+      },
+      {
+        "input": "3\n",
+        "expected_output": "*****\n ***\n  *\n ***\n*****\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Size 3 hourglass"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "*\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single star boundary case"
+      },
+      {
+        "input": "2\n",
+        "expected_output": "***\n *\n***\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 2 hourglass"
+      },
+      {
+        "input": "5\n",
+        "expected_output": "*********\n *******\n  *****\n   ***\n    *\n   ***\n  *****\n *******\n*********\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 5 hourglass"
+      },
+      {
+        "input": "6\n",
+        "expected_output": "***********\n *********\n  *******\n   *****\n    ***\n     *\n    ***\n   *****\n  *******\n *********\n***********\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 6 hourglass"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "title": "Floyd's Triangle Variant",
+    "slug": "floyds-triangle-variant",
+    "difficulty": "hard",
+    "description": "Floyd's triangle is a classic right-angled triangular array of natural numbers named after Robert Floyd. In its traditional form, consecutive natural numbers $1, 2, 3, \\dots$ fill rows such that row $i$ ($1 \\le i \\le N$) contains exactly $i$ numbers.\n\nIn this prime variant, instead of natural numbers, the triangle is filled exclusively with consecutive prime numbers: $2, 3, 5, 7, 11, 13, 17, 19, 23, \\dots$.\n- Row 1 contains 1 prime: `2`\n- Row 2 contains 2 primes: `3 5`\n- Row 3 contains 3 primes: `7 11 13`\n- Row $i$ contains $i$ primes, separated by a single space.\n\nNo trailing spaces appear at the end of each line. Write a C program to output Floyd's Prime Triangle of $N$ rows.",
+    "input_format": "A single line containing an integer $N$ ($1 \\le N \\le 20$).",
+    "output_format": "Print $N$ lines forming Floyd's prime triangle.",
+    "constraints": "$1 \\le N \\le 20$.",
+    "examples": [
+      {
+        "input": "3",
+        "output": "2\n3 5\n7 11 13",
+        "explanation": "Row 1 has 1 prime, row 2 has 2 primes, row 3 has 3 primes."
+      },
+      {
+        "input": "4",
+        "output": "2\n3 5\n7 11 13\n17 19 23 29",
+        "explanation": "Floyd's prime triangle of 4 rows."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Print Floyd's triangle with consecutive prime numbers\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdbool.h>\n\n#define MAX_PRIMES 1000\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    int total_primes = n * (n + 1) / 2;\n    int primes[MAX_PRIMES];\n    int count = 0;\n\n    for (int num = 2; count < total_primes; num++) {\n        bool is_p = true;\n        for (int d = 2; d * d <= num; d++) {\n            if (num % d == 0) {\n                is_p = false;\n                break;\n            }\n        }\n        if (is_p) {\n            primes[count++] = num;\n        }\n    }\n\n    int idx = 0;\n    for (int r = 1; r <= n; r++) {\n        for (int c = 0; c < r; c++) {\n            if (c > 0) putchar(' ');\n            printf(\"%d\", primes[idx++]);\n        }\n        putchar('\\n');\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Total primes required for N rows is N * (N + 1) / 2.",
+      "Precompute or generate primes sequentially using trial division or a sieve.",
+      "Print r primes on row r, separated by spaces."
+    ],
+    "explanation": "An N-row triangle requires N*(N+1)/2 total prime numbers. For N = 20, that is 210 primes (the 210th prime is 1297). Generating them sequentially and formatting r primes on row r solves the problem cleanly.",
+    "time_complexity": "O(N^2 * sqrt(P)) where P is the (N^2/2)-th prime",
+    "space_complexity": "O(N^2)",
+    "common_mistakes": [
+      "Generating standard integers instead of strictly prime numbers.",
+      "Trailing spaces at the ends of rows.",
+      "Assuming 1 is prime (2 is the first prime)."
+    ],
+    "related_problems": [
+      "prime-factorization-engine",
+      "pascals-triangle-with-formatting"
+    ],
+    "topic_slug": "pattern-programming",
+    "company_slugs": ["cognizant", "tech-mahindra", "hcl"],
+    "company_source_type": "adapted_practice",
+    "test_cases": [
+      {
+        "input": "3\n",
+        "expected_output": "2\n3 5\n7 11 13\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "3-row prime Floyd's triangle"
+      },
+      {
+        "input": "4\n",
+        "expected_output": "2\n3 5\n7 11 13\n17 19 23 29\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "4-row prime Floyd's triangle"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single prime boundary case"
+      },
+      {
+        "input": "2\n",
+        "expected_output": "2\n3 5\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "2-row prime Floyd's triangle"
+      },
+      {
+        "input": "5\n",
+        "expected_output": "2\n3 5\n7 11 13\n17 19 23 29\n31 37 41 43 47\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "5-row prime Floyd's triangle"
+      },
+      {
+        "input": "7\n",
+        "expected_output": "2\n3 5\n7 11 13\n17 19 23 29\n31 37 41 43 47\n53 59 61 67 71 73\n79 83 89 97 101 103 107\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "7-row prime Floyd's triangle"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "title": "Butterfly Pattern",
+    "slug": "butterfly-pattern",
+    "difficulty": "hard",
+    "description": "The butterfly pattern is a symmetrical geometric star design featuring two mirrored wings. The pattern consists of an upper expanding section and a lower contracting section.\n\nFor an integer parameter $N \\ge 1$:\n- The pattern comprises $2N - 1$ lines.\n- Upper half (rows $i = 1$ to $N$):\n  - Print $i$ stars, followed by $2(N - i)$ spaces, followed by $i$ stars. Note that for row $N$, $2(N - N) = 0$ spaces, resulting in $2N$ consecutive stars.\n- Lower half (rows $i = N - 1$ down to $1$):\n  - Print $i$ stars, followed by $2(N - i)$ spaces, followed by $i$ stars.\n\nNo trailing spaces are printed after the rightmost star on any row. Write a C program to output the butterfly pattern.",
+    "input_format": "A single line containing an integer $N$ ($1 \\le N \\le 25$).",
+    "output_format": "The butterfly pattern of $2N - 1$ lines.",
+    "constraints": "$1 \\le N \\le 25$.",
+    "examples": [
+      {
+        "input": "4",
+        "output": "*      *\n**    **\n***  ***\n********\n***  ***\n**    **\n*      *",
+        "explanation": "A butterfly pattern of size 4 with 7 rows. Center row 4 has 8 stars."
+      },
+      {
+        "input": "3",
+        "output": "*    *\n**  **\n******\n**  **\n*    *",
+        "explanation": "A butterfly pattern of size 3 with 5 rows."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Print butterfly pattern of size N\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic void print_wings(int stars, int spaces) {\n    for (int s = 0; s < stars; s++) putchar('*');\n    for (int sp = 0; sp < spaces; sp++) putchar(' ');\n    for (int s = 0; s < stars; s++) putchar('*');\n    putchar('\\n');\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    for (int i = 1; i <= n; i++) {\n        print_wings(i, 2 * (n - i));\n    }\n    for (int i = n - 1; i >= 1; i--) {\n        print_wings(i, 2 * (n - i));\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Row i has i stars on the left and i stars on the right.",
+      "The gap between the wings in row i is 2 * (N - i) spaces.",
+      "The bottom half iterates i from N - 1 down to 1."
+    ],
+    "explanation": "Each row i prints i stars, 2*(N - i) middle spaces, and i stars. The top half increases i from 1 to N. The bottom half decreases i from N - 1 to 1. When i = N, 0 spaces are placed, yielding 2N stars across the center row.",
+    "time_complexity": "O(N^2)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Duplicating row N, which would create 2N rows instead of 2N - 1 rows.",
+      "Incorrect space calculation: using N - i spaces instead of 2 * (N - i).",
+      "Trailing spaces after the right wing."
+    ],
+    "related_problems": [
+      "hollow-diamond-pattern",
+      "hourglass-star-pattern"
+    ],
+    "topic_slug": "pattern-programming",
+    "company_slugs": ["uber", "amazon", "adobe"],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "4\n",
+        "expected_output": "*      *\n**    **\n***  ***\n********\n***  ***\n**    **\n*      *\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard size 4 butterfly"
+      },
+      {
+        "input": "3\n",
+        "expected_output": "*    *\n**  **\n******\n**  **\n*    *\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Size 3 butterfly"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "**\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single line boundary case"
+      },
+      {
+        "input": "2\n",
+        "expected_output": "*  *\n****\n*  *\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 2 butterfly"
+      },
+      {
+        "input": "5\n",
+        "expected_output": "*        *\n**      **\n***    ***\n****  ****\n**********\n****  ****\n***    ***\n**      **\n*        *\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 5 butterfly"
+      },
+      {
+        "input": "6\n",
+        "expected_output": "*          *\n**        **\n***      ***\n****    ****\n*****  *****\n************\n*****  *****\n****    ****\n***      ***\n**        **\n*          *\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 6 butterfly"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "title": "Diamond Number Wave",
+    "slug": "diamond-number-wave",
+    "difficulty": "very_hard",
+    "description": "The Diamond Number Wave is an advanced pattern programming problem that combines diamond geometry with periodic wave oscillations. Each line of the diamond exhibits a wave profile where numbers increase to a crest (the row amplitude $A$) and descend to a trough ($1$), repeating across the width of the row.\n\nFor a given parameter $N \\ge 1$:\n- The pattern has $2N - 1$ total lines.\n- For each row $k$ ($1 \\le k \\le 2N - 1$):\n  - The amplitude of the row is $A = k$ if $k \\le N$, else $2N - k$.\n  - Leading indentation: $(N - A) \\times 2$ spaces.\n  - If $A = 1$, the row contains simply the number `1`.\n  - If $A > 1$, the numbers form a double wave oscillation:\n    Ascending from $1$ to $A$, descending back to $1$, ascending again to $A$, and descending back to $1$.\n    That is: $1, 2, \\dots, A, A-1, \\dots, 1, 2, \\dots, A, A-1, \\dots, 1$.\n    All numbers in the sequence are separated by a single space.\n\nNo trailing spaces appear at the end of any line. Write a C program to output the diamond number wave.",
+    "input_format": "A single line containing an integer $N$ ($1 \\le N \\le 12$).",
+    "output_format": "The diamond number wave pattern of $2N - 1$ lines.",
+    "constraints": "$1 \\le N \\le 12$.",
+    "examples": [
+      {
+        "input": "3",
+        "output": "    1\n  1 2 1 2 1\n1 2 3 2 1 2 3 2 1\n  1 2 1 2 1\n    1",
+        "explanation": "N=3 diamond wave having 5 rows with double wave oscillations for A > 1."
+      },
+      {
+        "input": "2",
+        "output": "  1\n1 2 1 2 1\n  1",
+        "explanation": "N=2 diamond wave having 3 rows."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n\nint main(void) {\n    // Print diamond number wave of size N\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n\nstatic void print_row(int n, int a) {\n    int leading_spaces = (n - a) * 2;\n    for (int s = 0; s < leading_spaces; s++) putchar(' ');\n\n    if (a == 1) {\n        printf(\"1\\n\");\n        return;\n    }\n\n    int first = 1;\n    // Wave 1: 1 to a, then down to 1\n    for (int v = 1; v <= a; v++) {\n        if (!first) putchar(' ');\n        printf(\"%d\", v);\n        first = 0;\n    }\n    for (int v = a - 1; v >= 1; v--) {\n        putchar(' ');\n        printf(\"%d\", v);\n    }\n    // Wave 2: 2 to a, then down to 1\n    for (int v = 2; v <= a; v++) {\n        putchar(' ');\n        printf(\"%d\", v);\n    }\n    for (int v = a - 1; v >= 1; v--) {\n        putchar(' ');\n        printf(\"%d\", v);\n    }\n    putchar('\\n');\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n\n    for (int k = 1; k <= n; k++) {\n        print_row(n, k);\n    }\n    for (int k = n - 1; k >= 1; k--) {\n        print_row(n, k);\n    }\n    return 0;\n}\n",
+    "hints": [
+      "Calculate amplitude A for each row k: A = k for top half, 2*N - k for bottom half.",
+      "Leading spaces equal (N - A) * 2.",
+      "For A > 1, the sequence is 1..A..1 followed by 2..A..1 to avoid duplicating 1 at the trough."
+    ],
+    "explanation": "Each row k has an amplitude A. For A = 1, output is '1'. For A > 1, the wave executes two cycles: rising from 1 to A, falling to 1, rising back to A, and falling back to 1. (N - A) * 2 leading spaces ensures diamond alignment.",
+    "time_complexity": "O(N^2)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Duplicating 1 at the junction between the first and second wave cycles.",
+      "Incorrect leading space indentation ((N - A) instead of (N - A) * 2).",
+      "Trailing spaces at line endings."
+    ],
+    "related_problems": [
+      "zigzag-number-pattern",
+      "number-spiral-matrix"
+    ],
+    "topic_slug": "pattern-programming",
+    "company_slugs": ["google", "goldman-sachs", "microsoft"],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "3\n",
+        "expected_output": "    1\n  1 2 1 2 1\n1 2 3 2 1 2 3 2 1\n  1 2 1 2 1\n    1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard size 3 diamond number wave"
+      },
+      {
+        "input": "2\n",
+        "expected_output": "  1\n1 2 1 2 1\n  1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Size 2 diamond wave"
+      },
+      {
+        "input": "1\n",
+        "expected_output": "1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "N=1 single digit boundary case"
+      },
+      {
+        "input": "4\n",
+        "expected_output": "      1\n    1 2 1 2 1\n  1 2 3 2 1 2 3 2 1\n1 2 3 4 3 2 1 2 3 4 3 2 1\n  1 2 3 2 1 2 3 2 1\n    1 2 1 2 1\n      1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 4 diamond wave"
+      },
+      {
+        "input": "5\n",
+        "expected_output": "        1\n      1 2 1 2 1\n    1 2 3 2 1 2 3 2 1\n  1 2 3 4 3 2 1 2 3 4 3 2 1\n1 2 3 4 5 4 3 2 1 2 3 4 5 4 3 2 1\n  1 2 3 4 3 2 1 2 3 4 3 2 1\n    1 2 3 2 1 2 3 2 1\n      1 2 1 2 1\n        1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 5 diamond wave"
+      },
+      {
+        "input": "6\n",
+        "expected_output": "          1\n        1 2 1 2 1\n      1 2 3 2 1 2 3 2 1\n    1 2 3 4 3 2 1 2 3 4 3 2 1\n  1 2 3 4 5 4 3 2 1 2 3 4 5 4 3 2 1\n1 2 3 4 5 6 5 4 3 2 1 2 3 4 5 6 5 4 3 2 1\n  1 2 3 4 5 4 3 2 1 2 3 4 5 4 3 2 1\n    1 2 3 4 3 2 1 2 3 4 3 2 1\n      1 2 3 2 1 2 3 2 1\n        1 2 1 2 1\n          1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Size 6 diamond wave"
+      }
+    ]
+  }
+]

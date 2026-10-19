@@ -1,0 +1,1063 @@
+[
+  {
+    "id": 106,
+    "title": "Binary Search Implementation",
+    "slug": "binary-search-implementation",
+    "difficulty": "medium",
+    "description": "Implement the classic **Binary Search** algorithm to find the zero-based index of a target element $K$ within a strictly ascending, sorted array of $N$ integers.\n\nBinary search is an efficient divide-and-conquer algorithm with a logarithmic time complexity $O(\\log N)$. At each step, the algorithm inspects the element at the midpoint of the current search interval $[\\text{low}, \\text{high}]$. If the target value matches the midpoint element, its index is returned immediately. If the target is strictly smaller, the search interval is narrowed to the left half $[\\text{low}, \\text{mid} - 1]$. Otherwise, if the target is strictly larger, the search interval is narrowed to the right half $[\\text{mid} + 1, \\text{high}]$.\n\nCare must be taken when computing the midpoint in C to avoid integer overflow: `mid = low + (high - low) / 2` should be used instead of `(low + high) / 2`. If the target $K$ is not found in the array after the interval is exhausted (when $\\text{low} > \\text{high}$), the function must return $-1$.",
+    "input_format": "The first line contains an integer $N$ representing the number of elements in the sorted array.\nThe second line contains $N$ space-separated integers in strictly increasing order.\nThe third line contains an integer $K$, the target value to locate.",
+    "output_format": "Print a single integer representing the 0-based index of $K$ in the array, or -1 if $K$ is not present.",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= arr[i], K <= 10^9\narr is strictly sorted in ascending order.",
+    "examples": [
+      {
+        "input": "5\n1 3 5 7 9\n5\n",
+        "output": "2\n",
+        "explanation": "The target value 5 is located at index 2 of the sorted array [1, 3, 5, 7, 9]."
+      },
+      {
+        "input": "6\n2 4 6 8 10 12\n7\n",
+        "output": "-1\n",
+        "explanation": "The target value 7 is not present in the array, so -1 is returned."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// Returns 0-based index of target if found, else -1\nint binary_search(const int *arr, int n, int target) {\n    // TODO: Implement binary search\n    return -1;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    int target;\n    scanf(\"%d\", &target);\n    \n    printf(\"%d\\n\", binary_search(arr, n, target));\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint binary_search(const int *arr, int n, int target) {\n    int low = 0;\n    int high = n - 1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (arr[mid] == target) {\n            return mid;\n        } else if (arr[mid] < target) {\n            low = mid + 1;\n        } else {\n            high = mid - 1;\n        }\n    }\n    return -1;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    int target;\n    scanf(\"%d\", &target);\n    \n    printf(\"%d\\n\", binary_search(arr, n, target));\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Initialize your search pointers: low = 0 and high = N - 1.",
+      "Calculate mid using mid = low + (high - low) / 2 to prevent integer overflow when low and high are large.",
+      "Compare arr[mid] with target: if equal, return mid; if smaller, search the right subarray; if larger, search the left subarray.",
+      "Continue the loop as long as low <= high. If the loop terminates without finding the target, return -1."
+    ],
+    "explanation": "Binary search is the quintessential logarithmic search algorithm. Starting with the entire range [0, N-1], each iteration evaluates the middle element. By comparing arr[mid] with target, half of the remaining elements are eliminated from consideration. The loop invariant ensures that if target is present, it must lie within [low, high]. When low exceeds high, the search range is empty, confirming the element does not exist. Time complexity is O(log N) and space complexity is O(1).",
+    "time_complexity": "O(log n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using (low + high) / 2 which can overflow signed 32-bit integer when low + high exceeds 2^31 - 1.",
+      "Incorrect loop condition such as low < high instead of low <= high, which skips the final single-element check.",
+      "Updating low = mid or high = mid, leading to an infinite loop when the search space reduces to two elements."
+    ],
+    "related_problems": [
+      "lower-and-upper-bound",
+      "search-in-rotated-sorted-array",
+      "search-in-2d-sorted-matrix"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "microsoft"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\n1 3 5 7 9\n5\n",
+        "expected_output": "2\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard odd-length array target in the middle"
+      },
+      {
+        "input": "6\n2 4 6 8 10 12\n7\n",
+        "expected_output": "-1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Target not present in array"
+      },
+      {
+        "input": "1\n42\n42\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array with matching target"
+      },
+      {
+        "input": "1\n42\n10\n",
+        "expected_output": "-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array without matching target"
+      },
+      {
+        "input": "7\n-20 -10 -5 0 5 10 20\n-20\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Target at the first element (boundary condition)"
+      },
+      {
+        "input": "8\n1 2 3 4 5 6 7 8\n8\n",
+        "expected_output": "7\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Target at the last element (boundary condition)"
+      }
+    ]
+  },
+  {
+    "id": 107,
+    "title": "Lower and Upper Bound",
+    "slug": "lower-and-upper-bound",
+    "difficulty": "hard",
+    "description": "Given a sorted array of $N$ integers in non-decreasing order (which may contain duplicates) and a target value $K$, determine both the **lower bound** and the **upper bound** of $K$.\n\nThe **lower bound** is defined as the first index $i$ ($0 \\le i < N$) such that $\\text{arr}[i] \\ge K$. If every element in the array is strictly less than $K$, the lower bound is defined to be $N$.\n\nThe **upper bound** is defined as the first index $j$ ($0 \\le j < N$) such that $\\text{arr}[j] > K$. If every element in the array is less than or equal to $K$, the upper bound is defined to be $N$.\n\nBoth queries must be solved in $O(\\log N)$ time using binary search principles. These bounds allow rapid computation of duplicate counts: the number of occurrences of $K$ is equal to $\\text{upper\\_bound} - \\text{lower\\_bound}$.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated sorted integers.\nThe third line contains an integer $K$.",
+    "output_format": "Print two space-separated integers on a single line: the lower bound index and the upper bound index.",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= arr[i], K <= 10^9\narr is sorted in non-decreasing order.",
+    "examples": [
+      {
+        "input": "6\n1 2 4 4 4 6\n4\n",
+        "output": "2 5\n",
+        "explanation": "First element >= 4 is at index 2. First element > 4 is 6 at index 5."
+      },
+      {
+        "input": "5\n1 3 5 7 9\n6\n",
+        "output": "3 3\n",
+        "explanation": "First element >= 6 is 7 at index 3. First element > 6 is also 7 at index 3."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint lower_bound(const int *arr, int n, int target) {\n    // TODO: Return first index where arr[i] >= target (or n if none)\n    return n;\n}\n\nint upper_bound(const int *arr, int n, int target) {\n    // TODO: Return first index where arr[i] > target (or n if none)\n    return n;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    int target;\n    scanf(\"%d\", &target);\n    \n    printf(\"%d %d\\n\", lower_bound(arr, n, target), upper_bound(arr, n, target));\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint lower_bound(const int *arr, int n, int target) {\n    int low = 0, high = n;\n    while (low < high) {\n        int mid = low + (high - low) / 2;\n        if (arr[mid] >= target) {\n            high = mid;\n        } else {\n            low = mid + 1;\n        }\n    }\n    return low;\n}\n\nint upper_bound(const int *arr, int n, int target) {\n    int low = 0, high = n;\n    while (low < high) {\n        int mid = low + (high - low) / 2;\n        if (arr[mid] > target) {\n            high = mid;\n        } else {\n            low = mid + 1;\n        }\n    }\n    return low;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    int target;\n    scanf(\"%d\", &target);\n    \n    printf(\"%d %d\\n\", lower_bound(arr, n, target), upper_bound(arr, n, target));\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Use the half-open interval [low, high) initialized with low = 0 and high = N.",
+      "For lower_bound: if arr[mid] >= target, the answer could be mid or to the left, so high = mid; otherwise low = mid + 1.",
+      "For upper_bound: if arr[mid] > target, the answer could be mid or to the left, so high = mid; otherwise low = mid + 1.",
+      "When low == high, that index is the desired bound."
+    ],
+    "explanation": "Lower bound and upper bound are fundamental building blocks in competitive programming. Using the invariant that the target bound always lies in [low, high], when arr[mid] satisfies the condition, mid is a candidate and everything to its right can be eliminated (high = mid). If arr[mid] violates the condition, everything to the left and mid itself cannot be the answer (low = mid + 1). Both procedures execute in O(log N) iterations with O(1) space.",
+    "time_complexity": "O(log n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Setting high = N - 1 instead of high = N, causing failure when all elements are smaller than target.",
+      "Confusing the condition: lower bound checks arr[mid] >= target while upper bound checks arr[mid] > target.",
+      "Off-by-one errors in boundary updates leading to infinite loops."
+    ],
+    "related_problems": [
+      "binary-search-implementation",
+      "search-in-rotated-sorted-array"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "google",
+      "facebook",
+      "bloomberg"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6\n1 2 4 4 4 6\n4\n",
+        "expected_output": "2 5\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Target present multiple times"
+      },
+      {
+        "input": "5\n1 3 5 7 9\n6\n",
+        "expected_output": "3 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Target not present, between existing elements"
+      },
+      {
+        "input": "4\n2 4 6 8\n1\n",
+        "expected_output": "0 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Target smaller than all elements"
+      },
+      {
+        "input": "4\n2 4 6 8\n10\n",
+        "expected_output": "4 4\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Target larger than all elements"
+      },
+      {
+        "input": "5\n5 5 5 5 5\n5\n",
+        "expected_output": "0 5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All elements equal to target"
+      }
+    ]
+  },
+  {
+    "id": 108,
+    "title": "Search in Rotated Sorted Array",
+    "slug": "search-in-rotated-sorted-array",
+    "difficulty": "very_hard",
+    "description": "There is an integer array $arr$ of length $N$ with **distinct** values sorted in ascending order. Prior to being passed to your function, $arr$ is possibly rotated at an unknown pivot index $k$ ($1 \\le k < N$) such that the resulting array is $[arr[k], arr[k+1], \\dots, arr[N-1], arr[0], arr[1], \\dots, arr[k-1]]$.\n\nGiven the rotated array and an integer target, write an algorithm that returns the 0-based index of target if it exists in the array, or $-1$ if target is not found.\n\nYou must design an algorithm that runs in strictly $O(\\log N)$ runtime complexity. Notice that when dividing any rotated sorted array at the midpoint, at least one of the two halves $[\\text{low}, \\text{mid}]$ or $[\\text{mid}, \\text{high}]$ is guaranteed to be normally ordered. By checking whether the target falls within the bounds of the normally ordered half, you can discard the other half in each step.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated distinct integers.\nThe third line contains an integer target.",
+    "output_format": "Print the 0-based index of target if found, or -1 otherwise.",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= arr[i], target <= 10^9\nAll elements of arr are distinct.",
+    "examples": [
+      {
+        "input": "7\n4 5 6 7 0 1 2\n0\n",
+        "output": "4\n",
+        "explanation": "Target 0 is found at index 4."
+      },
+      {
+        "input": "7\n4 5 6 7 0 1 2\n3\n",
+        "output": "-1\n",
+        "explanation": "Target 3 is not present in the array."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint search_rotated(const int *arr, int n, int target) {\n    // TODO: Search for target in rotated sorted array in O(log N)\n    return -1;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    int target;\n    scanf(\"%d\", &target);\n    \n    printf(\"%d\\n\", search_rotated(arr, n, target));\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint search_rotated(const int *arr, int n, int target) {\n    int low = 0, high = n - 1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (arr[mid] == target) return mid;\n        \n        // Check if left half is sorted\n        if (arr[low] <= arr[mid]) {\n            if (target >= arr[low] && target < arr[mid]) {\n                high = mid - 1;\n            } else {\n                low = mid + 1;\n            }\n        } else {\n            // Right half must be sorted\n            if (target > arr[mid] && target <= arr[high]) {\n                low = mid + 1;\n            } else {\n                high = mid - 1;\n            }\n        }\n    }\n    return -1;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    int target;\n    scanf(\"%d\", &target);\n    \n    printf(\"%d\\n\", search_rotated(arr, n, target));\n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "In any rotated sorted array, splitting at mid yields at least one perfectly sorted half: either arr[low] <= arr[mid] or arr[mid] <= arr[high].",
+      "Determine which half is sorted first.",
+      "Once you identify the sorted half, check if target lies strictly within its boundaries. If yes, search there; otherwise search the other half.",
+      "Maintain O(log N) time by halving the search space each step."
+    ],
+    "explanation": "Because the elements are unique, the condition arr[low] <= arr[mid] unambiguously determines whether the left half is monotonically increasing. If the left half is sorted, we simply verify if arr[low] <= target < arr[mid]. If it is, target must lie on the left; otherwise, it must lie on the right. If the left half is not sorted, the right half must be sorted, and analogous logic applies. This preserves the O(log N) runtime without explicitly finding the pivot first.",
+    "time_complexity": "O(log n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Not handling the case where target equals arr[low] or arr[high] properly.",
+      "Assuming the pivot is always at N / 2.",
+      "Linear search which fails the O(log N) time requirement."
+    ],
+    "related_problems": [
+      "binary-search-implementation",
+      "lower-and-upper-bound"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "apple",
+      "uber"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "7\n4 5 6 7 0 1 2\n0\n",
+        "expected_output": "4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Target in the right rotated section"
+      },
+      {
+        "input": "7\n4 5 6 7 0 1 2\n3\n",
+        "expected_output": "-1\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Target absent"
+      },
+      {
+        "input": "1\n1\n0\n",
+        "expected_output": "-1\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array absent"
+      },
+      {
+        "input": "1\n1\n1\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array present"
+      },
+      {
+        "input": "5\n3 4 5 1 2\n3\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Target at the very first element"
+      },
+      {
+        "input": "5\n3 4 5 1 2\n2\n",
+        "expected_output": "4\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Target at the very last element"
+      }
+    ]
+  },
+  {
+    "id": 109,
+    "title": "Selection Sort with Comparisons",
+    "slug": "selection-sort-with-comparisons",
+    "difficulty": "medium",
+    "description": "Implement the in-place **Selection Sort** algorithm to sort an array of $N$ integers in non-decreasing order, while accurately counting the total number of element-to-element comparisons and the total number of swaps executed.\n\nSelection sort works by partitioning the array into a sorted prefix and an unsorted suffix. In iteration $i$ ($0 \\le i < N - 1$):\n1. Initialize $\\text{min\\_idx} = i$.\n2. For each index $j$ from $i + 1$ to $N - 1$, compare $\\text{arr}[j]$ with $\\text{arr}[\\text{min\\_idx}]$ (increment comparison count by 1). If $\\text{arr}[j] < \\text{arr}[\\text{min\\_idx}]$, update $\\text{min\\_idx} = j$.\n3. After scanning, if $\\text{min\\_idx} \\ne i$, swap $\\text{arr}[i]$ and $\\text{arr}[\\text{min\\_idx}]$, and increment the swap count by 1 (do not count a swap if $\\text{min\\_idx} == i$).\n\nPrint the sorted array, the total comparisons, and total swaps.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers.",
+    "output_format": "Line 1: Print the $N$ space-separated sorted integers.\nLine 2: Print `Comparisons: C` where C is the total comparisons.\nLine 3: Print `Swaps: S` where S is the total swaps.",
+    "constraints": "1 <= N <= 1000\n-10^4 <= arr[i] <= 10^4",
+    "examples": [
+      {
+        "input": "5\n64 25 12 22 11\n",
+        "output": "11 12 22 25 64\nComparisons: 10\nSwaps: 4\n",
+        "explanation": "5 elements require 4+3+2+1=10 comparisons. Four swaps take place to position 11, 12, 22, and 25."
+      },
+      {
+        "input": "4\n1 2 3 4\n",
+        "output": "1 2 3 4\nComparisons: 6\nSwaps: 0\n",
+        "explanation": "Already sorted: 3+2+1=6 comparisons, and 0 swaps since min_idx == i in every pass."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    // TODO: Implement Selection Sort and count comparisons & swaps\n    \n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    long long comparisons = 0;\n    long long swaps = 0;\n    \n    for (int i = 0; i < n - 1; i++) {\n        int min_idx = i;\n        for (int j = i + 1; j < n; j++) {\n            comparisons++;\n            if (arr[j] < arr[min_idx]) {\n                min_idx = j;\n            }\n        }\n        if (min_idx != i) {\n            int temp = arr[i];\n            arr[i] = arr[min_idx];\n            arr[min_idx] = temp;\n            swaps++;\n        }\n    }\n    \n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    printf(\"Comparisons: %lld\\n\", comparisons);\n    printf(\"Swaps: %lld\\n\", swaps);\n    \n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Total comparisons in selection sort is always N*(N-1)/2 regardless of input arrangement.",
+      "Compare arr[j] with arr[min_idx] at each step and increment comparisons count unconditionally.",
+      "Check if min_idx != i before executing the swap and incrementing swap count.",
+      "Be sure to handle N = 1 gracefully (0 comparisons, 0 swaps)."
+    ],
+    "explanation": "Selection sort repeatedly finds the minimum element from the unsorted segment and moves it to the front. The number of comparisons is deterministic: sum_{i=0}^{N-2} (N - 1 - i) = N(N - 1) / 2. Swaps are at most N - 1, occurring only when the minimum element is not already in its correct position. Time complexity is O(N^2) in all cases, and auxiliary space is O(1).",
+    "time_complexity": "O(n^2)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Counting a swap when min_idx == i (swapping an element with itself).",
+      "Failing to handle N = 1 where loop over i < n - 1 does not execute.",
+      "Swapping during the inner loop instead of after finding the true minimum."
+    ],
+    "related_problems": [
+      "insertion-sort-with-shifts",
+      "merge-sort-implementation"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "cisco",
+      "infosys",
+      "tcs"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\n64 25 12 22 11\n",
+        "expected_output": "11 12 22 25 64\nComparisons: 10\nSwaps: 4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard unsorted array"
+      },
+      {
+        "input": "4\n1 2 3 4\n",
+        "expected_output": "1 2 3 4\nComparisons: 6\nSwaps: 0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Already sorted array (zero swaps)"
+      },
+      {
+        "input": "1\n5\n",
+        "expected_output": "5\nComparisons: 0\nSwaps: 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "3\n3 2 1\n",
+        "expected_output": "1 2 3\nComparisons: 3\nSwaps: 1\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Reverse array where swap 3 and 1 places 2 in place already"
+      },
+      {
+        "input": "5\n5 4 3 2 1\n",
+        "expected_output": "1 2 3 4 5\nComparisons: 10\nSwaps: 2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Reverse sorted 5 elements"
+      }
+    ]
+  },
+  {
+    "id": 110,
+    "title": "Insertion Sort with Shifts",
+    "slug": "insertion-sort-with-shifts",
+    "difficulty": "medium",
+    "description": "Implement the **Insertion Sort** algorithm to sort an array of $N$ integers in non-decreasing order, and keep an exact count of the total number of shifts performed.\n\nInsertion sort iterates through the array from index $1$ to $N - 1$. In each step $i$, the element $\\text{key} = \\text{arr}[i]$ is selected for insertion into the sorted subarray $\\text{arr}[0 \\dots i - 1]$. The algorithm compares $\\text{key}$ against elements to its left from index $j = i - 1$ down to $0$. Whenever $\\text{arr}[j] > \\text{key}$, the element $\\text{arr}[j]$ is shifted one position to the right: $\\text{arr}[j+1] = \\text{arr}[j]$, and the shift counter is incremented by 1. Once an element $\\text{arr}[j] \\le \\text{key}$ or the beginning of the array is reached, $\\text{key}$ is inserted at $\\text{arr}[j + 1]$.\n\nNotice that the number of shifts is equal to the total number of inversions in the array.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers.",
+    "output_format": "Line 1: Print the $N$ space-separated sorted integers.\nLine 2: Print `Shifts: S` where S is the total number of shifts.",
+    "constraints": "1 <= N <= 2000\n-10^5 <= arr[i] <= 10^5",
+    "examples": [
+      {
+        "input": "5\n4 3 2 10 12\n",
+        "output": "2 3 4 10 12\nShifts: 3\n",
+        "explanation": "3 is shifted once over 4 (1 shift). 2 is shifted over 4 and 3 (2 shifts). 10 and 12 require 0 shifts. Total shifts = 3."
+      },
+      {
+        "input": "4\n1 2 3 4\n",
+        "output": "1 2 3 4\nShifts: 0\n",
+        "explanation": "The array is already sorted, so no shifts are performed."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    // TODO: Implement insertion sort and count total shifts\n    \n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    long long shifts = 0;\n    for (int i = 1; i < n; i++) {\n        int key = arr[i];\n        int j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            shifts++;\n            j--;\n        }\n        arr[j + 1] = key;\n    }\n    \n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    printf(\"Shifts: %lld\\n\", shifts);\n    \n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Store arr[i] in a variable key before shifting elements.",
+      "Inside the while loop: condition is j >= 0 && arr[j] > key.",
+      "Each execution of arr[j + 1] = arr[j] represents exactly one shift.",
+      "Place key at arr[j + 1] after the while loop finishes."
+    ],
+    "explanation": "Insertion sort is an adaptive sorting algorithm that runs in O(N) time for nearly sorted arrays and O(N^2) in the worst case. Shifting elements to the right creates a vacant position for the current key. The number of shifts performed by insertion sort is identical to the number of inversions in the original array, because each shift resolves exactly one inverted pair between the key and a preceding larger element.",
+    "time_complexity": "O(n^2)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Using arr[j] >= key instead of arr[j] > key, which breaks stability and performs unnecessary shifts on equal elements.",
+      "Failing to check j >= 0 first, leading to out-of-bounds array access.",
+      "Not using long long for shifts which can reach N*(N-1)/2."
+    ],
+    "related_problems": [
+      "selection-sort-with-comparisons",
+      "count-inversions"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "tcs",
+      "wipro",
+      "cognizant"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "5\n4 3 2 10 12\n",
+        "expected_output": "2 3 4 10 12\nShifts: 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard array with partial shifts"
+      },
+      {
+        "input": "4\n1 2 3 4\n",
+        "expected_output": "1 2 3 4\nShifts: 0\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Already sorted array (zero shifts)"
+      },
+      {
+        "input": "1\n99\n",
+        "expected_output": "99\nShifts: 0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "4\n4 3 2 1\n",
+        "expected_output": "1 2 3 4\nShifts: 6\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Reverse sorted array (maximum shifts)"
+      },
+      {
+        "input": "6\n5 2 4 6 1 3\n",
+        "expected_output": "1 2 3 4 5 6\nShifts: 8\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Arbitrary unsorted permutation"
+      }
+    ]
+  },
+  {
+    "id": 111,
+    "title": "Merge Sort Implementation",
+    "slug": "merge-sort-implementation",
+    "difficulty": "hard",
+    "description": "Implement the classic **Merge Sort** algorithm in C to sort an array of $N$ integers in non-decreasing order.\n\nMerge Sort is a quintessential divide-and-conquer algorithm. It recursively splits the input array into two equal halves until subarrays of size 1 (which are trivially sorted) are reached. It then merges adjacent sorted subarrays back together in linear time using a temporary auxiliary buffer.\n\nYour implementation should allocate the auxiliary array once at the beginning of the program (in main or a wrapper function) and pass it into recursive calls to prevent repeated memory allocations. Merge sort is stable and guarantees worst-case $O(N \\log N)$ time complexity, making it well-suited for datasets where predictable performance is crucial.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers.",
+    "output_format": "Print the $N$ space-separated sorted integers on a single line.",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "6\n12 11 13 5 6 7\n",
+        "output": "5 6 7 11 12 13\n",
+        "explanation": "The array is recursively divided and merged into ascending order."
+      },
+      {
+        "input": "5\n5 4 3 2 1\n",
+        "output": "1 2 3 4 5\n",
+        "explanation": "Reverse sorted array sorted into non-decreasing order."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid merge(int *arr, int *temp, int left, int mid, int right) {\n    // TODO: Merge two sorted subarrays arr[left..mid] and arr[mid+1..right]\n}\n\nvoid merge_sort(int *arr, int *temp, int left, int right) {\n    // TODO: Implement recursive merge sort\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    int *temp = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    merge_sort(arr, temp, 0, n - 1);\n    \n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    free(arr);\n    free(temp);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid merge(int *arr, int *temp, int left, int mid, int right) {\n    int i = left;\n    int j = mid + 1;\n    int k = left;\n    \n    while (i <= mid && j <= right) {\n        if (arr[i] <= arr[j]) {\n            temp[k++] = arr[i++];\n        } else {\n            temp[k++] = arr[j++];\n        }\n    }\n    while (i <= mid) {\n        temp[k++] = arr[i++];\n    }\n    while (j <= right) {\n        temp[k++] = arr[j++];\n    }\n    for (i = left; i <= right; i++) {\n        arr[i] = temp[i];\n    }\n}\n\nvoid merge_sort(int *arr, int *temp, int left, int right) {\n    if (left < right) {\n        int mid = left + (right - left) / 2;\n        merge_sort(arr, temp, left, mid);\n        merge_sort(arr, temp, mid + 1, right);\n        merge(arr, temp, left, mid, right);\n    }\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    int *temp = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    merge_sort(arr, temp, 0, n - 1);\n    \n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    free(arr);\n    free(temp);\n    return 0;\n}\n",
+    "hints": [
+      "Compute mid = left + (right - left) / 2 to split the array evenly.",
+      "Recurse on [left, mid] and [mid + 1, right] when left < right.",
+      "In the merge function, use two pointers i and j starting at left and mid + 1.",
+      "Copy the merged results back from temp into arr for indices left through right."
+    ],
+    "explanation": "Merge sort follows the divide-and-conquer strategy: dividing the problem into two subproblems of size N/2 takes O(1), recursively solving them takes 2T(N/2), and merging the two sorted halves takes O(N) time. By the Master Theorem, T(N) = 2T(N/2) + O(N) yields T(N) = O(N log N). Space complexity is O(N) to store the auxiliary buffer used during the merge step.",
+    "time_complexity": "O(n log n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Allocating a new auxiliary array inside every merge call, which leads to memory exhaustion and significant allocation overhead.",
+      "Forgetting to copy elements back from temp into arr at the end of the merge step.",
+      "Off-by-one errors in loop boundaries during merging, e.g. using < mid instead of <= mid."
+    ],
+    "related_problems": [
+      "count-inversions",
+      "quick-sort-with-partition-schemes"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "goldman-sachs"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6\n12 11 13 5 6 7\n",
+        "expected_output": "5 6 7 11 12 13\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard unsorted array"
+      },
+      {
+        "input": "5\n5 4 3 2 1\n",
+        "expected_output": "1 2 3 4 5\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Reverse sorted array"
+      },
+      {
+        "input": "1\n42\n",
+        "expected_output": "42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "7\n-10 0 50 -20 30 0 -5\n",
+        "expected_output": "-20 -10 -5 0 0 30 50\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Array containing negative numbers and duplicates"
+      },
+      {
+        "input": "8\n8 7 6 5 4 3 2 1\n",
+        "expected_output": "1 2 3 4 5 6 7 8\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Power of 2 length reverse array"
+      }
+    ]
+  },
+  {
+    "id": 112,
+    "title": "Quick Sort with Partition Schemes",
+    "slug": "quick-sort-with-partition-schemes",
+    "difficulty": "hard",
+    "description": "Implement the **Quick Sort** algorithm using the **Lomuto partition scheme** to sort an array of $N$ integers in non-decreasing order.\n\nIn Lomuto's partition scheme for a subarray $arr[low \\dots high]$:\n1. Choose the last element $arr[high]$ as the pivot.\n2. Record this pivot value to a global or passed log array to track the exact sequence of partitions.\n3. Maintain an index $i = low - 1$.\n4. Iterate $j$ from $low$ to $high - 1$. If $arr[j] \\le pivot$, increment $i$ and swap $arr[i]$ with $arr[j]$.\n5. Finally, swap $arr[i + 1]$ with $arr[high]$ to place the pivot in its final sorted position $i + 1$, and return $i + 1$.\n\nQuick Sort then recursively sorts $arr[low \\dots pi - 1]$ and $arr[pi + 1 \\dots high]$. If $N < 2$, no partitions occur and the pivots list is empty. Print the sorted array followed by the sequence of pivots chosen.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers.",
+    "output_format": "Line 1: `Sorted: <N space-separated integers>`\nLine 2: `Pivots: <space-separated pivot values>` or `Pivots: NONE` if no partition occurred.",
+    "constraints": "1 <= N <= 5000\n-10^5 <= arr[i] <= 10^5",
+    "examples": [
+      {
+        "input": "6\n10 80 30 90 40 50\n",
+        "output": "Sorted: 10 30 40 50 80 90\nPivots: 50 40 30 90\n",
+        "explanation": "Pivot 50 partitions array, then subproblems choose pivots 40, 30, and 90."
+      },
+      {
+        "input": "4\n4 3 2 1\n",
+        "output": "Sorted: 1 2 3 4\nPivots: 1 2 3\n",
+        "explanation": "Pivot 1 places at index 0, followed by 2, then 3."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement Lomuto partition and Quick Sort, logging each pivot\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    // Implement Quick Sort\n    \n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint *pivots = NULL;\nint pivot_count = 0;\n\nvoid swap(int *a, int *b) {\n    int temp = *a;\n    *a = *b;\n    *b = temp;\n}\n\nint lomuto_partition(int *arr, int low, int high) {\n    int pivot = arr[high];\n    pivots[pivot_count++] = pivot;\n    int i = low - 1;\n    for (int j = low; j < high; j++) {\n        if (arr[j] <= pivot) {\n            i++;\n            swap(&arr[i], &arr[j]);\n        }\n    }\n    swap(&arr[i + 1], &arr[high]);\n    return i + 1;\n}\n\nvoid quick_sort(int *arr, int low, int high) {\n    if (low < high) {\n        int pi = lomuto_partition(arr, low, high);\n        quick_sort(arr, low, pi - 1);\n        quick_sort(arr, pi + 1, high);\n    }\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    pivots = (int *)malloc(sizeof(int) * (n + 10));\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    quick_sort(arr, 0, n - 1);\n    \n    printf(\"Sorted: \");\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    printf(\"Pivots: \");\n    if (pivot_count == 0) {\n        printf(\"NONE\\n\");\n    } else {\n        for (int i = 0; i < pivot_count; i++) {\n            printf(\"%d%c\", pivots[i], (i == pivot_count - 1) ? '\\n' : ' ');\n        }\n    }\n    \n    free(arr);\n    free(pivots);\n    return 0;\n}\n",
+    "hints": [
+      "In Lomuto's scheme, the pivot is always the element at the high index arr[high].",
+      "Maintain i = low - 1. Each time arr[j] <= pivot, increment i and swap arr[i] with arr[j].",
+      "After iterating j through high - 1, swap arr[i + 1] with arr[high].",
+      "Log the pivot element at the start of lomuto_partition before swapping."
+    ],
+    "explanation": "Lomuto partition is the standard partition algorithm described in CLRS. It uses high as the pivot and maintains the invariant that arr[low..i] contains elements <= pivot and arr[i+1..j-1] contains elements > pivot. When j reaches high, swapping arr[i+1] with arr[high] places the pivot in its correct sorted position. The average time complexity of quicksort is O(N log N), though Lomuto can degrade to O(N^2) on already sorted arrays when the last element is always chosen.",
+    "time_complexity": "O(n log n)",
+    "space_complexity": "O(log n)",
+    "common_mistakes": [
+      "Swapping with high inside the loop instead of i + 1 after the loop.",
+      "Recursing on quick_sort(arr, low, pi) instead of pi - 1, causing infinite recursion.",
+      "Failing to handle arrays of size 1 where no partition takes place."
+    ],
+    "related_problems": [
+      "kth-largest-element",
+      "merge-sort-implementation"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "microsoft",
+      "oracle",
+      "adobe"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6\n10 80 30 90 40 50\n",
+        "expected_output": "Sorted: 10 30 40 50 80 90\nPivots: 50 40 30 90\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 6-element partition sequence"
+      },
+      {
+        "input": "4\n4 3 2 1\n",
+        "expected_output": "Sorted: 1 2 3 4\nPivots: 1 2 3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Reverse sorted 4 elements"
+      },
+      {
+        "input": "1\n100\n",
+        "expected_output": "Sorted: 100\nPivots: NONE\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array (no partitions)"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "expected_output": "Sorted: 1 2 3 4 5\nPivots: 5 4 3 2\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Already sorted 5 elements"
+      },
+      {
+        "input": "7\n38 27 43 3 9 82 10\n",
+        "expected_output": "Sorted: 3 9 10 27 38 43 82\nPivots: 10 9 82 43 38\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Arbitrary unsorted permutation"
+      }
+    ]
+  },
+  {
+    "id": 113,
+    "title": "Heap Sort Implementation",
+    "slug": "heap-sort-implementation",
+    "difficulty": "hard",
+    "description": "Implement the in-place **Heap Sort** algorithm using a binary max-heap to sort an array of $N$ integers in non-decreasing order.\n\nHeap sort consists of two major phases:\n1. **Build Max-Heap**: Transform the unsorted array into a max-heap in linear $O(N)$ time. This is achieved by running `heapify` bottom-up on every internal node, starting from index $\\lfloor N/2 \\rfloor - 1$ down to $0$. Once built, the maximum element resides at index $0$. Print this intermediate heap array.\n2. **Extract Elements and Sort**: Iterate $i$ from $N - 1$ down to $1$. In each step, swap $\\text{arr}[0]$ (the current maximum) with $\\text{arr}[i]$, reduce the active heap size to $i$, and call `heapify` on the root (index 0) to restore the max-heap property.\n\nHeap sort achieves optimal $O(N \\log N)$ worst-case time complexity while requiring only $O(1)$ auxiliary space.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers.",
+    "output_format": "Line 1: `Heap: <N space-separated integers after initial max-heap construction>`\nLine 2: `Sorted: <N space-separated integers in ascending order>`",
+    "constraints": "1 <= N <= 50000\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "6\n12 11 13 5 6 7\n",
+        "output": "Heap: 13 11 12 5 6 7\nSorted: 5 6 7 11 12 13\n",
+        "explanation": "Max-heap has 13 at the root. After sorting, elements are in ascending order."
+      },
+      {
+        "input": "5\n4 10 3 5 1\n",
+        "output": "Heap: 10 5 3 4 1\nSorted: 1 3 4 5 10\n",
+        "explanation": "Initial max-heap construction produces [10, 5, 3, 4, 1]. Final sorted array is [1, 3, 4, 5, 10]."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid heapify(int *arr, int n, int i) {\n    // TODO: Maintain max-heap property for subtree rooted at index i\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    // TODO: Build max heap, print heap, then sort\n    \n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid swap(int *a, int *b) {\n    int t = *a;\n    *a = *b;\n    *b = t;\n}\n\nvoid heapify(int *arr, int n, int i) {\n    int largest = i;\n    int left = 2 * i + 1;\n    int right = 2 * i + 2;\n    \n    if (left < n && arr[left] > arr[largest]) {\n        largest = left;\n    }\n    if (right < n && arr[right] > arr[largest]) {\n        largest = right;\n    }\n    if (largest != i) {\n        swap(&arr[i], &arr[largest]);\n        heapify(arr, n, largest);\n    }\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    for (int i = n / 2 - 1; i >= 0; i--) {\n        heapify(arr, n, i);\n    }\n    \n    printf(\"Heap: \");\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    \n    for (int i = n - 1; i > 0; i--) {\n        swap(&arr[0], &arr[i]);\n        heapify(arr, i, 0);\n    }\n    \n    printf(\"Sorted: \");\n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", arr[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    \n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "A binary tree node at index i has children at 2*i + 1 and 2*i + 2.",
+      "Bottom-up heap construction begins at index n/2 - 1 down to 0.",
+      "heapify compares the root with its left and right children and swaps with the largest child if needed.",
+      "In the extraction phase, swap arr[0] with arr[i] and call heapify with heap size i."
+    ],
+    "explanation": "Heap sort utilizes a complete binary tree stored inside an array. Building a max-heap from bottom to top takes O(N) time because the vast majority of nodes reside near the leaves and require very few swaps. In the second phase, N - 1 extractions each require O(log N) heapify operations, leading to an overall runtime of O(N log N). Because all rearrangements happen directly within the original array, auxiliary space is O(1) (or O(log N) stack frames for recursive heapify).",
+    "time_complexity": "O(n log n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Starting heap construction from 0 up to n - 1 (top-down) which takes O(N log N) instead of O(N).",
+      "Passing n instead of the reduced size i to heapify during the extraction loop, overwriting already sorted elements.",
+      "Forgetting to swap with the largest of both children, only checking the left child."
+    ],
+    "related_problems": [
+      "merge-sort-implementation",
+      "quick-sort-with-partition-schemes"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "amazon",
+      "bloomberg",
+      "apple"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6\n12 11 13 5 6 7\n",
+        "expected_output": "Heap: 13 11 12 5 6 7\nSorted: 5 6 7 11 12 13\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 6-element heap sort"
+      },
+      {
+        "input": "5\n4 10 3 5 1\n",
+        "expected_output": "Heap: 10 5 3 4 1\nSorted: 1 3 4 5 10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "5-element heap sort"
+      },
+      {
+        "input": "1\n7\n",
+        "expected_output": "Heap: 7\nSorted: 7\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "4\n1 2 3 4\n",
+        "expected_output": "Heap: 4 2 3 1\nSorted: 1 2 3 4\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Already sorted input"
+      },
+      {
+        "input": "7\n9 4 7 1 2 6 5\n",
+        "expected_output": "Heap: 9 4 7 1 2 6 5\nSorted: 1 2 4 5 6 7 9\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Complete binary tree representation"
+      }
+    ]
+  },
+  {
+    "id": 114,
+    "title": "Counting Sort",
+    "slug": "counting-sort",
+    "difficulty": "hard",
+    "description": "Implement a stable **Counting Sort** algorithm in C capable of sorting an array of $N$ integers that may contain **negative values** as well as duplicates.\n\nCounting Sort is a non-comparison integer sorting algorithm that runs in $O(N + K)$ time, where $K = \\max(arr) - \\min(arr) + 1$ is the range of values present in the input. Because integers can be negative, you must offset each value by $-\\min(arr)$ so that the minimum element maps to index $0$ in the frequency array.\n\nTo ensure **stability** (preserving the relative order of duplicate elements):\n1. Compute the frequency of each offset value.\n2. Transform the frequency array into prefix sums so that $\\text{count}[v]$ stores the number of elements less than or equal to $v$.\n3. Traverse the original array in **reverse order** (from $N - 1$ down to $0$), place each element into its designated output slot: `output[--count[arr[i] - min_val]] = arr[i]`.\n\nPrint the sorted array.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers.",
+    "output_format": "Print the $N$ space-separated sorted integers in non-decreasing order on a single line.",
+    "constraints": "1 <= N <= 10^5\n-10000 <= arr[i] <= 10000",
+    "examples": [
+      {
+        "input": "7\n-5 -10 0 -3 8 5 -10\n",
+        "output": "-10 -10 -5 -3 0 5 8\n",
+        "explanation": "Counting sort handles negative numbers by offsetting with min_val = -10."
+      },
+      {
+        "input": "6\n4 2 2 8 3 3\n",
+        "output": "2 2 3 3 4 8\n",
+        "explanation": "Sorted in non-decreasing order with duplicates preserved."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement stable Counting Sort supporting negative numbers\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    // Implement counting sort\n    \n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    int min_val = arr[0], max_val = arr[0];\n    for (int i = 1; i < n; i++) {\n        if (arr[i] < min_val) min_val = arr[i];\n        if (arr[i] > max_val) max_val = arr[i];\n    }\n    \n    int range = max_val - min_val + 1;\n    int *count = (int *)calloc(range, sizeof(int));\n    for (int i = 0; i < n; i++) {\n        count[arr[i] - min_val]++;\n    }\n    for (int i = 1; i < range; i++) {\n        count[i] += count[i - 1];\n    }\n    \n    int *output = (int *)malloc(sizeof(int) * n);\n    for (int i = n - 1; i >= 0; i--) {\n        output[--count[arr[i] - min_val]] = arr[i];\n    }\n    \n    for (int i = 0; i < n; i++) {\n        printf(\"%d%c\", output[i], (i == n - 1) ? '\\n' : ' ');\n    }\n    \n    free(arr);\n    free(count);\n    free(output);\n    return 0;\n}\n",
+    "hints": [
+      "Find both min_val and max_val to determine range = max_val - min_val + 1.",
+      "Use calloc to initialize the count buffer of size range to zero.",
+      "Map each number x to the index x - min_val in the count array.",
+      "Iterate backwards from n - 1 down to 0 when writing to output to maintain stability."
+    ],
+    "explanation": "Counting sort does not rely on comparisons, bypassing the lower bound of Omega(N log N) for comparison sorts. By computing the running prefix sums of frequencies, each count[v] records the 1-based ending index of value v in the output array. Decrementing count before indexing into output places each element in its exact position. Iterating from the tail of the array preserves the relative order of duplicate elements, making the sort stable.",
+    "time_complexity": "O(n + k)",
+    "space_complexity": "O(n + k)",
+    "common_mistakes": [
+      "Attempting to use negative numbers directly as array indices without applying the min_val offset.",
+      "Iterating forward from 0 to n - 1 when populating the output array, which reverses the relative order of duplicates (losing stability).",
+      "Allocating a fixed size count array that is too small for the actual range."
+    ],
+    "related_problems": [
+      "selection-sort-with-comparisons",
+      "merge-sort-implementation"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "microsoft",
+      "uber",
+      "qualcomm"
+    ],
+    "company_source_type": "pattern_based_original",
+    "test_cases": [
+      {
+        "input": "7\n-5 -10 0 -3 8 5 -10\n",
+        "expected_output": "-10 -10 -5 -3 0 5 8\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Negative numbers and duplicates"
+      },
+      {
+        "input": "6\n4 2 2 8 3 3\n",
+        "expected_output": "2 2 3 3 4 8\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Non-negative integers with multiple duplicates"
+      },
+      {
+        "input": "1\n0\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array with value zero"
+      },
+      {
+        "input": "5\n-10000 10000 0 -5000 5000\n",
+        "expected_output": "-10000 -5000 0 5000 10000\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Maximum allowed constraint range"
+      },
+      {
+        "input": "6\n5 5 5 5 5 5\n",
+        "expected_output": "5 5 5 5 5 5\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "All elements equal"
+      }
+    ]
+  },
+  {
+    "id": 115,
+    "title": "Kth Largest Element",
+    "slug": "kth-largest-element",
+    "difficulty": "very_hard",
+    "description": "Given an unsorted array of $N$ integers and an integer $K$ ($1 \\le K \\le N$), find the **$K$-th largest element** in the array using the **Quickselect** algorithm (Hoare's selection algorithm).\n\nWhile sorting the entire array takes $O(N \\log N)$ time, Quickselect achieves an average time complexity of $O(N)$ with $O(1)$ auxiliary space. It operates by partitioning the array around a chosen pivot, exactly like Quick Sort. Once a pivot is placed at index $pi$, its exact rank is known:\n- If $pi$ equals the target index $(N - K)$, then $\\text{arr}[pi]$ is the $K$-th largest element.\n- If $pi < (N - K)$, the target element must lie in the right partition.\n- If $pi > (N - K)$, the target element must lie in the left partition.\n\nCrucially, Quickselect recurses on only **one** side of the partition, leading to a geometric series for the runtime: $N + N/2 + N/4 + \\dots = O(N)$.",
+    "input_format": "The first line contains two integers $N$ and $K$ separated by a space.\nThe second line contains $N$ space-separated integers.",
+    "output_format": "Print a single integer representing the $K$-th largest value.",
+    "constraints": "1 <= K <= N <= 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "6 2\n3 2 1 5 6 4\n",
+        "output": "5\n",
+        "explanation": "Sorted in ascending order: [1, 2, 3, 4, 5, 6]. The 2nd largest element is 5."
+      },
+      {
+        "input": "9 4\n3 2 3 1 2 4 5 5 6\n",
+        "output": "4\n",
+        "explanation": "Sorted in ascending order: [1, 2, 2, 3, 3, 4, 5, 5, 6]. The 4th largest element is 4."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement Quickselect to find the K-th largest element\nint find_kth_largest(int *arr, int n, int k) {\n    return 0;\n}\n\nint main(void) {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    printf(\"%d\\n\", find_kth_largest(arr, n, k));\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid swap(int *a, int *b) {\n    int t = *a;\n    *a = *b;\n    *b = t;\n}\n\nint partition(int *arr, int low, int high) {\n    int pivot = arr[high];\n    int i = low - 1;\n    for (int j = low; j < high; j++) {\n        if (arr[j] <= pivot) {\n            i++;\n            swap(&arr[i], &arr[j]);\n        }\n    }\n    swap(&arr[i + 1], &arr[high]);\n    return i + 1;\n}\n\nint quickselect(int *arr, int low, int high, int target_idx) {\n    if (low == high) return arr[low];\n    int pi = partition(arr, low, high);\n    if (pi == target_idx) {\n        return arr[pi];\n    } else if (pi < target_idx) {\n        return quickselect(arr, pi + 1, high, target_idx);\n    } else {\n        return quickselect(arr, low, pi - 1, target_idx);\n    }\n}\n\nint main(void) {\n    int n, k;\n    if (scanf(\"%d %d\", &n, &k) != 2) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    int target_idx = n - k;\n    int result = quickselect(arr, 0, n - 1, target_idx);\n    printf(\"%d\\n\", result);\n    \n    free(arr);\n    return 0;\n}\n",
+    "hints": [
+      "Finding the K-th largest element is equivalent to finding the (N - K)-th smallest element (0-indexed).",
+      "Use Lomuto or Hoare partition to partition the array around a pivot.",
+      "Compare the returned pivot index pi with target_idx = n - k.",
+      "Only recurse into the half that contains target_idx; do not recurse into both halves."
+    ],
+    "explanation": "Quickselect is an in-place selection algorithm. In the average case with random or balanced partitions, each step reduces the problem size by roughly half: N + N/2 + N/4 + ... = 2N = O(N). Because it only branches into one partition, the recursion depth is O(log N) on average, giving O(1) auxiliary heap space.",
+    "time_complexity": "O(n)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Target index miscalculation: K-th largest is at index N - K when 0-indexed, not K or K - 1.",
+      "Accidentally recursing on both sides of the partition, degrading average performance to O(N log N).",
+      "Stack overflow on pathological inputs when pivot choice degrades to worst-case O(N^2)."
+    ],
+    "related_problems": [
+      "quick-sort-with-partition-schemes",
+      "heap-sort-implementation"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "meta",
+      "amazon",
+      "google",
+      "spotify"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "6 2\n3 2 1 5 6 4\n",
+        "expected_output": "5\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 2nd largest element"
+      },
+      {
+        "input": "9 4\n3 2 3 1 2 4 5 5 6\n",
+        "expected_output": "4\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Array with duplicates 4th largest"
+      },
+      {
+        "input": "1 1\n42\n",
+        "expected_output": "42\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array K=1"
+      },
+      {
+        "input": "5 5\n10 20 30 40 50\n",
+        "expected_output": "10\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K equals N (minimum element)"
+      },
+      {
+        "input": "7 1\n-5 12 0 -10 45 23 8\n",
+        "expected_output": "45\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "K equals 1 (maximum element)"
+      }
+    ]
+  },
+  {
+    "id": 116,
+    "title": "Count Inversions",
+    "slug": "count-inversions",
+    "difficulty": "very_hard",
+    "description": "Given an array of $N$ integers, count the total number of **inversions** in the array in $O(N \\log N)$ time.\n\nTwo elements $\\text{arr}[i]$ and $\\text{arr}[j]$ form an **inversion** if:\n$$i < j \\quad \\text{and} \\quad \\text{arr}[i] > \\text{arr}[j]$$\n\nThe inversion count is a fundamental metric measuring how far an array is from being sorted. An already sorted array has $0$ inversions, whereas a strictly decreasing array of size $N$ has the maximum possible number of inversions: $\\frac{N(N - 1)}{2}$.\n\nA naive double-loop checks all pairs in $O(N^2)$ time, which is too slow for $N = 10^5$. By modifying the **Merge Sort** algorithm, whenever an element from the right subarray $\\text{arr}[j]$ is smaller than an element from the left subarray $\\text{arr}[i]$, it forms an inversion with $\\text{arr}[i]$ and **all remaining elements** in the left subarray from $i$ to $mid$. The count increases by $(mid - i + 1)$.\n\nBecause the maximum inversions can reach $\\approx 5 \\times 10^9$, you must use a 64-bit integer (`long long` in C) to accumulate the count.",
+    "input_format": "The first line contains an integer $N$.\nThe second line contains $N$ space-separated integers.",
+    "output_format": "Print a single integer representing the total number of inversions.",
+    "constraints": "1 <= N <= 10^5\n-10^9 <= arr[i] <= 10^9",
+    "examples": [
+      {
+        "input": "5\n2 4 1 3 5\n",
+        "output": "3\n",
+        "explanation": "The 3 inversions are (2, 1), (4, 1), and (4, 3)."
+      },
+      {
+        "input": "5\n5 4 3 2 1\n",
+        "output": "10\n",
+        "explanation": "All pairs are inverted: 5*(4)/2 = 10 inversions."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Count inversions in O(N log N) using modified merge sort\nlong long count_inversions(int *arr, int n) {\n    return 0;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    printf(\"%lld\\n\", count_inversions(arr, n));\n    free(arr);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nlong long merge_and_count(int *arr, int *temp, int left, int mid, int right) {\n    int i = left;\n    int j = mid + 1;\n    int k = left;\n    long long inv_count = 0;\n    \n    while (i <= mid && j <= right) {\n        if (arr[i] <= arr[j]) {\n            temp[k++] = arr[i++];\n        } else {\n            temp[k++] = arr[j++];\n            inv_count += (mid - i + 1);\n        }\n    }\n    while (i <= mid) {\n        temp[k++] = arr[i++];\n    }\n    while (j <= right) {\n        temp[k++] = arr[j++];\n    }\n    for (i = left; i <= right; i++) {\n        arr[i] = temp[i];\n    }\n    return inv_count;\n}\n\nlong long merge_sort_and_count(int *arr, int *temp, int left, int right) {\n    long long inv_count = 0;\n    if (left < right) {\n        int mid = left + (right - left) / 2;\n        inv_count += merge_sort_and_count(arr, temp, left, mid);\n        inv_count += merge_sort_and_count(arr, temp, mid + 1, right);\n        inv_count += merge_and_count(arr, temp, left, mid, right);\n    }\n    return inv_count;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int *arr = (int *)malloc(sizeof(int) * n);\n    int *temp = (int *)malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n    \n    long long total_inversions = merge_sort_and_count(arr, temp, 0, n - 1);\n    printf(\"%lld\\n\", total_inversions);\n    \n    free(arr);\n    free(temp);\n    return 0;\n}\n",
+    "hints": [
+      "During merge of two sorted halves arr[left..mid] and arr[mid+1..right], both halves are sorted.",
+      "If arr[i] > arr[j], then since arr[left..mid] is sorted, all elements from arr[i] to arr[mid] are strictly greater than arr[j].",
+      "Add (mid - i + 1) to the inversion counter each time an element from the right half is placed before an element from the left half.",
+      "Use long long for the inversion count to avoid 32-bit signed integer overflow."
+    ],
+    "explanation": "Counting inversions via merge sort leverages the sorted property of subarrays. During the merge step, if arr[i] > arr[j], every element in the remaining left subarray (from index i through mid) is also greater than arr[j]. Thus, exactly (mid - i + 1) inversions are identified in O(1) time. Combining this with standard merge sort yields an O(N log N) algorithm and O(N) auxiliary space.",
+    "time_complexity": "O(n log n)",
+    "space_complexity": "O(n)",
+    "common_mistakes": [
+      "Using a 32-bit int for the count, causing integer overflow when N = 10^5 (max count ~ 5 * 10^9).",
+      "Adding 1 instead of (mid - i + 1) when arr[i] > arr[j].",
+      "Treating equal elements (arr[i] == arr[j]) as inversions (the definition requires strict inequality arr[i] > arr[j])."
+    ],
+    "related_problems": [
+      "merge-sort-implementation",
+      "insertion-sort-with-shifts"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "google",
+      "amazon",
+      "flipkart"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5\n2 4 1 3 5\n",
+        "expected_output": "3\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Standard 5-element array with 3 inversions"
+      },
+      {
+        "input": "5\n5 4 3 2 1\n",
+        "expected_output": "10\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Reverse sorted array with maximum inversions"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Already sorted array with zero inversions"
+      },
+      {
+        "input": "1\n100\n",
+        "expected_output": "0\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "Single element array"
+      },
+      {
+        "input": "6\n8 4 2 1 6 3\n",
+        "expected_output": "10\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Arbitrary unsorted permutation"
+      }
+    ]
+  },
+  {
+    "id": 117,
+    "title": "Search in 2D Sorted Matrix",
+    "slug": "search-in-2d-sorted-matrix",
+    "difficulty": "hard",
+    "description": "Design an efficient algorithm to search for an integer target in an $R \\times C$ matrix with the following sorted properties:\n1. Integers in each row are sorted in ascending order from left to right: $\\text{matrix}[i][j] < \\text{matrix}[i][j+1]$.\n2. Integers in each column are sorted in ascending order from top to bottom: $\\text{matrix}[i][j] < \\text{matrix}[i+1][j]$.\n\nBecause both rows and columns are sorted independently, this structure is known as a Young Tableau or saddleback search space. Starting from the top-right corner $(0, C - 1)$:\n- If $\\text{matrix}[r][c] == target$, print `Found at (r, c)`.\n- If $\\text{matrix}[r][c] > target$, all elements below $(r, c)$ in column $c$ must be strictly greater than target, so decrement $c$ ($c = c - 1$).\n- If $\\text{matrix}[r][c] < target$, all elements to the left of $(r, c)$ in row $r$ must be strictly smaller than target, so increment $r$ ($r = r + 1$).\n\nIf the search exits the matrix bounds without finding the target, print `Not Found`. This algorithm solves the problem in optimal $O(R + C)$ time.",
+    "input_format": "The first line contains two integers $R$ and $C$.\nThe next $R$ lines each contain $C$ space-separated integers.\nThe final line contains an integer target.",
+    "output_format": "Print `Found at (r, c)` where r and c are 0-based indices, or `Not Found` if the target is absent.",
+    "constraints": "1 <= R, C <= 1000\n-10^9 <= matrix[i][j], target <= 10^9",
+    "examples": [
+      {
+        "input": "5 5\n1 4 7 11 15\n2 5 8 12 19\n3 6 9 16 22\n10 13 14 17 24\n18 21 23 26 30\n5\n",
+        "output": "Found at (1, 1)\n",
+        "explanation": "5 is located at row 1, column 1 (0-based indexing)."
+      },
+      {
+        "input": "5 5\n1 4 7 11 15\n2 5 8 12 19\n3 6 9 16 22\n10 13 14 17 24\n18 21 23 26 30\n20\n",
+        "output": "Not Found\n",
+        "explanation": "20 is not present in the matrix."
+      }
+    ],
+    "execution_mode": "stdio",
+    "starter_code": "#include <stdio.h>\n#include <stdlib.h>\n\n// TODO: Implement O(R + C) saddleback search in 2D sorted matrix\n\nint main(void) {\n    int r, c;\n    if (scanf(\"%d %d\", &r, &c) != 2) return 0;\n    int **matrix = (int **)malloc(sizeof(int *) * r);\n    for (int i = 0; i < r; i++) {\n        matrix[i] = (int *)malloc(sizeof(int) * c);\n        for (int j = 0; j < c; j++) {\n            scanf(\"%d\", &matrix[i][j]);\n        }\n    }\n    int target;\n    scanf(\"%d\", &target);\n    \n    // Search for target\n    \n    for (int i = 0; i < r; i++) free(matrix[i]);\n    free(matrix);\n    return 0;\n}\n",
+    "reference_solution": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int r, c;\n    if (scanf(\"%d %d\", &r, &c) != 2) return 0;\n    int **matrix = (int **)malloc(sizeof(int *) * r);\n    for (int i = 0; i < r; i++) {\n        matrix[i] = (int *)malloc(sizeof(int) * c);\n        for (int j = 0; j < c; j++) {\n            scanf(\"%d\", &matrix[i][j]);\n        }\n    }\n    int target;\n    scanf(\"%d\", &target);\n    \n    int row = 0;\n    int col = c - 1;\n    int found = 0;\n    \n    while (row < r && col >= 0) {\n        if (matrix[row][col] == target) {\n            printf(\"Found at (%d, %d)\\n\", row, col);\n            found = 1;\n            break;\n        } else if (matrix[row][col] > target) {\n            col--;\n        } else {\n            row++;\n        }\n    }\n    \n    if (!found) {\n        printf(\"Not Found\\n\");\n    }\n    \n    for (int i = 0; i < r; i++) free(matrix[i]);\n    free(matrix);\n    return 0;\n}\n",
+    "hints": [
+      "Start from either top-right (row 0, col C-1) or bottom-left (row R-1, col 0).",
+      "At (row 0, col C-1), moving down increases the value, and moving left decreases the value.",
+      "If matrix[row][col] > target, target cannot be in current column, so decrement col.",
+      "If matrix[row][col] < target, target cannot be in current row, so increment row."
+    ],
+    "explanation": "Top-right (or bottom-left) corner provides a binary decision point: one direction strictly increases values while the orthogonal direction strictly decreases values. In each step, we either eliminate an entire row (row++) or an entire column (col--). Since there are R rows and C columns, the while loop executes at most R + C times. Hence, time complexity is O(R + C), which is far superior to O(R * C) brute-force search.",
+    "time_complexity": "O(r + c)",
+    "space_complexity": "O(1)",
+    "common_mistakes": [
+      "Starting at top-left (0, 0), where both moving right and moving down increase values, preventing a deterministic decision.",
+      "Using binary search on each row individually which takes O(R log C) time, slower than O(R + C).",
+      "Failing to free dynamically allocated 2D arrays, causing memory leaks."
+    ],
+    "related_problems": [
+      "binary-search-implementation",
+      "search-in-rotated-sorted-array"
+    ],
+    "topic_slug": "searching-sorting",
+    "company_slugs": [
+      "amazon",
+      "microsoft",
+      "bloomberg"
+    ],
+    "company_source_type": "reported_interview",
+    "test_cases": [
+      {
+        "input": "5 5\n1 4 7 11 15\n2 5 8 12 19\n3 6 9 16 22\n10 13 14 17 24\n18 21 23 26 30\n5\n",
+        "expected_output": "Found at (1, 1)\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Target present in matrix"
+      },
+      {
+        "input": "5 5\n1 4 7 11 15\n2 5 8 12 19\n3 6 9 16 22\n10 13 14 17 24\n18 21 23 26 30\n20\n",
+        "expected_output": "Not Found\n",
+        "is_hidden": false,
+        "is_edge_case": false,
+        "description": "Target absent in matrix"
+      },
+      {
+        "input": "1 1\n42\n42\n",
+        "expected_output": "Found at (0, 0)\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "1x1 matrix with matching target"
+      },
+      {
+        "input": "1 1\n42\n10\n",
+        "expected_output": "Not Found\n",
+        "is_hidden": true,
+        "is_edge_case": true,
+        "description": "1x1 matrix without matching target"
+      },
+      {
+        "input": "3 3\n1 4 7\n2 5 8\n3 6 9\n6\n",
+        "expected_output": "Found at (2, 1)\n",
+        "is_hidden": true,
+        "is_edge_case": false,
+        "description": "Target 6 in 3x3 matrix"
+      }
+    ]
+  }
+]
