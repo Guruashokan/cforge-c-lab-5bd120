@@ -11,6 +11,21 @@ class Settings(BaseSettings):
     EXECUTION_TIMEOUT: int = 10
     MEMORY_LIMIT_KB: int = 262144
 
+    # Authentication
+    JWT_SECRET_KEY: str = "cforge_super_secure_jwt_secret_key_2026_xyz"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+
+    # Zoho Catalyst Cloud Database
+    CATALYST_PROJECT_ID: str = ""
+    CATALYST_CLIENT_ID: str = ""
+    CATALYST_CLIENT_SECRET: str = ""
+    CATALYST_REFRESH_TOKEN: str = ""
+    CATALYST_DATA_CENTER: str = "com"
+    CATALYST_TABLE_USERS: str = "Users"
+    CATALYST_TABLE_SUBMISSIONS: str = "Submissions"
+    CATALYST_TABLE_PROGRESS: str = "UserProgress"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

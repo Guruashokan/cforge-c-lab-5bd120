@@ -24,7 +24,12 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     username: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, default="", nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), default="", nullable=False)
     display_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    target_company: Mapped[Optional[str]] = mapped_column(String(64), default="tcs-nqt", nullable=True)
+    streak_days: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    catalyst_row_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
     settings: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
 

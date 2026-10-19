@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.database import AsyncSessionLocal, init_db
-from app.routers import assessments, companies, judge, problems, topics, users
+from app.routers import assessments, auth, catalyst, companies, judge, problems, topics, users
 from app.seed.seeder import seed_all
 
 logger = logging.getLogger("cforge.main")
@@ -129,6 +129,8 @@ async def health_check():
 # ---------------------------------------------------------
 # Include Subrouters
 # ---------------------------------------------------------
+app.include_router(auth.router)
+app.include_router(catalyst.router)
 app.include_router(problems.router)
 app.include_router(judge.router)
 app.include_router(users.router)

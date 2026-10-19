@@ -1,4 +1,6 @@
 import { useState, type FC } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 import {
   Settings as SettingsIcon,
   Save,
@@ -7,6 +9,10 @@ import {
   User,
   Terminal,
   Code,
+  Cloud,
+  RefreshCw,
+  Loader2,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface StoredSettings {
@@ -32,6 +38,7 @@ function loadInitialSettings(): StoredSettings {
 
 export const Settings: FC = () => {
   const initial = loadInitialSettings();
+  const { catalystStatus, refreshCatalystStatus, syncCatalyst } = useAuth();
 
   const [displayName, setDisplayName] = useState(initial.displayName || 'Embedded Engineer');
   const [theme, setTheme] = useState(initial.theme || 'vs-dark');
@@ -40,6 +47,38 @@ export const Settings: FC = () => {
   const [tabSize, setTabSize] = useState(initial.tabSize || '4');
   const [strictWarnings, setStrictWarnings] = useState(initial.strictWarnings !== undefined ? initial.strictWarnings : true);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Catalyst interaction state
+  const [isTestingCatalyst, setIsTestingCatalyst] = useState(false);
+  const [isSyncingCatalyst, setIsSyncingCatalyst] = useState(false);
+  const [catalystMessage, setCatalystMessage] = useState<string | null>(null);
+
+  const handleTestCatalyst = async () => {
+    try {
+      setIsTestingCatalyst(true);
+      setCatalystMessage(null);
+      const res = await api.testCatalystConnection();
+      setCatalystMessage(res.message);
+      await refreshCatalystStatus();
+    } catch (err: any) {
+      setCatalystMessage('Connection error: ' + (err.message || 'Zoho Catalyst server offline'));
+    } finally {
+      setIsTestingCatalyst(false);
+    }
+  };
+
+  const handleSyncCatalyst = async () => {
+    try {
+      setIsSyncingCatalyst(true);
+      setCatalystMessage(null);
+      const res = await syncCatalyst();
+      setCatalystMessage(res.message);
+    } catch (err: any) {
+      setCatalystMessage('Sync notice: ' + (err.message || 'Queued in local hybrid cache'));
+    } finally {
+      setIsSyncingCatalyst(false);
+    }
+  };
 
   const handleSave = () => {
     const settings = {
@@ -206,6 +245,105 @@ export const Settings: FC = () => {
             <p className="text-[11px] text-slate-500 ml-7 mt-0.5">
               Treats all compiler warnings as fatal errors to enforce production quality systems C.
             </p>
+          </div>
+        </div>
+
+        {/* Zoho Catalyst Cloud Database Card */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                <Cloud className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-white flex items-center gap-2">
+                  Zoho Catalyst Cloud Data Store
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Cloud serverless database & tables for users, submissions, and code progress
+                </p>
+              </div>
+            </div>
+            <span
+              className={`text-xs font-mono px-2.5 py-1 rounded-full border ${
+                catalystStatus?.is_configured
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                  : 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+              }`}
+            >
+              {catalystStatus?.is_configured ? '⚡ Catalyst Active' : '⚡ Hybrid Cache Ready'}
+            </span>
+          </div>
+
+          {/* Cloud Info & Tables */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
+              <span className="text-[11px] font-mono text-slate-400 uppercase block">Data Center</span>
+              <span className="text-xs font-semibold text-slate-200 uppercase">
+                Zoho {catalystStatus?.data_center || 'com'}
+              </span>
+            </div>
+            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
+              <span className="text-[11px] font-mono text-slate-400 uppercase block">Cloud Architecture</span>
+              <span className="text-xs font-semibold text-slate-200">
+                Data Store + ZCQL REST
+              </span>
+            </div>
+            <div className="bg-slate-950 p-3 rounded-lg border border-slate-800">
+              <span className="text-[11px] font-mono text-slate-400 uppercase block">Cloud Tables</span>
+              <span className="text-xs font-mono text-emerald-400">
+                Users, Submissions, Progress
+              </span>
+            </div>
+          </div>
+
+          {/* Cloud Connection Test & Sync Result Messages */}
+          {catalystMessage && (
+            <div className="p-3 rounded-lg bg-slate-950 border border-blue-500/30 flex items-start gap-2.5 text-xs text-blue-300">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-blue-400 mt-0.5" />
+              <span>{catalystMessage}</span>
+            </div>
+          )}
+
+          {/* Action Buttons for Catalyst */}
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <button
+              type="button"
+              disabled={isTestingCatalyst}
+              onClick={handleTestCatalyst}
+              className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors disabled:opacity-50"
+            >
+              {isTestingCatalyst ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
+                  <span>Testing Connection...</span>
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Test Cloud Connection</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              disabled={isSyncingCatalyst}
+              onClick={handleSyncCatalyst}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-md shadow-blue-600/20 transition-all disabled:opacity-50"
+            >
+              {isSyncingCatalyst ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Syncing to Cloud...</span>
+                </>
+              ) : (
+                <>
+                  <Cloud className="w-3.5 h-3.5" />
+                  <span>Sync Local Data to Catalyst Cloud</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
 

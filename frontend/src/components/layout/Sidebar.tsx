@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
   Terminal,
   LayoutDashboard,
@@ -13,6 +14,7 @@ import {
   BarChart3,
   Settings,
   X,
+  LogIn,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,6 +24,8 @@ interface SidebarProps {
 
 export const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const { user, isAuthenticated, openAuthModal } = useAuth();
+
 
   const navItems = [
     { label: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -149,15 +153,32 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* User status card at bottom */}
         <div className="p-3 border-t border-slate-800 bg-slate-900/50">
-          <div className="flex items-center space-x-3 p-2 rounded-lg bg-slate-800/60 border border-slate-700/50">
-            <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center text-xs border border-blue-500/40">
-              CF
+          {isAuthenticated && user ? (
+            <div className="flex items-center space-x-3 p-2 rounded-lg bg-slate-800/60 border border-slate-700/50">
+              <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center text-xs border border-blue-500/40">
+                {user.username.slice(0, 2).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-slate-200 truncate">
+                  {user.display_name || user.username}
+                </p>
+                <p className="text-[10px] text-emerald-400 font-mono">
+                  {user.target_company ? `${user.target_company.toUpperCase()} • ` : ''}Streak: {user.streak_days}d 🔥
+                </p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-slate-200 truncate">Embedded Engineer</p>
-              <p className="text-[10px] text-emerald-400 font-mono">Streak: 8 Days 🔥</p>
-            </div>
-          </div>
+          ) : (
+            <button
+              onClick={() => {
+                onClose();
+                openAuthModal('login');
+              }}
+              className="w-full flex items-center justify-center space-x-2 p-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-400 text-xs font-medium transition-colors"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Sign In / Create Account</span>
+            </button>
+          )}
         </div>
       </aside>
     </>

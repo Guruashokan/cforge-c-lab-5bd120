@@ -19,6 +19,7 @@ from app.models.models import (
 )
 from app.seed.companies import COMPANIES_DATA
 from app.seed.topics import TOPICS_DATA
+from app.services.auth import hash_password
 
 logger = logging.getLogger("cforge.seeder")
 logging.basicConfig(level=logging.INFO)
@@ -29,7 +30,7 @@ def utc_now() -> datetime:
 
 
 async def seed_default_user(db: AsyncSession) -> User:
-    """Ensure the default dev user exists."""
+    """Ensure the default dev user exists with credentials."""
     stmt = select(User).where(User.id == 1)
     res = await db.execute(stmt)
     user = res.scalar_one_or_none()
@@ -43,7 +44,11 @@ async def seed_default_user(db: AsyncSession) -> User:
         user = User(
             id=1,
             username="cforge_dev",
+            email="developer@cforge.dev",
+            password_hash=hash_password("cforge123"),
             display_name="CForge Developer",
+            target_company="tcs-nqt",
+            streak_days=8,
             settings={
                 "theme": "dark",
                 "editor_font_size": 14,
@@ -55,6 +60,12 @@ async def seed_default_user(db: AsyncSession) -> User:
         await db.flush()
         print("[Seeder] Created default user 'cforge_dev' (id=1)")
     else:
+        # Ensure default user has valid password hash and email
+        if not user.password_hash:
+            user.password_hash = hash_password("cforge123")
+        if not user.email:
+            user.email = "developer@cforge.dev"
+        await db.flush()
         print("[Seeder] Default user already exists.")
     return user
 

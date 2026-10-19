@@ -170,3 +170,47 @@ export interface ProblemFilterParams {
   page?: number;
   pageSize?: number;
 }
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  display_name: string;
+  target_company?: string;
+  streak_days: number;
+  created_at: string;
+  settings?: {
+    theme?: string;
+    editor_font_size?: number;
+    [key: string]: any;
+  };
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+}
+
+export interface CatalystStatus {
+  is_configured: boolean;
+  project_id: string;
+  data_center: string;
+  tables: {
+    users: string;
+    submissions: string;
+    progress: string;
+  };
+  mode: string;
+  stats?: {
+    users_synced?: number;
+    submissions_synced?: number;
+  };
+}
+
+export interface CatalystSyncResponse {
+  synced: boolean;
+  catalyst_row_id?: string;
+  message: string;
+}
+

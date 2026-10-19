@@ -19,12 +19,34 @@ class UserCreate(BaseModel):
     settings: Optional[Dict[str, Any]] = None
 
 
+class UserRegister(BaseModel):
+    username: str
+    email: str
+    password: str
+    display_name: Optional[str] = None
+    target_company: Optional[str] = "tcs-nqt"
+
+
+class UserLogin(BaseModel):
+    username_or_email: str
+    password: str
+
+
 class UserResponse(ORMModel):
     id: int
     username: str
+    email: str
     display_name: str
+    target_company: Optional[str] = "tcs-nqt"
+    streak_days: int = 1
     created_at: datetime
     settings: Dict[str, Any] = {}
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
 
 
 # ---------------------------------------------------------
