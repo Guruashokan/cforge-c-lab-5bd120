@@ -16,6 +16,7 @@ import type {
   CatalystSyncResponse,
 } from '../types';
 import { ALL_TOPICS, ALL_COMPANIES, ALL_PROBLEMS, PROBLEMS_BY_SLUG } from '../data/allQuestions';
+import { judgeService } from './judgeService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -185,87 +186,28 @@ export const api = {
 
   // Code Execution & Testing
   async runCode(slug: string, code: string): Promise<RunResponse> {
+    const problem = PROBLEMS_BY_SLUG[slug] || (await this.fetchProblem(slug));
     try {
       return await request<RunResponse>(`/problems/${slug}/run`, {
         method: 'POST',
         body: JSON.stringify({ code }),
       });
     } catch {
-      await new Promise((r) => setTimeout(r, 800));
-      const problem = PROBLEMS_BY_SLUG[slug];
-      const rawTests = problem?.test_cases || [];
-      const sampleTests = rawTests.filter((t: any) => !t.is_hidden).slice(0, 3);
-
-      const testResults = (sampleTests.length > 0 ? sampleTests : [
-        {
-          input: problem?.examples[0]?.input || '1\n2\n',
-          expected_output: problem?.examples[0]?.output || '3',
-          description: 'Sample Execution Case',
-        }
-      ]).map((t: any, idx: number) => ({
-        test_case_index: idx + 1,
-        status: 'passed' as const,
-        input: t.input || 'Sample Input',
-        expected_output: t.expected_output || 'Sample Output',
-        actual_output: t.expected_output || 'Sample Output',
-        time_ms: round(1.2 + (idx * 0.8), 2),
-        is_hidden: false,
-        description: t.description || `Test Case ${idx + 1}`,
-      }));
-
-      return {
-        compiler_output: 'gcc -std=c17 -O2 -Wall -Wextra solution.c -o solution\nCompilation successful: 0 errors, 0 warnings.',
-        stderr_output: '',
-        test_results: testResults,
-      };
+      // Real GCC compilation and execution via judgeService
+      return await judgeService.runSampleTests(problem, code);
     }
   },
 
   async submitCode(slug: string, code: string, userId: string = 'user_default'): Promise<SubmissionResponse> {
+    const problem = PROBLEMS_BY_SLUG[slug] || (await this.fetchProblem(slug));
     try {
       return await request<SubmissionResponse>(`/problems/${slug}/submit`, {
         method: 'POST',
         body: JSON.stringify({ code, user_id: userId }),
       });
     } catch {
-      await new Promise((r) => setTimeout(r, 1200));
-      const problem = PROBLEMS_BY_SLUG[slug];
-      const rawTests = problem?.test_cases || [];
-
-      // Mark problem as solved locally
-      const solvedSlugs = getSolvedProblemSlugs();
-      solvedSlugs.add(slug);
-      localStorage.setItem('cforge_solved_slugs', JSON.stringify(Array.from(solvedSlugs)));
-
-      const testsToRun = rawTests.length > 0 ? rawTests : [
-        { input: 'Case 1', expected_output: 'Pass', is_hidden: false, description: 'Basic Test' },
-        { input: 'Case 2', expected_output: 'Pass', is_hidden: true, description: 'Boundary Limits' },
-        { input: 'Case 3', expected_output: 'Pass', is_hidden: true, description: 'Memory Stress' },
-      ];
-
-      const testResults = testsToRun.map((t: any, idx: number) => ({
-        test_case_index: idx + 1,
-        status: 'passed' as const,
-        input: t.input || `Test Input ${idx + 1}`,
-        expected_output: t.expected_output || 'Expected Result',
-        actual_output: t.expected_output || 'Expected Result',
-        time_ms: round(1.5 + (idx * 0.5), 2),
-        is_hidden: Boolean(t.is_hidden),
-        description: t.description || `Evaluation Case #${idx + 1}`,
-      }));
-
-      return {
-        id: Math.floor(Math.random() * 10000) + 1,
-        verdict: 'accepted',
-        passed_tests: testResults.length,
-        total_tests: testResults.length,
-        execution_time_ms: round(12.4 + testResults.length * 1.5, 1),
-        memory_kb: 1024,
-        compiler_output: 'gcc -std=c17 -O2 -Wall -Wextra solution.c -o solution\nBuild completed successfully.',
-        stderr_output: '',
-        submitted_at: new Date().toISOString(),
-        test_results: testResults,
-      };
+      // Comprehensive evaluation against all test cases via judgeService
+      return await judgeService.submitCode(problem, code);
     }
   },
 
@@ -707,8 +649,3 @@ export const api = {
     }
   },
 };
-
-function round(val: number, decimals: number = 1): number {
-  const factor = Math.pow(10, decimals);
-  return Math.round(val * factor) / factor;
-}

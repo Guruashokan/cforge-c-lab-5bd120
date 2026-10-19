@@ -117,13 +117,23 @@ export const ProblemSolve: FC = () => {
     try {
       setIsRunning(true);
       setIsBottomPanelOpen(true);
-      setActiveBottomTab('tests');
       if (window.innerWidth < 1024) {
         setMobileTab('results');
       }
       const res = await api.runCode(slug, code);
       setRunResult(res);
       setSubmissionResult(null);
+
+      const hasCompileError =
+        (res.compiler_output && res.compiler_output.includes('error:')) ||
+        res.test_results.some((t) => t.status === 'error' || (t.status as string) === 'compile_error');
+
+      if (hasCompileError) {
+        setActiveBottomTab('compiler');
+      } else {
+        setActiveBottomTab('tests');
+      }
+
       setHistory((prev) => [
         { type: 'run', result: res, time: new Date().toLocaleTimeString() },
         ...prev,
@@ -146,13 +156,19 @@ export const ProblemSolve: FC = () => {
     try {
       setIsSubmitting(true);
       setIsBottomPanelOpen(true);
-      setActiveBottomTab('tests');
       if (window.innerWidth < 1024) {
         setMobileTab('results');
       }
       const res = await api.submitCode(slug, code);
       setSubmissionResult(res);
       setRunResult(null);
+
+      if (res.verdict === 'compilation_error' || (res.compiler_output && res.compiler_output.includes('error:'))) {
+        setActiveBottomTab('compiler');
+      } else {
+        setActiveBottomTab('tests');
+      }
+
       if (res.verdict === 'accepted' && problem) {
         setProblem((prev) => (prev ? { ...prev, is_solved: true } : null));
       }
@@ -604,13 +620,16 @@ export const ProblemSolve: FC = () => {
                   </button>
                   <button
                     onClick={() => setActiveBottomTab('compiler')}
-                    className={`px-3 py-1 text-xs font-medium rounded-t-md transition-colors ${
+                    className={`px-3 py-1 text-xs font-medium rounded-t-md transition-colors flex items-center gap-1.5 ${
                       activeBottomTab === 'compiler'
                         ? 'bg-slate-950 text-blue-400 border-t-2 border-blue-500'
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    Compiler Output
+                    <span>Compiler Output</span>
+                    {activeCompilerOutput && activeCompilerOutput.includes('error:') && (
+                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                    )}
                   </button>
                   <button
                     onClick={() => setActiveBottomTab('history')}
@@ -662,7 +681,7 @@ export const ProblemSolve: FC = () => {
                       <LoadingSpinner
                         message={
                           isRunning
-                            ? 'Compiling and executing sample test suite...'
+                            ? 'Compiling via GCC 14.1.0 & evaluating test cases...'
                             : 'Evaluating all hidden benchmark test suites...'
                         }
                       />
@@ -676,7 +695,13 @@ export const ProblemSolve: FC = () => {
                         {activeTestResults.map((t) => (
                           <div
                             key={t.test_case_index}
-                            className="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2 text-xs font-mono"
+                            className={`border rounded-xl p-3 space-y-2 text-xs font-mono ${
+                              t.status === 'passed'
+                                ? 'bg-slate-900 border-slate-800'
+                                : t.status === 'error' || (t.status as string) === 'compile_error'
+                                ? 'bg-amber-950/15 border-amber-900/40'
+                                : 'bg-rose-950/15 border-rose-900/40'
+                            }`}
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2">
@@ -684,9 +709,17 @@ export const ProblemSolve: FC = () => {
                                   <span className="flex items-center text-emerald-400 font-semibold gap-1">
                                     <CheckCircle2 className="w-3.5 h-3.5" /> Case {t.test_case_index} Passed
                                   </span>
+                                ) : t.status === 'error' || (t.status as string) === 'compile_error' ? (
+                                  <span className="flex items-center text-amber-400 font-semibold gap-1">
+                                    <AlertTriangle className="w-3.5 h-3.5" /> Case {t.test_case_index} Compilation Error
+                                  </span>
+                                ) : t.status === 'timeout' ? (
+                                  <span className="flex items-center text-amber-500 font-semibold gap-1">
+                                    <AlertTriangle className="w-3.5 h-3.5" /> Case {t.test_case_index} Time Limit Exceeded
+                                  </span>
                                 ) : (
                                   <span className="flex items-center text-rose-400 font-semibold gap-1">
-                                    <XCircle className="w-3.5 h-3.5" /> Case {t.test_case_index} Failed
+                                    <XCircle className="w-3.5 h-3.5" /> Case {t.test_case_index} Wrong Answer
                                   </span>
                                 )}
                                 {t.is_hidden && (
@@ -695,23 +728,41 @@ export const ProblemSolve: FC = () => {
                                   </span>
                                 )}
                               </div>
-                              <span className="text-[11px] text-slate-500">{t.time_ms} ms</span>
+                              <div className="flex items-center gap-2">
+                                {(t.status === 'error' || (t.status as string) === 'compile_error') && (
+                                  <button
+                                    onClick={() => setActiveBottomTab('compiler')}
+                                    className="text-[10px] text-amber-400 hover:underline flex items-center gap-1"
+                                  >
+                                    View Error
+                                  </button>
+                                )}
+                                <span className="text-[11px] text-slate-500">{t.time_ms} ms</span>
+                              </div>
                             </div>
 
                             {!t.is_hidden && (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
                                 <div>
                                   <span className="text-slate-500 text-[10px] block">Input</span>
-                                  <pre className="bg-slate-950 p-2 rounded border border-slate-800 text-slate-300 overflow-x-auto whitespace-pre-wrap">
-                                    {t.input}
+                                  <pre className="bg-slate-950 p-2 rounded border border-slate-800 text-slate-300 overflow-x-auto whitespace-pre-wrap font-mono">
+                                    {t.input || '(Empty stdin)'}
                                   </pre>
                                 </div>
                                 <div>
                                   <span className="text-slate-500 text-[10px] block">Expected</span>
-                                  <pre className="bg-slate-950 p-2 rounded border border-slate-800 text-emerald-300 overflow-x-auto whitespace-pre-wrap">
+                                  <pre className="bg-slate-950 p-2 rounded border border-slate-800 text-emerald-300 overflow-x-auto whitespace-pre-wrap font-mono">
                                     {t.expected_output}
                                   </pre>
                                 </div>
+                                {t.status !== 'passed' && (
+                                  <div className="md:col-span-2">
+                                    <span className="text-rose-400 text-[10px] block font-semibold">Your Output / Diagnostic</span>
+                                    <pre className="bg-rose-950/20 p-2 rounded border border-rose-800/40 text-rose-300 overflow-x-auto whitespace-pre-wrap font-mono">
+                                      {t.actual_output || '(No output generated)'}
+                                    </pre>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
@@ -722,9 +773,18 @@ export const ProblemSolve: FC = () => {
                 )}
 
                 {activeBottomTab === 'compiler' && (
-                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-xs">
-                    <span className="text-blue-400 font-bold block mb-1">Compiler Output:</span>
-                    <pre className="text-slate-300 whitespace-pre-wrap leading-relaxed">
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-blue-400 font-bold flex items-center gap-1.5">
+                        <Terminal className="w-3.5 h-3.5" /> GCC 14.1.0 Diagnostics:
+                      </span>
+                      {activeCompilerOutput && activeCompilerOutput.includes('error:') && (
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-400 border border-rose-500/30 font-semibold">
+                          Compilation Failed
+                        </span>
+                      )}
+                    </div>
+                    <pre className="text-slate-300 whitespace-pre-wrap leading-relaxed bg-[#111113] p-3 rounded-lg border border-slate-800/80 overflow-x-auto text-[11px]">
                       {activeCompilerOutput || 'No diagnostics recorded. Click Run Code to compile.'}
                     </pre>
                   </div>

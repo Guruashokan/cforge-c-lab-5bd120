@@ -1,5 +1,6 @@
 import asyncio
 import time
+import base64
 from datetime import datetime, timezone
 
 def utc_now() -> datetime:
@@ -29,35 +30,26 @@ async def execute_code(
     timeout: int = settings.EXECUTION_TIMEOUT,
 ) -> Dict[str, Any]:
     """
-    Calls Piston API endpoint POST /execute to run C code.
+    Calls Judge0 CE API to compile and execute C code using GCC 14.1.0.
     Returns {stdout, stderr, exit_code, signal, compile_output, time_ms}.
     """
-    url = f"{settings.PISTON_API_URL.rstrip('/')}/execute"
+    url = "https://ce.judge0.com/submissions?base64_encoded=true&wait=true"
     payload = {
-        "language": "c",
-        "version": "10.2.0",
-        "files": [
-            {
-                "name": "solution.c",
-                "content": source_code,
-            }
-        ],
-        "stdin": stdin,
-        "args": [],
-        "run_timeout": timeout * 1000,
-        "compile_timeout": 10000,
+        "source_code": base64.b64encode(source_code.encode("utf-8")).decode("utf-8"),
+        "language_id": 103,  # C (GCC 14.1.0)
+        "stdin": base64.b64encode(stdin.encode("utf-8")).decode("utf-8"),
     }
 
     start_time = time.perf_counter()
     try:
-        async with httpx.AsyncClient(timeout=timeout + 5) as client:
+        async with httpx.AsyncClient(timeout=timeout + 10) as client:
             response = await client.post(url, json=payload)
             elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
             if response.status_code != 200:
                 return {
                     "stdout": "",
-                    "stderr": f"Piston API returned HTTP {response.status_code}: {response.text}",
+                    "stderr": f"Compiler API returned HTTP {response.status_code}: {response.text}",
                     "exit_code": -1,
                     "signal": None,
                     "compile_output": None,
@@ -65,30 +57,42 @@ async def execute_code(
                 }
 
             data = response.json()
-            compile_info = data.get("compile") or {}
-            run_info = data.get("run") or {}
+            compile_out_b64 = data.get("compile_output")
+            compile_output = (
+                base64.b64decode(compile_out_b64).decode("utf-8", errors="replace").strip()
+                if compile_out_b64
+                else None
+            )
 
-            compile_output = None
-            if compile_info:
-                comp_out = compile_info.get("output") or compile_info.get("stderr") or ""
-                if compile_info.get("code", 0) != 0 or comp_out:
-                    compile_output = comp_out.strip()
+            stdout_b64 = data.get("stdout")
+            stdout = (
+                base64.b64decode(stdout_b64).decode("utf-8", errors="replace")
+                if stdout_b64
+                else ""
+            )
 
-            stdout = run_info.get("stdout", "")
-            stderr = run_info.get("stderr", "")
-            exit_code = run_info.get("code") if run_info.get("code") is not None else 0
-            signal = run_info.get("signal")
+            stderr_b64 = data.get("stderr")
+            stderr = (
+                base64.b64decode(stderr_b64).decode("utf-8", errors="replace")
+                if stderr_b64
+                else ""
+            )
 
-            # Check if compilation failed
-            if compile_info.get("code", 0) != 0:
+            status_id = data.get("status", {}).get("id", 0)
+
+            # Check if compilation failed (status id 6 or compile_output present)
+            if status_id == 6 or compile_output:
                 return {
                     "stdout": "",
-                    "stderr": stderr or "Compilation failed",
-                    "exit_code": compile_info.get("code", 1),
+                    "stderr": stderr or compile_output or "Compilation failed",
+                    "exit_code": 1,
                     "signal": None,
                     "compile_output": compile_output,
                     "time_ms": elapsed_ms,
                 }
+
+            exit_code = 0 if status_id == 3 else 1
+            signal = "SIGKILL" if status_id == 5 else None
 
             return {
                 "stdout": stdout,

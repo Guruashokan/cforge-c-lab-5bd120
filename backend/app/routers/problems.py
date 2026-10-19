@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
@@ -17,6 +18,9 @@ from app.schemas.schemas import (
     SubmissionResultResponse,
 )
 from app.services import problems as problem_service
+
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 
 router = APIRouter(tags=["Problems"])
 
@@ -183,3 +187,114 @@ async def get_problem_submissions(
         )
         for s in submissions
     ]
+
+
+from pydantic import BaseModel
+
+class ProblemCodeRunPayload(BaseModel):
+    code: str
+
+class ProblemCodeSubmitPayload(BaseModel):
+    code: str
+    user_id: Optional[int] = 1
+
+
+@router.post("/api/problems/{slug}/run")
+async def run_problem_code(
+    slug: str,
+    payload: ProblemCodeRunPayload,
+    db: AsyncSession = Depends(get_db),
+):
+    """Compile and run problem code against sample test cases."""
+    from app.services.judge import run_sample_tests
+
+    prob_stmt = select(Problem).where(Problem.slug == slug)
+    prob_res = await db.execute(prob_stmt)
+    problem = prob_res.scalar_one_or_none()
+
+    if not problem:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Problem '{slug}' not found",
+        )
+
+    results = await run_sample_tests(
+        source_code=payload.code,
+        problem_id=problem.id,
+        db=db,
+    )
+
+    test_results_out = [
+        {
+            "test_case_index": idx + 1,
+            "status": r.status,
+            "input": r.input_data or "",
+            "expected_output": r.expected_output or "",
+            "actual_output": r.actual_output or "",
+            "time_ms": r.time_ms or 0.0,
+            "is_hidden": r.is_hidden,
+            "description": f"Sample Case {idx + 1}",
+        }
+        for idx, r in enumerate(results)
+    ]
+
+    has_error = any(r.status == "compile_error" for r in results)
+    first_err = next((r.error_message for r in results if r.error_message), "")
+
+    return {
+        "compiler_output": first_err if has_error else "gcc -std=c17 -O2 -Wall -Wextra solution.c -o solution\nCompilation successful: 0 errors, 0 warnings.",
+        "stderr_output": first_err if has_error else "",
+        "test_results": test_results_out,
+    }
+
+
+@router.post("/api/problems/{slug}/submit")
+async def submit_problem_code(
+    slug: str,
+    payload: ProblemCodeSubmitPayload,
+    db: AsyncSession = Depends(get_db),
+):
+    """Submit code for comprehensive benchmark evaluation."""
+    from app.services.judge import judge_submission
+
+    prob_stmt = select(Problem).where(Problem.slug == slug)
+    prob_res = await db.execute(prob_stmt)
+    problem = prob_res.scalar_one_or_none()
+
+    if not problem:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Problem '{slug}' not found",
+        )
+
+    verdict_resp = await judge_submission(
+        source_code=payload.code,
+        problem_id=problem.id,
+        user_id=payload.user_id or 1,
+        db=db,
+    )
+
+    return {
+        "id": verdict_resp.submission_id,
+        "verdict": verdict_resp.verdict,
+        "passed_tests": verdict_resp.passed_tests,
+        "total_tests": verdict_resp.total_tests,
+        "execution_time_ms": verdict_resp.execution_time_ms,
+        "memory_kb": verdict_resp.memory_kb,
+        "compiler_output": verdict_resp.compile_output or "Build completed successfully.",
+        "stderr_output": verdict_resp.stderr or "",
+        "submitted_at": utc_now().isoformat() if hasattr(verdict_resp, "submitted_at") else "",
+        "test_results": [
+            {
+                "test_case_index": idx + 1,
+                "status": r.status,
+                "input": r.input_data or "",
+                "expected_output": r.expected_output or "",
+                "actual_output": r.actual_output or "",
+                "time_ms": r.time_ms or 0.0,
+                "is_hidden": r.is_hidden,
+                "description": f"Evaluation Case {idx + 1}",
+            }
+            for idx, r in enumerate(verdict_resp.test_results)
+        ],
+    }

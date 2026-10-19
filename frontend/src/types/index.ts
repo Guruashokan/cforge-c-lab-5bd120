@@ -22,6 +22,7 @@ export interface Problem {
   related_problems: string[];
   topic: Topic;
   companies: CompanyTag[];
+  test_cases?: Array<{ input: string; expected_output: string; is_hidden?: boolean; description?: string }>;
   is_bookmarked: boolean;
   is_solved: boolean;
 }
