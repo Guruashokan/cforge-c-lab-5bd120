@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, type FC } from 'react';
+import { useEffect, useState, useCallback, useRef, type FC } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { api } from '../services/api';
@@ -30,6 +30,8 @@ import {
   Activity,
   Cpu,
   Building2,
+  Loader2,
+  Code,
 } from 'lucide-react';
 
 export const ProblemSolve: FC = () => {
@@ -41,6 +43,8 @@ export const ProblemSolve: FC = () => {
   // Editor states
   const [fontSize, setFontSize] = useState<number>(14);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [editorMode, setEditorMode] = useState<'monaco' | 'direct'>('monaco');
+  const editorRef = useRef<any>(null);
 
   // Hints and solutions
   const [hintModalOpen, setHintModalOpen] = useState(false);
@@ -78,7 +82,11 @@ export const ProblemSolve: FC = () => {
         const data = await api.fetchProblem(slug);
         setProblem(data);
         const savedCode = localStorage.getItem(`cforge_code_${slug}`);
-        setCode(savedCode || data.starter_code);
+        if (savedCode && savedCode.trim().length > 0) {
+          setCode(savedCode);
+        } else {
+          setCode(data.starter_code);
+        }
       } catch (err) {
         console.error('Failed to load problem:', err);
       } finally {
@@ -88,8 +96,18 @@ export const ProblemSolve: FC = () => {
     loadProblem();
   }, [slug]);
 
+  // Re-layout editor when tab or maximization changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (editorRef.current) {
+        editorRef.current.layout();
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [mobileTab, isEditorMaximized, isBottomPanelOpen, isBottomPanelExpanded]);
+
   const handleCodeChange = (newCode: string | undefined) => {
-    const val = newCode || '';
+    const val = newCode !== undefined ? newCode : '';
     setCode(val);
     if (slug) {
       localStorage.setItem(`cforge_code_${slug}`, val);
@@ -101,6 +119,9 @@ export const ProblemSolve: FC = () => {
       setCode(problem.starter_code);
       if (slug) {
         localStorage.removeItem(`cforge_code_${slug}`);
+      }
+      if (editorRef.current) {
+        editorRef.current.setValue(problem.starter_code);
       }
     }
   };
@@ -128,7 +149,6 @@ export const ProblemSolve: FC = () => {
       setIsRunning(true);
       setIsBottomPanelOpen(true);
       setActiveBottomTab('tests');
-      // On mobile viewports, automatically switch to results tab
       if (window.innerWidth < 1024) {
         setMobileTab('results');
       }
@@ -158,7 +178,6 @@ export const ProblemSolve: FC = () => {
       setIsSubmitting(true);
       setIsBottomPanelOpen(true);
       setActiveBottomTab('tests');
-      // On mobile viewports, automatically switch to results tab
       if (window.innerWidth < 1024) {
         setMobileTab('results');
       }
@@ -371,9 +390,7 @@ export const ProblemSolve: FC = () => {
           className={`border-b lg:border-b-0 lg:border-r border-slate-800 overflow-y-auto bg-slate-950 p-4 sm:p-6 space-y-6 ${
             isEditorMaximized
               ? 'hidden'
-              : mobileTab === 'problem'
-              ? 'w-full h-full block'
-              : 'hidden lg:block lg:w-1/2 h-full'
+              : 'lg:flex lg:flex-col lg:w-1/2 lg:h-full ' + (mobileTab === 'problem' ? 'flex flex-col w-full h-full' : 'hidden')
           }`}
         >
           {/* Title & Metadata */}
@@ -506,11 +523,7 @@ export const ProblemSolve: FC = () => {
           className={`flex flex-col bg-slate-900 overflow-hidden ${
             isEditorMaximized
               ? 'w-full h-full'
-              : mobileTab === 'code'
-              ? 'w-full h-full flex'
-              : mobileTab === 'results'
-              ? 'hidden lg:flex lg:w-1/2 lg:h-full'
-              : 'hidden lg:flex lg:w-1/2 lg:h-full'
+              : 'lg:flex lg:flex-col lg:w-1/2 lg:h-full ' + (mobileTab === 'code' ? 'flex flex-col w-full h-full' : 'hidden')
           }`}
         >
           {/* Editor Header / Controls */}
@@ -523,6 +536,16 @@ export const ProblemSolve: FC = () => {
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* Editor Engine Toggle: Monaco vs Direct */}
+              <button
+                onClick={() => setEditorMode(editorMode === 'monaco' ? 'direct' : 'monaco')}
+                className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-700 transition-colors flex items-center gap-1"
+                title="Switch between Monaco IDE and Direct Text Editor"
+              >
+                <Code className="w-3 h-3" />
+                <span>{editorMode === 'monaco' ? 'IDE' : 'Direct'}</span>
+              </button>
+
               {/* Maximize / Restore Editor Button (Desktop) */}
               <button
                 onClick={() => setIsEditorMaximized(!isEditorMaximized)}
@@ -573,28 +596,56 @@ export const ProblemSolve: FC = () => {
             </div>
           </div>
 
-          {/* Monaco Editor Container - Guaranteed 100% full view and NEVER squeezed to 0 */}
-          <div className="flex-1 min-h-[350px] relative w-full h-full bg-[#1e1e1e]">
-            <Editor
-              height="100%"
-              defaultLanguage="c"
-              language="c"
-              theme="vs-dark"
-              value={code}
-              onChange={handleCodeChange}
-              options={{
-                fontSize: fontSize,
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                tabSize: 4,
-                lineNumbers: 'on',
-                formatOnPaste: true,
-                suggestOnTriggerCharacters: true,
-                renderLineHighlight: 'all',
-                fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace",
-              }}
-            />
+          {/* Code Editor Container - Absolute Reliable Sizing & Fallback Engine */}
+          <div
+            className="flex-1 w-full min-h-[380px] relative bg-[#1e1e1e] flex flex-col overflow-hidden"
+            style={{ minHeight: '380px' }}
+          >
+            {editorMode === 'monaco' ? (
+              <Editor
+                height="100%"
+                width="100%"
+                defaultLanguage="c"
+                language="c"
+                theme="vs-dark"
+                value={code || problem.starter_code}
+                onChange={handleCodeChange}
+                onMount={(editor) => {
+                  editorRef.current = editor;
+                  setTimeout(() => editor.layout(), 100);
+                  setTimeout(() => editor.layout(), 400);
+                }}
+                loading={
+                  <div className="flex flex-col items-center justify-center h-full text-slate-400 text-xs gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-blue-400" />
+                    <span>Loading Monaco C Editor...</span>
+                  </div>
+                }
+                options={{
+                  fontSize: fontSize,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  tabSize: 4,
+                  lineNumbers: 'on',
+                  formatOnPaste: true,
+                  suggestOnTriggerCharacters: true,
+                  renderLineHighlight: 'all',
+                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace",
+                }}
+              />
+            ) : (
+              <div className="flex-1 flex flex-col h-full bg-[#1e1e1e] p-3 text-slate-100 font-mono text-sm overflow-hidden">
+                <textarea
+                  value={code || problem.starter_code}
+                  onChange={(e) => handleCodeChange(e.target.value)}
+                  spellCheck={false}
+                  style={{ fontSize: `${fontSize}px` }}
+                  className="w-full flex-1 bg-transparent text-slate-100 font-mono outline-none resize-none leading-relaxed overflow-y-auto"
+                  placeholder="// Type your C implementation here..."
+                />
+              </div>
+            )}
           </div>
 
           {/* Desktop Bottom Drawer: Test & Compilation Results Panel */}

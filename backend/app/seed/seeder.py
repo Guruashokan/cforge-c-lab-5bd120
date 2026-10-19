@@ -48,7 +48,7 @@ async def seed_default_user(db: AsyncSession) -> User:
             password_hash=hash_password("cforge123"),
             display_name="CForge Developer",
             target_company="tcs-nqt",
-            streak_days=8,
+            streak_days=1,
             settings={
                 "theme": "dark",
                 "editor_font_size": 14,

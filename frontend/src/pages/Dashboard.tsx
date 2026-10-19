@@ -1,6 +1,7 @@
 import { useEffect, useState, type FC } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import type { UserStats, ProblemListItem } from '../types';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 import { VerdictBadge } from '../components/VerdictBadge';
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 
 export const Dashboard: FC = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState<UserStats | null>(null);
   const [dailyChallenge, setDailyChallenge] = useState<{
     date: string;
@@ -58,9 +60,14 @@ export const Dashboard: FC = () => {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5" /> High-Performance C Practice
+              {user?.target_company && (
+                <span className="ml-1 text-slate-300 font-normal">
+                  • Target: <strong className="text-white uppercase">{user.target_company}</strong>
+                </span>
+              )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Welcome back, Engineer
+              Welcome back, {user?.display_name || user?.username || 'Engineer'}
             </h1>
             <p className="text-slate-300 text-sm sm:text-base max-w-xl">
               Sharpen your pointer arithmetic, concurrency primitives, and low-level C mastery.
@@ -108,8 +115,12 @@ export const Dashboard: FC = () => {
           <div>
             <p className="text-xs text-slate-400 font-medium">Daily Streak</p>
             <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold text-white font-mono">{stats.current_streak}</span>
-              <span className="text-xs text-amber-400 font-medium">Days (Max: {stats.max_streak})</span>
+              <span className="text-2xl font-bold text-white font-mono">
+                {user?.streak_days || stats.current_streak}
+              </span>
+              <span className="text-xs text-amber-400 font-medium">
+                Day{(user?.streak_days || stats.current_streak) > 1 ? 's' : ''} (Day 1 Started Today)
+              </span>
             </div>
           </div>
         </div>
